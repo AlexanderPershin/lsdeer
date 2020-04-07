@@ -8,13 +8,16 @@
     "@testing-library/user-event": "^7.2.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-scripts": "3.4.1"
+    "react-scripts": "3.4.1",
+    "styled-components": "^5.1.0"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "electron-dev": "set ELECTRON_DISABLE_SECURITY_WARNINGS=true && set ELECTRON_START_URL=http://localhost:3000/ && electron .",
+    "dev": "concurrently -k \"npm start\" \"wait-on http://localhost:3000 && npm run electron-dev\""
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -30,5 +33,10 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "concurrently": "^5.1.0",
+    "electron": "^8.2.1",
+    "wait-on": "^4.0.1"
   }
 }
