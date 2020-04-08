@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled, { ThemeProvider, createGlobalStyle } from 'styled-components';
+import { nanoid } from 'nanoid';
 import defaultTheme from './themes/default';
 
 import RobotoBlack from './fonts/Roboto-Black.ttf';
@@ -55,27 +56,52 @@ const StyledApp = styled.div`
   font-style: normal;
 `;
 
-const dummyTabs = [
-  {
-    id: '1',
-    name: 'documents',
-  },
-  {
-    id: '2',
-    name: 'music',
-  },
-  {
-    id: '3',
-    name: 'photo',
-  },
-];
-
 function App() {
+  const [tabList, setTabList] = useState([
+    {
+      id: '1',
+      name: 'computer',
+    },
+    {
+      id: '2',
+      name: 'music',
+    },
+    {
+      id: '3',
+      name: 'photo',
+    },
+  ]);
+
+  const [active, setActive] = useState('default');
+
+  useEffect(() => {
+    tabList.length > 0 && setActive(tabList[0].id);
+  }, []);
+
+  const addNewTab = () => {
+    const newTab = {
+      id: nanoid(),
+      name: 'Computer',
+    };
+    setTabList((prev) => [...prev, newTab]);
+    setActive(newTab.id);
+  };
+
+  const closeTab = (id) => {
+    setTabList((prev) => prev.filter((item) => item.id !== id));
+  };
+
   return (
     <ThemeProvider theme={defaultTheme}>
       <GlobalStyle />
       <StyledApp className='app'>
-        <Tabs list={dummyTabs} />
+        <Tabs
+          list={tabList}
+          active={active}
+          setActive={setActive}
+          addNewTab={addNewTab}
+          closeTab={closeTab}
+        />
       </StyledApp>
     </ThemeProvider>
   );

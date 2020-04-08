@@ -6,6 +6,8 @@
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
+    "classnames": "^2.2.6",
+    "nanoid": "^3.0.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1",
@@ -37,6 +39,7 @@
   "devDependencies": {
     "concurrently": "^5.1.0",
     "electron": "^8.2.1",
+    "electron-react-devtools": "^0.5.3",
     "wait-on": "^4.0.1"
   }
 }

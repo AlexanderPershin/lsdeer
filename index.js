@@ -17,6 +17,8 @@ const createWindow = () => {
     process.env.ELECTRON_START_URL || `file://${__dirname}/build/index.html`;
   mainWindow.loadURL(startUrl);
 
+  mainWindow.webContents.openDevTools();
+
   //enable garbage collector
   mainWindow.on('closed', () => {
     mainWindow = null;
