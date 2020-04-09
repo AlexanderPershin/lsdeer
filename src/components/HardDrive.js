@@ -1,21 +1,32 @@
-import React from 'react';
-import { CircularProgressbarWithChildren } from 'react-circular-progressbar';
+import React, { useContext } from 'react';
+import {
+  CircularProgressbarWithChildren,
+  buildStyles,
+} from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
-import styled from 'styled-components';
+import styled, { ThemeContext } from 'styled-components';
+import Drive from '../img/Drive';
 
 const StyledDiskWrapper = styled.div`
   max-width: 10rem;
   max-height: 10rem;
   min-width: 10rem;
   min-height: 10rem;
+  user-select: none;
 `;
 
 const StyledDiskContent = styled.div`
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   margin: 1rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 `;
 
 const HardDrive = ({ filesystem, size, used, avail, use, mounted }) => {
+  const themeContext = useContext(ThemeContext);
   const percentage = parseInt(use.replace(/%/g, ''));
 
   return (
@@ -25,13 +36,18 @@ const HardDrive = ({ filesystem, size, used, avail, use, mounted }) => {
         minValue={0}
         maxValue={100}
         value={percentage}
+        background
+        backgroundPadding={1}
+        styles={buildStyles({
+          backgroundColor: themeContext.bg.accentBg,
+          pathColor: themeContext.bg.elementsBg,
+          trailColor: themeContext.bg.appBg,
+        })}
       >
         <StyledDiskContent>
-          Drive {filesystem} <br />
-          Used {percentage}% <br />
-          Size {size} <br />
-          Free {avail} <br />
-          Path {mounted}
+          <Drive color='#fff' />
+          <span>{filesystem.slice(0, 1)}</span>
+          <span>{percentage}%</span>
         </StyledDiskContent>
       </CircularProgressbarWithChildren>
     </StyledDiskWrapper>

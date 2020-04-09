@@ -15,6 +15,15 @@ const StyledDrivesWrapper = styled.div`
   align-items: center;
 `;
 
+const StyledHeading = styled.h1`
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  margin: 3rem 0;
+  font-size: 3rem;
+  font-weight: 100;
+`;
+
 const NewTabContent = () => {
   const [drives, setDrives] = useState([]);
 
@@ -62,12 +71,13 @@ const NewTabContent = () => {
 
   return (
     <div>
-      New Tab content. Drives{' '}
+      <StyledHeading>Your Hard Drives</StyledHeading>
       <StyledDrivesWrapper>
         {drives.map((item, i) => (
           <HardDrive key={item.filesystem} {...item} />
         ))}
       </StyledDrivesWrapper>
+      <StyledHeading>Favorites</StyledHeading>
     </div>
   );
 };
