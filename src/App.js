@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled, { ThemeProvider, createGlobalStyle } from 'styled-components';
 import { nanoid } from 'nanoid';
+
 import defaultTheme from './themes/default';
 
 import RobotoBlack from './fonts/Roboto-Black.ttf';
@@ -17,6 +18,9 @@ import RobotoThin from './fonts/Roboto-Thin.ttf';
 import RobotoThinItalic from './fonts/Roboto-ThinItalic.ttf';
 
 import Tabs from './components/Tabs';
+
+const { remote, ipcRenderer, shell } = window.require('electron');
+const mainProcess = remote.require('./index.js');
 
 const GlobalStyle = createGlobalStyle`
   *,*::before,*::after {
@@ -78,6 +82,12 @@ function App() {
     tabList.length > 0 && setActive(tabList[0].id);
   }, []);
 
+  useEffect(() => {
+    ipcRenderer.on('resp-shelljs', (event, data) => {
+      console.log(data);
+    });
+  }, []);
+
   const addNewTab = () => {
     const newTab = {
       id: nanoid(),
@@ -91,6 +101,14 @@ function App() {
     setTabList((prev) => prev.filter((item) => item.id !== id));
   };
 
+  const lsDir = (path) => {
+    ipcRenderer.send('ls-directory', path);
+  };
+
+  const getDisks = () => {
+    ipcRenderer.send('get-disks');
+  };
+
   return (
     <ThemeProvider theme={defaultTheme}>
       <GlobalStyle />
@@ -102,6 +120,10 @@ function App() {
           addNewTab={addNewTab}
           closeTab={closeTab}
         />
+        <button onClick={() => lsDir('~')}>ls ~</button>
+        <button onClick={() => lsDir('/h/')}>h</button>
+        <button onClick={() => lsDir('')}>ls current</button>
+        <button onClick={getDisks}>getDisks</button>
       </StyledApp>
     </ThemeProvider>
   );
