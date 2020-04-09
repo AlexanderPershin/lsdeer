@@ -1,4 +1,7 @@
 import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { closeTab } from '../../actions/tabsActions';
+import { setActiveTab } from '../../actions/activeTabActions';
 import styled from 'styled-components';
 
 const StyledTab = styled.div`
@@ -22,24 +25,25 @@ const StyledXBtn = styled.span`
   font-size: 1.2rem;
 `;
 
-const Tab = ({
-  id,
-  name,
-  active,
-  setActiveTab,
-  onClick: propsOnClick,
-  closeTab,
-}) => {
+const Tab = ({ id, name }) => {
+  const tabs = useSelector((state) => state.tabs);
+  const activeTab = useSelector((state) => state.activeTab);
+  const dispatch = useDispatch();
+
+  const closeThisTab = (e) => {
+    e.stopPropagation();
+    dispatch(closeTab(id));
+  };
+
+  const setActive = () => {
+    dispatch(setActiveTab(id));
+  };
+
   return (
-    <StyledTab
-      activeTab={id === active ? true : false}
-      onClick={() => {
-        propsOnClick ? propsOnClick() : setActiveTab(id);
-      }}
-    >
+    <StyledTab activeTab={id === activeTab ? true : false} onClick={setActive}>
       <span>{name}</span>
       {id === 'plus_tab' ? null : (
-        <StyledXBtn onClick={() => closeTab(id)}>&times;</StyledXBtn>
+        <StyledXBtn onClick={closeThisTab}>&times;</StyledXBtn>
       )}
     </StyledTab>
   );

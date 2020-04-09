@@ -1,12 +1,28 @@
 const electron = require('electron');
 const shell = require('shelljs');
 const { exec } = require('child_process');
+const path = require('path');
+const os = require('os');
 
 const { app, BrowserWindow, ipcMain } = electron;
 
 let mainWindow;
 
 const createWindow = () => {
+  // Install Redux/React dev tools
+  // BrowserWindow.addDevToolsExtension(
+  //   path.join(
+  //     os.homedir(),
+  //     '/AppData/Local/Google/Chrome/User Data/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.6.0_0'
+  //   )
+  // );
+  // BrowserWindow.addDevToolsExtension(
+  //   path.join(
+  //     os.homedir(),
+  //     '/AppData/Local/Google/Chrome/User Data/Default/Extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.17.0_0'
+  //   )
+  // );
+
   mainWindow = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
