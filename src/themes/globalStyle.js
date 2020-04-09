@@ -19,9 +19,13 @@ const GlobalStyle = createGlobalStyle`
     margin: 0;
     padding: 0;
   }
+  html {
+    overflow: hidden;
+  }
   body {
     background-color: #fff;
-    font-family: ${({ theme }) => theme.font.appFontFamily}
+    font-family: ${({ theme }) => theme.font.appFontFamily};
+    overflow: hidden;
   }
   @font-face {
     font-family: 'Roboto';

@@ -26,7 +26,6 @@ const StyledXBtn = styled.span`
 `;
 
 const Tab = ({ id, name }) => {
-  const tabs = useSelector((state) => state.tabs);
   const activeTab = useSelector((state) => state.activeTab);
   const dispatch = useDispatch();
 

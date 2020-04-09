@@ -4,18 +4,23 @@ import Tab from './Tab';
 import PlusTab from './PlusTab';
 import styled from 'styled-components';
 
+// TODO: set active tab on delete current tab !
+
 const TabsContainer = styled.div`
   display: flex;
   justify-content: flex-start;
   align-items: stretch;
   overflow-x: auto;
   &::-webkit-scrollbar {
-    width: 0.5rem;
+    height: 0.5rem;
     background-color: ${({ theme }) => theme.bg.activeTabBg};
   }
   &::-webkit-scrollbar-thumb {
     background-color: ${({ theme }) => theme.bg.tabBg};
     border: 2px solid ${({ theme }) => theme.bg.activeTabBg};
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: ${({ theme }) => theme.bg.scrollbarBg};
   }
 `;
 
@@ -31,11 +36,12 @@ const Tabs = () => {
   };
 
   const handleScrollTabs = (e) => {
+    e.stopPropagation();
     tabsRef.current.scrollLeft += e.deltaY;
   };
 
   useEffect(() => {
-    tabsRef.current.scrollLeft = tabsRef.current.scrollWidth;
+    if (plusClicked) tabsRef.current.scrollLeft = tabsRef.current.scrollWidth;
     setPlusClicked(false);
   }, [tabs]);
 

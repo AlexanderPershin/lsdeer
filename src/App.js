@@ -9,6 +9,7 @@ import GlobalStyle from './themes/globalStyle';
 import defaultTheme from './themes/default';
 
 import Tabs from './components/Tabs/Tabs';
+import TabContentContainer from './components/Tabs/TabContentContainer';
 
 const { remote, ipcRenderer, shell } = window.require('electron');
 const mainProcess = remote.require('./index.js');
@@ -16,10 +17,14 @@ const mainProcess = remote.require('./index.js');
 const StyledApp = styled.div`
   background-color: ${({ theme }) => theme.bg.appBg};
   color: ${({ theme }) => theme.colors.appColor};
-  min-height: 100vh;
+  height: 100vh;
+  width: 100vw;
   font-weight: normal;
   font-style: normal;
   overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: min-content 1fr;
 `;
 
 function App() {
@@ -28,13 +33,7 @@ function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    tabs.length > 0 && setActiveTab(tabs[0].id);
-  }, []);
-
-  useEffect(() => {
-    ipcRenderer.on('resp-shelljs', (event, data) => {
-      console.log(data);
-    });
+    tabs.length > 0 && dispatch(setActiveTab(tabs[0].id));
   }, []);
 
   const addNewTab = () => {
@@ -58,15 +57,21 @@ function App() {
     ipcRenderer.send('get-disks');
   };
 
+  const renderTestBtns = () => (
+    <React.Fragment>
+      <button onClick={() => lsDir('~')}>ls ~</button>
+      <button onClick={() => lsDir('/h/')}>h</button>
+      <button onClick={() => lsDir('')}>ls current</button>
+      <button onClick={getDisks}>getDisks</button>
+    </React.Fragment>
+  );
+
   return (
     <ThemeProvider theme={defaultTheme}>
       <GlobalStyle />
       <StyledApp className='app'>
         <Tabs list={tabs} addNewTab={addNewTab} closeTab={closeTab} />
-        <button onClick={() => lsDir('~')}>ls ~</button>
-        <button onClick={() => lsDir('/h/')}>h</button>
-        <button onClick={() => lsDir('')}>ls current</button>
-        <button onClick={getDisks}>getDisks</button>
+        <TabContentContainer />
       </StyledApp>
     </ThemeProvider>
   );

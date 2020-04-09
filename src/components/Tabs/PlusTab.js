@@ -13,17 +13,13 @@ const StyledTab = styled.div`
   padding: 0.5rem 1rem;
   background-color: ${({ theme, activeTab }) =>
     activeTab ? theme.bg.activeTabBg : theme.bg.tabBg};
+  user-select: none;
   &:not(:last-child) {
     border-right: 2px solid ${({ theme }) => theme.bg.appBg};
   }
   &:hover {
     cursor: pointer;
   }
-`;
-
-const StyledXBtn = styled.span`
-  margin-left: 1rem;
-  font-size: 1.2rem;
 `;
 
 const PlusTab = ({ setPlusClicked }) => {
@@ -33,6 +29,8 @@ const PlusTab = ({ setPlusClicked }) => {
     const newTab = {
       id: nanoid(),
       name: 'New',
+      content: [],
+      createNew: true,
     };
     setPlusClicked(true);
     dispatch(addTab(newTab));

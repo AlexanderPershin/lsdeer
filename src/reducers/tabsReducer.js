@@ -4,14 +4,17 @@ const initialState = [
   {
     id: '1',
     name: 'computer',
+    content: ['folder1', 'index.html', 'diary.docx'],
   },
   {
     id: '2',
     name: 'music',
+    content: ['folder2', 'index.js', 'story.docx'],
   },
   {
     id: '3',
     name: 'photo',
+    content: ['folder3', 'index.py', 'cheatsheet.docx'],
   },
 ];
 

@@ -71,8 +71,6 @@ ipcMain.on('get-disks', (event) => {
     if (err) {
       console.error(err);
     } else {
-      console.log(`stdout: ${stdout}`);
-      console.log(`stderr: ${stderr}`);
       mainWindow.webContents.send('resp-shelljs', {
         response: stdout.split('\n'),
       });
