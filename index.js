@@ -59,7 +59,7 @@ ipcMain.on('ls-directory', (event, path) => {
     } else {
       console.log(`stdout: ${stdout}`);
       console.log(`stderr: ${stderr}`);
-      mainWindow.webContents.send('resp-shelljs', { response: stdout });
+      mainWindow.webContents.send('resp-dir', { response: stdout });
     }
   });
 });

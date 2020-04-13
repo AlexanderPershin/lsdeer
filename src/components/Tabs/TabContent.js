@@ -1,5 +1,6 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { openDir } from '../../actions/tabsActions';
 import styled from 'styled-components';
 
 import NewTabContent from './NewTabContent';

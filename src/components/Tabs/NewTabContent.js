@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { openDir } from '../../actions/tabsActions';
 import HardDrive from '../HardDrive';
 import styled from 'styled-components';
 
@@ -25,7 +27,12 @@ const StyledHeading = styled.h1`
 `;
 
 const NewTabContent = () => {
+  const activeTab = useSelector((state) => state.activeTab);
+  const tabs = useSelector((state) => state.tabs);
+  const dispatch = useDispatch();
+
   const [drives, setDrives] = useState([]);
+  const [tabPath, setTabPath] = useState('');
 
   const lsDir = (path) => {
     ipcRenderer.send('ls-directory', path);
@@ -61,20 +68,48 @@ const NewTabContent = () => {
     return parsedDrives;
   };
 
+  const handleOpenDirectory = (newPath) => {
+    console.log(newPath);
+    lsDir(newPath);
+    setTabPath(newPath);
+  };
+
   useEffect(() => {
     getDisks();
 
     ipcRenderer.on('resp-shelljs', (event, data) => {
       setDrives(parseDrivesData(data.response));
     });
-  }, []);
+
+    ipcRenderer.on('resp-dir', (event, data) => {
+      const newContent = data.response.split('\n');
+
+      dispatch(openDir(activeTab, tabPath, newContent));
+    });
+
+    return () => {
+      ipcRenderer.removeListener('resp-shelljs', (event, data) => {
+        setDrives(parseDrivesData(data.response));
+      });
+
+      ipcRenderer.removeListener('resp-dir', (event, data) => {
+        const newContent = data.response.split('\n');
+
+        dispatch(openDir(activeTab, tabPath, newContent));
+      });
+    };
+  }, [tabPath]);
 
   return (
     <div>
       <StyledHeading>Your Hard Drives</StyledHeading>
       <StyledDrivesWrapper>
         {drives.map((item, i) => (
-          <HardDrive key={item.filesystem} {...item} />
+          <HardDrive
+            key={item.filesystem}
+            {...item}
+            handleOpenDirectory={handleOpenDirectory}
+          />
         ))}
       </StyledDrivesWrapper>
       <StyledHeading>Favorites</StyledHeading>

@@ -1,24 +1,33 @@
-import { SET_TABS, CLOSE_ALL_TABS, ADD_TAB, CLOSE_TAB } from '../actions/types';
+import {
+  SET_TABS,
+  CLOSE_ALL_TABS,
+  ADD_TAB,
+  CLOSE_TAB,
+  OPEN_DIR,
+} from '../actions/types';
 
 const initialState = [
   {
     id: '1',
-    name: 'computer',
-    content: ['folder1', 'index.html', 'diary.docx'],
+    name: 'books',
+    path: '/books',
+    content: ['Read', 'Now', 'diary.docx'],
   },
   {
     id: '2',
     name: 'music',
-    content: ['folder2', 'index.js', 'story.docx'],
+    path: '/music',
+    content: ['favorite', 'symphony_of_destruction.mp3', 'paint_it_black.mp3'],
   },
   {
     id: '3',
     name: 'photo',
-    content: ['folder3', 'index.py', 'cheatsheet.docx'],
+    path: '/photo',
+    content: ['family_photoes', 'birthday.jpg', 'dog.jpg'],
   },
 ];
 
-const tabsReducer = function (state = initialState, action) {
+const tabsReducer = function (state = [], action) {
   switch (action.type) {
     case SET_TABS:
       return action.payload;
@@ -28,6 +37,18 @@ const tabsReducer = function (state = initialState, action) {
       return state.filter((item) => item.id !== action.payload);
     case CLOSE_ALL_TABS:
       return [];
+    case OPEN_DIR: {
+      const { id, newPath, newContent } = action.payload;
+      return state.map((tab) => {
+        if (tab.id === id) {
+          tab.name = newPath;
+          tab.path = newPath;
+          tab.content = newContent;
+          delete tab.createNew;
+        }
+        return tab;
+      });
+    }
     default:
       return state;
   }

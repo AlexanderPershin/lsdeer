@@ -25,12 +25,20 @@ const StyledDiskContent = styled.div`
   align-items: center;
 `;
 
-const HardDrive = ({ filesystem, size, used, avail, use, mounted }) => {
+const HardDrive = ({
+  filesystem,
+  size,
+  used,
+  avail,
+  use,
+  mounted,
+  handleOpenDirectory,
+}) => {
   const themeContext = useContext(ThemeContext);
   const percentage = parseInt(use.replace(/%/g, ''));
 
   return (
-    <StyledDiskWrapper>
+    <StyledDiskWrapper onDoubleClick={() => handleOpenDirectory(mounted)}>
       <CircularProgressbarWithChildren
         ressbar
         minValue={0}
