@@ -4,10 +4,15 @@ import {
   ADD_TAB,
   CLOSE_TAB,
   OPEN_DIR,
+  TEST_ACTION,
 } from './types';
 
 const { remote, ipcRenderer, shell } = window.require('electron');
 const mainProcess = remote.require('./index.js');
+
+export const lsDir = (path) => {
+  ipcRenderer.send('ls-directory', path);
+};
 
 export const setTabs = (tabs) => {
   return {
@@ -36,15 +41,28 @@ export const closeAllTabs = () => {
   };
 };
 
-export const openDir = (id, newPath, newContent) => {
-  console.log('openDir -> newContent', newContent);
+export const openDir = (id, newPath) => (dispatch) => {
+  ipcRenderer.on('resp-dir', (event, data) => {
+    dispatch({
+      type: OPEN_DIR,
+      payload: {
+        id,
+        newPath,
+        newContent: data.response.split('\n'),
+      },
+    });
+  });
 
-  return {
-    type: OPEN_DIR,
-    payload: {
-      id,
-      newPath,
-      newContent,
-    },
-  };
+  ipcRenderer.send('ls-directory', newPath);
+};
+
+export const testAction = () => (dispatch) => {
+  ipcRenderer.on('test-response', (event, data) => {
+    dispatch({
+      type: TEST_ACTION,
+      payload: 'test',
+    });
+  });
+
+  ipcRenderer.send('test');
 };

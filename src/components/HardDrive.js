@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   CircularProgressbarWithChildren,
   buildStyles,
@@ -38,7 +39,9 @@ const HardDrive = ({
   const percentage = parseInt(use.replace(/%/g, ''));
 
   return (
-    <StyledDiskWrapper onDoubleClick={() => handleOpenDirectory(mounted)}>
+    <StyledDiskWrapper
+      onDoubleClick={() => handleOpenDirectory(mounted, filesystem)}
+    >
       <CircularProgressbarWithChildren
         ressbar
         minValue={0}

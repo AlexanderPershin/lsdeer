@@ -1,8 +1,9 @@
 const electron = require('electron');
-const shell = require('shelljs');
 const { exec } = require('child_process');
 const path = require('path');
 const os = require('os');
+const fs = require('fs');
+const shell = require('electron').shell;
 
 const { app, BrowserWindow, ipcMain } = electron;
 
@@ -37,11 +38,6 @@ const createWindow = () => {
 
   mainWindow.webContents.openDevTools();
 
-  if (!shell.which('git')) {
-    shell.echo('Sorry, this script requires git');
-    shell.exit(1);
-  }
-
   //enable garbage collector
   mainWindow.on('closed', () => {
     mainWindow = null;
@@ -50,18 +46,34 @@ const createWindow = () => {
 
 app.on('ready', createWindow);
 
-ipcMain.on('ls-directory', (event, path) => {
-  const command = `ls ${path}`;
+ipcMain.on('ls-directory', (event, dirPath) => {
+  const command = `ls "${dirPath}"`;
 
-  exec(command, (err, stdout, stderr) => {
-    if (err) {
-      console.error(err);
+  try {
+    const fileExtension = path.extname(dirPath);
+    if (os.platform() === 'win32' && fileExtension) {
+      const pathArr = dirPath.split('/').filter((item) => item !== '');
+      const drive = pathArr[0].toUpperCase() + ':';
+      pathArr.shift();
+      const newPath = path.join(...[drive, ...pathArr]);
+
+      shell.openItem(newPath);
+    } else if (fileExtension) {
+      shell.openItem(dirPath);
     } else {
-      console.log(`stdout: ${stdout}`);
-      console.log(`stderr: ${stderr}`);
-      mainWindow.webContents.send('resp-dir', { response: stdout });
+      exec(command, (err, stdout, stderr) => {
+        if (err) {
+          console.error(err);
+        } else {
+          // console.log(`stdout: ${stdout}`);
+          // console.log(`stderr: ${stderr}`);
+          mainWindow.webContents.send('resp-dir', { response: stdout });
+        }
+      });
     }
-  });
+  } catch (err) {
+    console.log(err);
+  }
 });
 
 ipcMain.on('get-disks', (event) => {
@@ -76,4 +88,8 @@ ipcMain.on('get-disks', (event) => {
       });
     }
   });
+});
+
+ipcMain.on('test', (event) => {
+  mainWindow.webContents.send('test-response', { msg: 'test complete' });
 });

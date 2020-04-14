@@ -4,6 +4,7 @@ import {
   ADD_TAB,
   CLOSE_TAB,
   OPEN_DIR,
+  TEST_ACTION,
 } from '../actions/types';
 
 const initialState = [
@@ -41,7 +42,7 @@ const tabsReducer = function (state = [], action) {
       const { id, newPath, newContent } = action.payload;
       return state.map((tab) => {
         if (tab.id === id) {
-          tab.name = newPath;
+          tab.name = newPath.split('/').pop();
           tab.path = newPath;
           tab.content = newContent;
           delete tab.createNew;
@@ -49,6 +50,8 @@ const tabsReducer = function (state = [], action) {
         return tab;
       });
     }
+    case TEST_ACTION:
+      return state;
     default:
       return state;
   }

@@ -1,8 +1,8 @@
 import { SET_ACTIVE } from './types';
 
-export const setActiveTab = (id) => {
+export const setActiveTab = (tab) => {
   return {
     type: SET_ACTIVE,
-    payload: id,
+    payload: tab,
   };
 };

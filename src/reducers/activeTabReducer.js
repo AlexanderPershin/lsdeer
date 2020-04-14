@@ -1,6 +1,6 @@
 import { SET_ACTIVE } from '../actions/types';
 
-const initialState = null;
+const initialState = '';
 
 const activeTabsReducer = function (state = initialState, action) {
   switch (action.type) {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { openDir } from '../../actions/tabsActions';
+import { openDir, testAction } from '../../actions/tabsActions';
 import HardDrive from '../HardDrive';
 import styled from 'styled-components';
 
@@ -33,6 +33,7 @@ const NewTabContent = () => {
 
   const [drives, setDrives] = useState([]);
   const [tabPath, setTabPath] = useState('');
+  const [tabName, setTabName] = useState('');
 
   const lsDir = (path) => {
     ipcRenderer.send('ls-directory', path);
@@ -46,6 +47,12 @@ const NewTabContent = () => {
     const createDrive = (headers, dataArr) => {
       const drive = {};
       headers.map((item, i) => (drive[item] = dataArr[i]));
+
+      if (drive.mounted === '/') {
+        let driveLetter = drive.filesystem.toLowerCase().split('')[0];
+        drive.mounted = `/${driveLetter}`;
+      }
+
       return drive;
     };
 
@@ -68,10 +75,10 @@ const NewTabContent = () => {
     return parsedDrives;
   };
 
-  const handleOpenDirectory = (newPath) => {
-    console.log(newPath);
-    lsDir(newPath);
+  const handleOpenDirectory = (newPath, name) => {
     setTabPath(newPath);
+    setTabName(name);
+    dispatch(openDir(activeTab, newPath));
   };
 
   useEffect(() => {
@@ -81,24 +88,24 @@ const NewTabContent = () => {
       setDrives(parseDrivesData(data.response));
     });
 
-    ipcRenderer.on('resp-dir', (event, data) => {
-      const newContent = data.response.split('\n');
+    // ipcRenderer.on('resp-dir', (event, data) => {
+    //   const newContent = data.response.split('\n');
 
-      dispatch(openDir(activeTab, tabPath, newContent));
-    });
+    //   dispatch(openDir(activeTab.id, tabPath, newContent, tabName));
+    // });
 
     return () => {
       ipcRenderer.removeListener('resp-shelljs', (event, data) => {
         setDrives(parseDrivesData(data.response));
       });
 
-      ipcRenderer.removeListener('resp-dir', (event, data) => {
-        const newContent = data.response.split('\n');
+      // ipcRenderer.removeListener('resp-dir', (event, data) => {
+      //   const newContent = data.response.split('\n');
 
-        dispatch(openDir(activeTab, tabPath, newContent));
-      });
+      //   dispatch(openDir(activeTab.id, tabPath, newContent));
+      // });
     };
-  }, [tabPath]);
+  }, [activeTab, dispatch, tabName, tabPath]);
 
   return (
     <div>
@@ -113,6 +120,7 @@ const NewTabContent = () => {
         ))}
       </StyledDrivesWrapper>
       <StyledHeading>Favorites</StyledHeading>
+      <button onClick={() => dispatch(testAction())}>Test</button>
     </div>
   );
 };

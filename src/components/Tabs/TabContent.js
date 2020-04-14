@@ -4,6 +4,7 @@ import { openDir } from '../../actions/tabsActions';
 import styled from 'styled-components';
 
 import NewTabContent from './NewTabContent';
+import TabItem from './TabItem';
 
 const StyledTabContent = styled.div`
   background-color: ${({ theme }) => theme.bg.tabBg};
@@ -36,7 +37,9 @@ const TabContent = ({ id, name, content, createNew = false }) => {
   const dispatch = useDispatch();
 
   const renderContent = () => {
-    return content.map((item, i) => <div key={`${item} ${i}`}>{item}</div>);
+    return content.map((item, i) => (
+      <TabItem key={`${item} ${i}`} name={item} />
+    ));
   };
 
   return (
