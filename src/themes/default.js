@@ -9,6 +9,7 @@ const defaultTheme = {
     scrollbarBg: '#808080',
     accentBg: '#3e98c7',
     elementsBg: '#ffffff',
+    folderBg: '#787586',
   },
   font: {
     appFontFamily: 'Roboto, sans-serif',

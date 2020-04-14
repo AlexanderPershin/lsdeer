@@ -2,12 +2,17 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { openDir } from '../../actions/tabsActions';
+import { hexToRgba } from 'hex-and-rgba';
 
 const { remote, ipcRenderer, shell } = window.require('electron');
 const mainProcess = remote.require('./index.js');
 
-// TODO: Refactor code make it more clear
-//
+const StyledItem = styled.div`
+  background-color: ${({ theme }) =>
+    hexToRgba(theme.bg.folderBg + 'cc').toString()};
+  user-select: none;
+  cursor: pointer;
+`;
 
 const TabItem = ({ name }) => {
   const activeTab = useSelector((state) => state.activeTab);
@@ -23,23 +28,7 @@ const TabItem = ({ name }) => {
     dispatch(openDir(activeTab, newPath));
   };
 
-  // useEffect(() => {
-  //   ipcRenderer.on('resp-dir', (event, data) => {
-  //     const newContent = data.response.split('\n');
-
-  //     dispatch(openDir(activeTab, newPath + '/' + name, newContent, name));
-  //   });
-
-  //   return () => {
-  //     ipcRenderer.removeListener('resp-dir', (event, data) => {
-  //       const newContent = data.response.split('\n');
-
-  //       dispatch(openDir(activeTab, newPath, newContent, name));
-  //     });
-  //   };
-  // }, []);
-
-  return <div onDoubleClick={handleOpenDirectory}>{name}</div>;
+  return <StyledItem onDoubleClick={handleOpenDirectory}>{name}</StyledItem>;
 };
 
 export default TabItem;

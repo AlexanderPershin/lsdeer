@@ -42,7 +42,7 @@ export const closeAllTabs = () => {
 };
 
 export const openDir = (id, newPath) => (dispatch) => {
-  ipcRenderer.on('resp-dir', (event, data) => {
+  ipcRenderer.once('resp-dir', (event, data) => {
     dispatch({
       type: OPEN_DIR,
       payload: {

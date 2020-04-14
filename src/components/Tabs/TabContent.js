@@ -5,6 +5,7 @@ import styled from 'styled-components';
 
 import NewTabContent from './NewTabContent';
 import TabItem from './TabItem';
+import deerBg from '../../img/deer.svg';
 
 const StyledTabContent = styled.div`
   background-color: ${({ theme }) => theme.bg.tabBg};
@@ -17,6 +18,10 @@ const StyledTabContent = styled.div`
   display: grid;
   overflow-y: auto;
   background-color: ${({ theme }) => theme.bg.appBg};
+  background: url(${deerBg});
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center center;
   &::-webkit-scrollbar {
     width: 1rem;
     background-color: ${({ theme }) => theme.bg.activeTabBg};

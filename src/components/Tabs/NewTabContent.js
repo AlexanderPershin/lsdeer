@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { openDir, testAction } from '../../actions/tabsActions';
+import { openDir } from '../../actions/tabsActions';
 import HardDrive from '../HardDrive';
 import styled from 'styled-components';
+import { hexToRgba } from 'hex-and-rgba';
 
 const { remote, ipcRenderer, shell } = window.require('electron');
 const mainProcess = remote.require('./index.js');
+
+const StyledContent = styled.div`
+  background-color: ${({ theme }) =>
+    hexToRgba(theme.bg.appBg + 'cc').toString()};
+`;
 
 const StyledDrivesWrapper = styled.div`
   display: grid;
@@ -34,10 +40,6 @@ const NewTabContent = () => {
   const [drives, setDrives] = useState([]);
   const [tabPath, setTabPath] = useState('');
   const [tabName, setTabName] = useState('');
-
-  const lsDir = (path) => {
-    ipcRenderer.send('ls-directory', path);
-  };
 
   const getDisks = () => {
     ipcRenderer.send('get-disks');
@@ -88,27 +90,15 @@ const NewTabContent = () => {
       setDrives(parseDrivesData(data.response));
     });
 
-    // ipcRenderer.on('resp-dir', (event, data) => {
-    //   const newContent = data.response.split('\n');
-
-    //   dispatch(openDir(activeTab.id, tabPath, newContent, tabName));
-    // });
-
     return () => {
       ipcRenderer.removeListener('resp-shelljs', (event, data) => {
         setDrives(parseDrivesData(data.response));
       });
-
-      // ipcRenderer.removeListener('resp-dir', (event, data) => {
-      //   const newContent = data.response.split('\n');
-
-      //   dispatch(openDir(activeTab.id, tabPath, newContent));
-      // });
     };
   }, [activeTab, dispatch, tabName, tabPath]);
 
   return (
-    <div>
+    <StyledContent>
       <StyledHeading>Your Hard Drives</StyledHeading>
       <StyledDrivesWrapper>
         {drives.map((item, i) => (
@@ -120,8 +110,7 @@ const NewTabContent = () => {
         ))}
       </StyledDrivesWrapper>
       <StyledHeading>Favorites</StyledHeading>
-      <button onClick={() => dispatch(testAction())}>Test</button>
-    </div>
+    </StyledContent>
   );
 };
 
