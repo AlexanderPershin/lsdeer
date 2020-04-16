@@ -38,12 +38,6 @@ const NewTabContent = () => {
   const dispatch = useDispatch();
 
   const [drives, setDrives] = useState([]);
-  const [tabPath, setTabPath] = useState('');
-  const [tabName, setTabName] = useState('');
-
-  const getDisks = () => {
-    ipcRenderer.send('get-disks');
-  };
 
   const parseDrivesData = (respDrivesArr) => {
     const createDrive = (headers, dataArr) => {
@@ -78,24 +72,22 @@ const NewTabContent = () => {
   };
 
   const handleOpenDirectory = (newPath, name) => {
-    setTabPath(newPath);
-    setTabName(name);
     dispatch(openDir(activeTab, newPath));
   };
 
   useEffect(() => {
-    getDisks();
+    ipcRenderer.send('get-disks');
 
     ipcRenderer.on('resp-shelljs', (event, data) => {
       setDrives(parseDrivesData(data.response));
     });
 
     return () => {
-      ipcRenderer.removeListener('resp-shelljs', (event, data) => {
+      ipcRenderer.removeAllListeners('resp-shelljs', (event, data) => {
         setDrives(parseDrivesData(data.response));
       });
     };
-  }, [activeTab, dispatch, tabName, tabPath]);
+  }, []);
 
   return (
     <StyledContent>

@@ -43,7 +43,7 @@ const TabContent = ({ id, name, content, createNew = false }) => {
 
   const renderContent = () => {
     return content.map((item, i) => (
-      <TabItem key={`${item} ${i}`} name={item} />
+      <TabItem key={`${item.name} ${i}`} name={item.name} />
     ));
   };
 

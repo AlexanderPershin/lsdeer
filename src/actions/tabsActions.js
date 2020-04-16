@@ -48,7 +48,7 @@ export const openDir = (id, newPath) => (dispatch) => {
       payload: {
         id,
         newPath,
-        newContent: data.response.split('\n'),
+        newContent: data.response,
       },
     });
   });

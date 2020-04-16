@@ -48,27 +48,87 @@ app.on('ready', createWindow);
 
 ipcMain.on('ls-directory', (event, dirPath) => {
   const command = `ls "${dirPath}"`;
-  try {
-    const fileExtension = path.extname(dirPath);
-    const pathArr = dirPath.split('/').filter((item) => item !== '');
+
+  const transfPath = (dPath) => {
+    const pathArr = dPath.split('/').filter((item) => item !== '');
     const drive = pathArr[0].toUpperCase() + ':';
     pathArr.shift();
-    const newPath = path.join(...[drive, ...pathArr]);
-    const thisIsFile = fs.lstatSync(newPath).isFile();
+    return path.normalize(path.join(drive, ...pathArr));
+  };
 
-    if (os.platform() === 'win32' && thisIsFile) {
-      shell.openItem(newPath);
-    } else if (fileExtension) {
-      shell.openItem(dirPath);
+  try {
+    const fileExtension = path.extname(dirPath);
+
+    if (os.platform() === 'win32') {
+      const newPath = transfPath(dirPath);
+
+      const thisIsFile = fs.lstatSync(newPath).isFile();
+      const thisIsDir = fs.lstatSync(newPath).isDirectory();
+
+      if (thisIsFile) {
+        shell.openItem(newPath);
+        return;
+      }
     } else {
-      exec(command, (err, stdout, stderr) => {
-        if (err) {
-          console.error(err);
-        } else {
-          mainWindow.webContents.send('resp-dir', { response: stdout });
-        }
-      });
+      const thisIsFile = fs.lstatSync(dirPath).isFile();
+      if (thisIsFile) {
+        shell.openItem(dirPath);
+        return;
+      }
     }
+
+    exec(command, (err, stdout, stderr) => {
+      if (err) {
+        console.error(err);
+      } else {
+        let outputArray = [];
+        const namesArray = stdout.toString().split('\n');
+        if (os.platform() === 'win32') {
+          const newPath = transfPath(dirPath);
+          outputArray = namesArray.map((name) => {
+            let isFile;
+            try {
+              isFile = fs
+                .lstatSync(path.normalize(path.join(newPath, name)))
+                .isFile();
+            } catch {
+              console.log('Error determining file ext ', name);
+            }
+
+            return {
+              name,
+              path: path.normalize(path.join(newPath, name)),
+              isFile,
+              ext:
+                isFile &&
+                path.extname(path.normalize(path.join(newPath, name))),
+            };
+          });
+        } else {
+          outputArray = namesArray.map((name) => {
+            let isFile;
+            try {
+              isFile = fs
+                .lstatSync(path.normalize(path.join(dirPath, name)))
+                .isFile();
+            } catch {
+              console.log('Error determining file ext ', name);
+            }
+
+            return {
+              name,
+              path: path.normalize(path.join(dirPath, name)),
+              isFile,
+              ext:
+                isFile &&
+                path.extname(path.normalize(path.join(dirPath, name))),
+            };
+          });
+        }
+
+        mainWindow.webContents.send('resp-dir', { response: outputArray });
+      }
+    });
   } catch (err) {
     console.log(err);
   }
