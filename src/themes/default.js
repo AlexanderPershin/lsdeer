@@ -1,6 +1,7 @@
 const defaultTheme = {
   colors: {
     appColor: '#FFFFFF',
+    iconColor: '#eae4e4',
   },
   bg: {
     appBg: '#404040',
@@ -13,6 +14,9 @@ const defaultTheme = {
   },
   font: {
     appFontFamily: 'Roboto, sans-serif',
+  },
+  opac: {
+    tabOpac: 'cc',
   },
 };
 

@@ -7,27 +7,6 @@ import {
   TEST_ACTION,
 } from '../actions/types';
 
-const initialState = [
-  {
-    id: '1',
-    name: 'books',
-    path: '/books',
-    content: ['Read', 'Now', 'diary.docx'],
-  },
-  {
-    id: '2',
-    name: 'music',
-    path: '/music',
-    content: ['favorite', 'symphony_of_destruction.mp3', 'paint_it_black.mp3'],
-  },
-  {
-    id: '3',
-    name: 'photo',
-    path: '/photo',
-    content: ['family_photoes', 'birthday.jpg', 'dog.jpg'],
-  },
-];
-
 const tabsReducer = function (state = [], action) {
   switch (action.type) {
     case SET_TABS:

@@ -57,13 +57,10 @@ ipcMain.on('ls-directory', (event, dirPath) => {
   };
 
   try {
-    const fileExtension = path.extname(dirPath);
-
     if (os.platform() === 'win32') {
       const newPath = transfPath(dirPath);
 
       const thisIsFile = fs.lstatSync(newPath).isFile();
-      const thisIsDir = fs.lstatSync(newPath).isDirectory();
 
       if (thisIsFile) {
         shell.openItem(newPath);
@@ -91,8 +88,11 @@ ipcMain.on('ls-directory', (event, dirPath) => {
               isFile = fs
                 .lstatSync(path.normalize(path.join(newPath, name)))
                 .isFile();
-            } catch {
+            } catch (err) {
               console.log('Error determining file ext ', name);
+              const fileExt = path.extname(newPath);
+
+              if (!fileExt) isFile = false;
             }
 
             return {
@@ -113,6 +113,10 @@ ipcMain.on('ls-directory', (event, dirPath) => {
                 .isFile();
             } catch {
               console.log('Error determining file ext ', name);
+
+              const fileExt = path.extname(dirPath);
+
+              if (!fileExt) isFile = false;
             }
 
             return {
@@ -126,7 +130,9 @@ ipcMain.on('ls-directory', (event, dirPath) => {
           });
         }
 
-        mainWindow.webContents.send('resp-dir', { response: outputArray });
+        const clearArray = outputArray.filter((item) => item.name !== '');
+
+        mainWindow.webContents.send('resp-dir', { response: clearArray });
       }
     });
   } catch (err) {

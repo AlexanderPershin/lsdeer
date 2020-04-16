@@ -1,5 +1,6 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { hexToRgba } from 'hex-and-rgba';
 import styled from 'styled-components';
 
 import TabContent from './TabContent';

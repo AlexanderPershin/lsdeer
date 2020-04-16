@@ -11,6 +11,7 @@ const mainProcess = remote.require('./index.js');
 const StyledContent = styled.div`
   background-color: ${({ theme }) =>
     hexToRgba(theme.bg.appBg + 'cc').toString()};
+  min-height: 100%;
 `;
 
 const StyledDrivesWrapper = styled.div`
