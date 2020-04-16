@@ -48,15 +48,15 @@ app.on('ready', createWindow);
 
 ipcMain.on('ls-directory', (event, dirPath) => {
   const command = `ls "${dirPath}"`;
-
   try {
     const fileExtension = path.extname(dirPath);
-    if (os.platform() === 'win32' && fileExtension) {
-      const pathArr = dirPath.split('/').filter((item) => item !== '');
-      const drive = pathArr[0].toUpperCase() + ':';
-      pathArr.shift();
-      const newPath = path.join(...[drive, ...pathArr]);
+    const pathArr = dirPath.split('/').filter((item) => item !== '');
+    const drive = pathArr[0].toUpperCase() + ':';
+    pathArr.shift();
+    const newPath = path.join(...[drive, ...pathArr]);
+    const thisIsFile = fs.lstatSync(newPath).isFile();
 
+    if (os.platform() === 'win32' && thisIsFile) {
       shell.openItem(newPath);
     } else if (fileExtension) {
       shell.openItem(dirPath);
@@ -65,8 +65,6 @@ ipcMain.on('ls-directory', (event, dirPath) => {
         if (err) {
           console.error(err);
         } else {
-          // console.log(`stdout: ${stdout}`);
-          // console.log(`stderr: ${stderr}`);
           mainWindow.webContents.send('resp-dir', { response: stdout });
         }
       });

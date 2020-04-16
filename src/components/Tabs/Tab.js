@@ -10,6 +10,8 @@ const StyledTab = styled.div`
   justify-content: center;
   align-items: center;
   padding: 0.5rem 1rem;
+  user-select: none;
+  white-space: nowrap;
   background-color: ${({ theme, activeTab }) =>
     activeTab ? theme.bg.activeTabBg : theme.bg.tabBg};
   &:not(:last-child) {
@@ -27,10 +29,17 @@ const StyledXBtn = styled.span`
 
 const Tab = ({ id, name }) => {
   const activeTab = useSelector((state) => state.activeTab);
+  const tabs = useSelector((state) => state.tabs);
   const dispatch = useDispatch();
 
   const closeThisTab = (e) => {
     e.stopPropagation();
+    if (id === activeTab && tabs.length > 1) {
+      const nextTab = tabs.filter((item) => item.id !== activeTab)[0].id;
+
+      dispatch(setActiveTab(nextTab));
+    }
+
     dispatch(closeTab(id));
   };
 

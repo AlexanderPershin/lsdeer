@@ -19,14 +19,14 @@ const TabItem = ({ name }) => {
   const tabs = useSelector((state) => state.tabs);
   const dispatch = useDispatch();
 
-  const [newPath, setNewPath] = useState(activeTab.path);
-
   const handleOpenDirectory = () => {
     const activePath = tabs.filter((item) => item.id === activeTab)[0].path;
     const newPath = `${activePath}/${name}`;
 
     dispatch(openDir(activeTab, newPath));
   };
+
+  // TODO: jpg image preview + icons for each file extention
 
   return <StyledItem onDoubleClick={handleOpenDirectory}>{name}</StyledItem>;
 };
