@@ -3,9 +3,12 @@ const { exec } = require('child_process');
 const path = require('path');
 const os = require('os');
 const fs = require('fs');
+const util = require('util');
 const shell = require('electron').shell;
 
 const { app, BrowserWindow, ipcMain } = electron;
+
+const lstatProm = util.promisify(fs.lstat);
 
 let mainWindow;
 
@@ -46,6 +49,10 @@ const createWindow = () => {
 
 app.on('ready', createWindow);
 
+const fileCheck = (dirPath, name) => {
+  return fs.lstatSync(path.normalize(path.join(dirPath, name))).isFile();
+};
+
 ipcMain.on('ls-directory', (event, dirPath) => {
   const command = `ls "${dirPath}"`;
 
@@ -85,9 +92,7 @@ ipcMain.on('ls-directory', (event, dirPath) => {
           outputArray = namesArray.map((name) => {
             let isFile;
             try {
-              isFile = fs
-                .lstatSync(path.normalize(path.join(newPath, name)))
-                .isFile();
+              isFile = fileCheck(newPath, name);
             } catch (err) {
               console.log('Error determining file ext ', name);
               const fileExt = path.extname(newPath);

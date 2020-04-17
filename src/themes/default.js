@@ -11,12 +11,17 @@ const defaultTheme = {
     accentBg: '#3e98c7',
     elementsBg: '#ffffff',
     folderBg: '#787586',
+    selectedBg: '#4153ED',
   },
   font: {
     appFontFamily: 'Roboto, sans-serif',
   },
   opac: {
     tabOpac: 'cc',
+  },
+  sizes: {
+    iconWidth: '80px',
+    iconHeight: '80px',
   },
 };
 

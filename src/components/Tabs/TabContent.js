@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { openDir } from '../../actions/tabsActions';
 import styled from 'styled-components';
@@ -45,6 +45,8 @@ const StyledFiles = styled.div`
   grid-template-columns: repeat(auto-fit, minmax(100px, min-content));
   grid-auto-rows: min-content;
   grid-gap: 20px;
+  align-items: start;
+  justify-items: center;
   background-color: ${({ theme }) =>
     hexToRgba(theme.bg.appBg + theme.opac.tabOpac).toString()};
 `;
