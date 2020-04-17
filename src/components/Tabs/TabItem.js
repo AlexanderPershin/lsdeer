@@ -58,8 +58,8 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
     >
       <Icon
         {...getFileTypeIconProps({
-          type: ext ? '' : FileIconType.folder,
-          extension: ext,
+          type: isFile && ext ? '' : FileIconType.folder,
+          extension: isFile && ext ? ext : '',
           size: 48,
           imageFileType: 'svg',
         })}

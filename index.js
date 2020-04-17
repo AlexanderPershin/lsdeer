@@ -89,24 +89,25 @@ ipcMain.on('ls-directory', (event, dirPath) => {
         const namesArray = stdout.toString().split('\n');
         if (os.platform() === 'win32') {
           const newPath = transfPath(dirPath);
+
+          const fileExt = path.extname(newPath);
+          console.log('fileExt', fileExt);
+
           outputArray = namesArray.map((name) => {
             let isFile;
             try {
               isFile = fileCheck(newPath, name);
             } catch (err) {
               console.log('Error determining file ext ', name);
-              const fileExt = path.extname(newPath);
 
-              if (!fileExt) isFile = false;
+              if (!fileExt) isFile = 'unknown';
             }
 
             return {
               name,
               path: path.normalize(path.join(newPath, name)),
               isFile,
-              ext:
-                isFile &&
-                path.extname(path.normalize(path.join(newPath, name))),
+              ext: path.extname(path.normalize(path.join(newPath, name))),
             };
           });
         } else {
