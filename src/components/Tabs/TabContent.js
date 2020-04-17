@@ -51,7 +51,27 @@ const StyledFiles = styled.div`
     hexToRgba(theme.bg.appBg + theme.opac.tabOpac).toString()};
 `;
 
-const TabContent = ({ id, name, content, createNew = false }) => {
+const StyledNav = styled.div`
+  align-self: stretch;
+  justify-self: stretch;
+  grid-column: 1 / -1;
+  border: 2px solid darkred;
+`;
+
+const StyledUp = styled.button`
+  border: none;
+  background-color: darkgreen;
+  color: white;
+  padding: 10px 20px;
+  cursor: pointer;
+  &:disabled {
+    background-color: lightgray;
+
+    cursor: default;
+  }
+`;
+
+const TabContent = ({ id, name, content, createNew = false, path }) => {
   const [selected, setSelected] = useState(null);
 
   const activeTab = useSelector((state) => state.activeTab);
@@ -65,15 +85,27 @@ const TabContent = ({ id, name, content, createNew = false }) => {
     setSelected(name);
   };
 
+  const handleGoUp = () => {
+    if (path.length <= 2) return;
+    let path_arr = path.split('/');
+    path_arr.pop();
+    const newPath = path_arr.join('/');
+    dispatch(openDir(id, newPath));
+  };
+
+  // TODO: istead of slice(0,50) make scroll loading content of page or show more btn
+
   const renderContent = () => {
-    return content.map((item, i) => (
-      <TabItem
-        key={`${item.name} ${i}`}
-        {...item}
-        selected={selected}
-        handleSelect={handleSelect}
-      />
-    ));
+    return content
+      .slice(0, 50)
+      .map((item, i) => (
+        <TabItem
+          key={`${item.name} ${i}`}
+          {...item}
+          selected={selected}
+          handleSelect={handleSelect}
+        />
+      ));
   };
 
   return (
@@ -81,7 +113,15 @@ const TabContent = ({ id, name, content, createNew = false }) => {
       {createNew ? (
         <NewTabContent />
       ) : (
-        <StyledFiles>{renderContent()}</StyledFiles>
+        <StyledFiles>
+          <StyledNav>
+            <StyledUp onClick={handleGoUp} disabled={path.length <= 2}>
+              Up
+            </StyledUp>
+          </StyledNav>
+
+          {renderContent()}
+        </StyledFiles>
       )}
     </StyledTabContent>
   );

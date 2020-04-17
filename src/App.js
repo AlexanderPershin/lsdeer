@@ -5,6 +5,8 @@ import { nanoid } from 'nanoid';
 import { addTab } from './actions/tabsActions';
 import { setActiveTab } from './actions/activeTabActions';
 import GlobalStyle from './themes/globalStyle';
+import { initializeFileTypeIcons } from '@uifabric/file-type-icons';
+// import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
 
 import defaultTheme from './themes/default';
 
@@ -13,6 +15,9 @@ import TabContentContainer from './components/Tabs/TabContentContainer';
 
 const { remote, ipcRenderer, shell } = window.require('electron');
 const mainProcess = remote.require('./index.js');
+
+// initializeIcons();
+initializeFileTypeIcons();
 
 const StyledApp = styled.div`
   background-color: ${({ theme }) => theme.bg.appBg};

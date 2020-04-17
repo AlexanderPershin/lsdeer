@@ -5,6 +5,10 @@ import { openDir } from '../../actions/tabsActions';
 import { hexToRgba } from 'hex-and-rgba';
 import FileIcon, { defaultStyles } from 'react-file-icon';
 
+// fluentui
+import { Icon } from '@fluentui/react/lib/Icon';
+import { getFileTypeIconProps, FileIconType } from '@uifabric/file-type-icons';
+
 const { remote, ipcRenderer, shell } = window.require('electron');
 const mainProcess = remote.require('./index.js');
 
@@ -19,7 +23,7 @@ const StyledItem = styled.div`
   cursor: pointer;
   width: 100%;
   position: relative;
-  padding: 10px 5px;
+  padding: 5px;
 `;
 
 const StyledName = styled.div`
@@ -52,12 +56,13 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
       onDoubleClick={handleOpenDirectory}
       sel={selected === name}
     >
-      <FileIcon
-        fold={true}
-        type='image'
-        size={72}
-        extension={ext ? ext : 'folder'}
-        {...defaultStyles[ext]}
+      <Icon
+        {...getFileTypeIconProps({
+          type: ext ? '' : FileIconType.folder,
+          extension: ext,
+          size: 48,
+          imageFileType: 'svg',
+        })}
       />
       <StyledName title={name} sel={selected === name}>
         {truncate(name, 20)}
@@ -67,3 +72,10 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
 };
 
 export default TabItem;
+//  <FileIcon
+//         fold={true}
+//         type='image'
+//         size={72}
+//         extension={ext ? ext : 'folder'}
+//         {...defaultStyles[ext]}
+//       />
