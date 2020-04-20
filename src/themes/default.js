@@ -12,9 +12,11 @@ const defaultTheme = {
     elementsBg: '#ffffff',
     folderBg: '#787586',
     selectedBg: '#4153ED',
+    pathBarBg: 'transparent',
   },
   font: {
     appFontFamily: 'Roboto, sans-serif',
+    pathBarFontSize: '1.2rem',
   },
   opac: {
     tabOpac: 'cc',

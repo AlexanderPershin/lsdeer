@@ -31,6 +31,7 @@ const PlusTab = ({ setPlusClicked }) => {
       name: 'New',
       content: [],
       createNew: true,
+      path: '/',
     };
     setPlusClicked(true);
     dispatch(addTab(newTab));

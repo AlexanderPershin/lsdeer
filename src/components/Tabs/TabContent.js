@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { openDir } from '../../actions/tabsActions';
+import { openDir, addTab, closeTab } from '../../actions/tabsActions';
+import { setActiveTab } from '../../actions/activeTabActions';
 import styled from 'styled-components';
 import { hexToRgba } from 'hex-and-rgba';
+import { nanoid } from 'nanoid';
 
 import NewTabContent from './NewTabContent';
 import TabItem from './TabItem';
@@ -52,27 +54,50 @@ const StyledFiles = styled.div`
 `;
 
 const StyledNav = styled.div`
+  width: 100%;
   align-self: stretch;
   justify-self: stretch;
   grid-column: 1 / -1;
-  border: 2px solid darkred;
+  border-bottom: 3px solid ${({ theme }) => theme.bg.tabBg};
+  border-top: 3px solid transparent;
+  display: flex;
+  justify-content: flex-start;
+  align-items: stretch;
+  font-size: ${({ theme }) => theme.font.pathBarFontSize};
 `;
 
 const StyledUp = styled.button`
   border: none;
   background-color: darkgreen;
-  color: white;
+  color: ${({ theme }) => theme.colors.appColor};
   padding: 10px 20px;
   cursor: pointer;
+  flex-grow: 0;
+  flex-shrink: 0;
+  font-size: ${({ theme }) => theme.font.pathBarFontSize};
   &:disabled {
     background-color: lightgray;
-
     cursor: default;
   }
 `;
 
+const StyledTabPath = styled.input`
+  flex-grow: 1;
+  flex-shrink: 0;
+  background-color: ${({ theme }) => theme.bg.pathBarBg};
+  color: ${({ theme }) => theme.colors.appColor};
+  border: none;
+  padding: 0 1rem;
+  font-size: ${({ theme }) => theme.font.pathBarFontSize};
+  &:focus {
+    outline: ${({ theme }) => theme.bg.selectedBg} solid 2px;
+  }
+`;
+
 const TabContent = ({ id, name, content, createNew = false, path }) => {
+  const currentTab = { id, name, content, createNew, path };
   const [selected, setSelected] = useState(null);
+  const [returnToNew, setReturnToNew] = useState(false);
 
   const activeTab = useSelector((state) => state.activeTab);
   const dispatch = useDispatch();
@@ -85,8 +110,24 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
     setSelected(name);
   };
 
+  const addTabAndActivate = () => {
+    const newTab = {
+      id: nanoid(),
+      name: 'New',
+      content: [],
+      createNew: true,
+      path: '/',
+    };
+    dispatch(addTab(newTab));
+    dispatch(setActiveTab(newTab.id));
+    dispatch(closeTab(id));
+  };
+
   const handleGoUp = () => {
-    if (path.length <= 2) return;
+    if (path.length <= 2) {
+      addTabAndActivate();
+      return;
+    }
     let path_arr = path.split('/');
     path_arr.pop();
     const newPath = path_arr.join('/');
@@ -108,6 +149,10 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
       ));
   };
 
+  useEffect(() => {
+    setReturnToNew(false);
+  }, [path]);
+
   return (
     <StyledTabContent active={id === activeTab}>
       {createNew ? (
@@ -115,9 +160,8 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
       ) : (
         <StyledFiles>
           <StyledNav>
-            <StyledUp onClick={handleGoUp} disabled={path.length <= 2}>
-              Up
-            </StyledUp>
+            <StyledUp onClick={handleGoUp}>Up</StyledUp>
+            <StyledTabPath value={path} onChange={() => {}} readonly />
           </StyledNav>
 
           {renderContent()}

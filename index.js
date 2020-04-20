@@ -56,16 +56,20 @@ const fileCheck = (dirPath, name) => {
 ipcMain.on('ls-directory', (event, dirPath) => {
   const command = `ls "${dirPath}"`;
 
-  const transfPath = (dPath) => {
-    const pathArr = dPath.split('/').filter((item) => item !== '');
-    const drive = pathArr[0].toUpperCase() + ':';
-    pathArr.shift();
-    return path.normalize(path.join(drive, ...pathArr));
+  const transfPathForWin = (dPath) => {
+    try {
+      const pathArr = dPath.split('/').filter((item) => item !== '');
+      const drive = pathArr[0].toUpperCase() + '://';
+      pathArr.shift();
+      return path.normalize(path.join(drive, ...pathArr));
+    } catch (e) {
+      return dPath;
+    }
   };
 
   try {
     if (os.platform() === 'win32') {
-      const newPath = transfPath(dirPath);
+      const newPath = transfPathForWin(dirPath);
 
       const thisIsFile = fs.lstatSync(newPath).isFile();
 
@@ -88,10 +92,7 @@ ipcMain.on('ls-directory', (event, dirPath) => {
         let outputArray = [];
         const namesArray = stdout.toString().split('\n');
         if (os.platform() === 'win32') {
-          const newPath = transfPath(dirPath);
-
-          const fileExt = path.extname(newPath);
-          console.log('fileExt', fileExt);
+          const newPath = transfPathForWin(dirPath);
 
           outputArray = namesArray.map((name) => {
             let isFile;
@@ -100,7 +101,7 @@ ipcMain.on('ls-directory', (event, dirPath) => {
             } catch (err) {
               console.log('Error determining file ext ', name);
 
-              if (!fileExt) isFile = 'unknown';
+              isFile = 'unknown';
             }
 
             return {
