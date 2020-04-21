@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { openDir, addTab, closeTab } from '../../actions/tabsActions';
 import { setActiveTab } from '../../actions/activeTabActions';
@@ -54,17 +54,26 @@ const StyledFiles = styled.div`
     hexToRgba(theme.bg.appBg + theme.opac.tabOpac).toString()};
 `;
 
+// TODO: Add margin to grid or empty row on the top for the nav element
+
 const StyledNav = styled.div`
   width: 100%;
-  align-self: stretch;
-  justify-self: stretch;
-  grid-column: 1 / -1;
+  height: 50px;
+  position: fixed;
   border-bottom: 3px solid ${({ theme }) => theme.bg.tabBg};
-  border-top: 3px solid transparent;
+  border-top: 3px solid ${({ theme }) => theme.bg.tabBg};
   display: flex;
   justify-content: flex-start;
   align-items: stretch;
   font-size: ${({ theme }) => theme.font.pathBarFontSize};
+  z-index: 150;
+`;
+
+const StyledNavPlaceholder = styled.div`
+  align-self: stretch;
+  justify-self: stretch;
+  grid-column: 1 / -1;
+  height: 50px;
 `;
 
 const StyledUp = styled.button`
@@ -93,22 +102,31 @@ const StyledTabPath = styled.input`
   &:focus {
     outline: ${({ theme }) => theme.bg.selectedBg} solid 2px;
   }
+  opacity: 0.6;
 `;
 
 const TabContent = ({ id, name, content, createNew = false, path }) => {
-  const currentTab = { id, name, content, createNew, path };
-  const [selected, setSelected] = useState(null);
-  const [returnToNew, setReturnToNew] = useState(false);
+  const contentRef = useRef(null);
+  const [selected, setSelected] = useState([]);
+  const [loadedItems, setLoadItems] = useState(100);
 
   const activeTab = useSelector((state) => state.activeTab);
   const dispatch = useDispatch();
 
-  const handleSelect = (name) => {
-    if (name === selected) {
-      setSelected(null);
+  const handleSelect = (e, name) => {
+    // check if ctrl or shift pressed
+
+    if (e.ctrlKey && selected.includes(name)) {
+      // deselect this item
+      setSelected((prev) => prev.filter((item) => item !== name));
       return;
+    } else if (e.ctrlKey && !selected.includes(name)) {
+      setSelected((prev) => [...prev, name]);
+    } else if (!e.ctrlKey && !selected.includes(name)) {
+      setSelected([name]);
+    } else {
+      setSelected([]);
     }
-    setSelected(name);
   };
 
   const addTabAndActivate = () => {
@@ -130,37 +148,56 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
       return;
     }
     let path_arr = path.split('/');
-    // path_arr.pop();
+
     path_arr.splice(-2, 2);
-    const newPath = path_arr.join('/');
+    const newPath = path_arr.join('/') + '/';
     dispatch(openDir(id, newPath));
   };
 
-  // TODO: istead of slice(0,50) make scroll loading content of page or show more btn
+  // TODO: optimize performance for huge folders with more than 1000 elements
+  const handleLoadMoreOnScroll = (e) => {
+    const contentEl = contentRef.current;
+    try {
+      if (loadedItems >= content.length) {
+        return;
+      }
+    } catch (err) {
+      console.log(err);
+    }
+
+    if (
+      contentEl.scrollHeight - 150 <=
+      Math.ceil(contentEl.scrollTop + contentEl.clientHeight)
+    ) {
+      console.log('Scrolled bottom');
+      setLoadItems((prev) => prev + 50);
+    }
+  };
 
   const renderContent = () => {
     return content
-      .slice(0, 50)
+      .slice(0, loadedItems)
       .map((item, i) => (
         <TabItem
           key={`${item.name} ${i}`}
           {...item}
-          selected={selected}
+          selected={selected.includes(item.name)}
           handleSelect={handleSelect}
         />
       ));
   };
 
-  useEffect(() => {
-    setReturnToNew(false);
-  }, [path]);
-
   return (
-    <StyledTabContent active={id === activeTab}>
-      {createNew ? (
+    <StyledTabContent
+      ref={contentRef}
+      active={id === activeTab}
+      onScroll={handleLoadMoreOnScroll}
+    >
+      {createNew || path === '/' ? (
         <NewTabContent />
       ) : (
         <StyledFiles>
+          <StyledNavPlaceholder />
           <StyledNav>
             <StyledUp onClick={handleGoUp}>Up</StyledUp>
             <StyledTabPath value={path} onChange={() => {}} readonly />

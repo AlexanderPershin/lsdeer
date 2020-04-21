@@ -99,7 +99,7 @@ const NewTabContent = () => {
             key={item.filesystem}
             {...item}
             handleOpenDirectory={() =>
-              handleOpenDirectory(item.mounted, item.mounted)
+              handleOpenDirectory(item.mounted + '/', item.mounted + '/')
             }
           />
         ))}

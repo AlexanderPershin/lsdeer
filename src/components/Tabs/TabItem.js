@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { openDir } from '../../actions/tabsActions';
 import { hexToRgba } from 'hex-and-rgba';
-import FileIcon, { defaultStyles } from 'react-file-icon';
 
 // fluentui
 import { Icon } from '@fluentui/react/lib/Icon';
@@ -44,7 +43,7 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
 
   const handleOpenDirectory = () => {
     const activePath = tabs.filter((item) => item.id === activeTab)[0].path;
-    const newPath = `${activePath}/${name}`;
+    const newPath = `${activePath}${name}`;
 
     dispatch(openDir(activeTab, newPath));
   };
@@ -52,9 +51,9 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
   // TODO: jpg image preview
   return (
     <StyledItem
-      onClick={() => handleSelect(name)}
+      onClick={(e) => handleSelect(e, name)}
       onDoubleClick={handleOpenDirectory}
-      sel={selected === name}
+      sel={selected}
     >
       <Icon
         {...getFileTypeIconProps({
@@ -64,7 +63,7 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
           imageFileType: 'svg',
         })}
       />
-      <StyledName title={name} sel={selected === name}>
+      <StyledName title={name} sel={selected}>
         {truncate(!isFile ? name.slice(0, -1) : name, 20)}
       </StyledName>
     </StyledItem>
@@ -72,10 +71,3 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
 };
 
 export default TabItem;
-//  <FileIcon
-//         fold={true}
-//         type='image'
-//         size={72}
-//         extension={ext ? ext : 'folder'}
-//         {...defaultStyles[ext]}
-//       />

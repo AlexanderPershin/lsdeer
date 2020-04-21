@@ -76,6 +76,37 @@ ipcMain.on('get-disks', (event) => {
   });
 });
 
+// TODO: create universal command to remove files and folders array
+ipcMain.on('delete-dir', (event, dirPath) => {
+  // Remove folder
+  const command = `rmdir ${dirPath}`;
+
+  exec(command, (err, stdout, stderr) => {
+    if (err) {
+      console.error(err);
+    } else {
+      mainWindow.webContents.send('delete-dir-resp', {
+        response: true,
+      });
+    }
+  });
+});
+
+ipcMain.on('delete-file', (event, dirPath) => {
+  // Remove file
+  const command = `rm ${dirPath}`;
+
+  exec(command, (err, stdout, stderr) => {
+    if (err) {
+      console.error(err);
+    } else {
+      mainWindow.webContents.send('delete-file-resp', {
+        response: true,
+      });
+    }
+  });
+});
+
 ipcMain.on('test', (event) => {
   mainWindow.webContents.send('test-response', { msg: 'test complete' });
 });

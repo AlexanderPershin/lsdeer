@@ -12,7 +12,7 @@ const defaultTheme = {
     elementsBg: '#ffffff',
     folderBg: '#787586',
     selectedBg: '#4153ED',
-    pathBarBg: 'transparent',
+    pathBarBg: '#404040',
   },
   font: {
     appFontFamily: 'Roboto, sans-serif',
