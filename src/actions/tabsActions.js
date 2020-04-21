@@ -41,12 +41,13 @@ export const closeAllTabs = () => {
   };
 };
 
-export const openDir = (id, newPath) => (dispatch) => {
+export const openDir = (id, newPath, name) => (dispatch) => {
   ipcRenderer.once('resp-dir', (event, data) => {
     dispatch({
       type: OPEN_DIR,
       payload: {
         id,
+        name,
         newPath,
         newContent: data.response,
       },

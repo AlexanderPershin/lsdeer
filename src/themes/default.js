@@ -28,3 +28,5 @@ const defaultTheme = {
 };
 
 export default defaultTheme;
+
+// tabOpac: 'cc' for transparency

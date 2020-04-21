@@ -18,10 +18,15 @@ const tabsReducer = function (state = [], action) {
     case CLOSE_ALL_TABS:
       return [];
     case OPEN_DIR: {
-      const { id, newPath, newContent } = action.payload;
+      const { id, newPath, newContent, name } = action.payload;
       return state.map((tab) => {
         if (tab.id === id) {
-          tab.name = newPath.split('/').pop();
+          const pathArr = newPath.split('/');
+          tab.name = name
+            ? name
+            : pathArr.length === 2
+            ? newPath
+            : pathArr[pathArr.length - 2];
           tab.path = newPath;
           tab.content = newContent;
           delete tab.createNew;

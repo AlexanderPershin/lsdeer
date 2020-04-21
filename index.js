@@ -1,32 +1,17 @@
 const electron = require('electron');
 const { exec } = require('child_process');
-const path = require('path');
 const os = require('os');
-const fs = require('fs');
-const util = require('util');
-const shell = require('electron').shell;
+const { clearArrayOfStrings } = require('./helpersMain/helpers');
+
+const formDirArrayWin = require('./helpersMain/formDirArrayWin');
+const formDirArrayLinux = require('./helpersMain/formDirArrayLinux');
+const checkFileAndOpen = require('./helpersMain/checkFileAndOpen');
 
 const { app, BrowserWindow, ipcMain } = electron;
-
-const lstatProm = util.promisify(fs.lstat);
 
 let mainWindow;
 
 const createWindow = () => {
-  // Install Redux/React dev tools
-  // BrowserWindow.addDevToolsExtension(
-  //   path.join(
-  //     os.homedir(),
-  //     '/AppData/Local/Google/Chrome/User Data/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.6.0_0'
-  //   )
-  // );
-  // BrowserWindow.addDevToolsExtension(
-  //   path.join(
-  //     os.homedir(),
-  //     '/AppData/Local/Google/Chrome/User Data/Default/Extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.17.0_0'
-  //   )
-  // );
-
   mainWindow = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
@@ -49,97 +34,27 @@ const createWindow = () => {
 
 app.on('ready', createWindow);
 
-const fileCheck = (dirPath, name) => {
-  return fs.lstatSync(path.normalize(path.join(dirPath, name))).isFile();
-};
-
 ipcMain.on('ls-directory', (event, dirPath) => {
-  const command = `ls "${dirPath}"`;
-
-  const transfPathForWin = (dPath) => {
-    try {
-      const pathArr = dPath.split('/').filter((item) => item !== '');
-      const drive = pathArr[0].toUpperCase() + '://';
-      pathArr.shift();
-      return path.normalize(path.join(drive, ...pathArr));
-    } catch (e) {
-      return dPath;
-    }
-  };
+  const command = `ls "${dirPath}" -p --hide=*.sys --hide="System Volume Information" --group-directories-first`;
 
   try {
-    if (os.platform() === 'win32') {
-      const newPath = transfPathForWin(dirPath);
-
-      const thisIsFile = fs.lstatSync(newPath).isFile();
-
-      if (thisIsFile) {
-        shell.openItem(newPath);
-        return;
-      }
-    } else {
-      const thisIsFile = fs.lstatSync(dirPath).isFile();
-      if (thisIsFile) {
-        shell.openItem(dirPath);
-        return;
-      }
-    }
+    const itWasFile = checkFileAndOpen(dirPath);
+    if (itWasFile) return;
 
     exec(command, (err, stdout, stderr) => {
       if (err) {
         console.error(err);
       } else {
         let outputArray = [];
-        const namesArray = stdout.toString().split('\n');
+        const namesArray = clearArrayOfStrings(stdout.toString().split('\n'));
+
         if (os.platform() === 'win32') {
-          const newPath = transfPathForWin(dirPath);
-
-          outputArray = namesArray.map((name) => {
-            let isFile;
-            try {
-              isFile = fileCheck(newPath, name);
-            } catch (err) {
-              console.log('Error determining file ext ', name);
-
-              isFile = 'unknown';
-            }
-
-            return {
-              name,
-              path: path.normalize(path.join(newPath, name)),
-              isFile,
-              ext: path.extname(path.normalize(path.join(newPath, name))),
-            };
-          });
+          outputArray = formDirArrayWin(namesArray, dirPath);
         } else {
-          outputArray = namesArray.map((name) => {
-            let isFile;
-            try {
-              isFile = fs
-                .lstatSync(path.normalize(path.join(dirPath, name)))
-                .isFile();
-            } catch {
-              console.log('Error determining file ext ', name);
-
-              const fileExt = path.extname(dirPath);
-
-              if (!fileExt) isFile = false;
-            }
-
-            return {
-              name,
-              path: path.normalize(path.join(dirPath, name)),
-              isFile,
-              ext:
-                isFile &&
-                path.extname(path.normalize(path.join(dirPath, name))),
-            };
-          });
+          outputArray = formDirArrayLinux(namesArray, dirPath);
         }
 
-        const clearArray = outputArray.filter((item) => item.name !== '');
-
-        mainWindow.webContents.send('resp-dir', { response: clearArray });
+        mainWindow.webContents.send('resp-dir', { response: outputArray });
       }
     });
   } catch (err) {

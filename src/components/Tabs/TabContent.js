@@ -12,6 +12,7 @@ import deerBg from '../../img/deer.svg';
 
 const StyledTabContent = styled.div`
   z-index: ${({ active }) => (active ? 100 : 50)};
+  visibility: ${({ active }) => (active ? 'visible' : 'hidden')};
   position: absolute;
   top: 0;
   left: 0;
@@ -129,7 +130,8 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
       return;
     }
     let path_arr = path.split('/');
-    path_arr.pop();
+    // path_arr.pop();
+    path_arr.splice(-2, 2);
     const newPath = path_arr.join('/');
     dispatch(openDir(id, newPath));
   };

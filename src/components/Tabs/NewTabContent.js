@@ -73,7 +73,7 @@ const NewTabContent = () => {
   };
 
   const handleOpenDirectory = (newPath, name) => {
-    dispatch(openDir(activeTab, newPath));
+    dispatch(openDir(activeTab, newPath, name));
   };
 
   useEffect(() => {
@@ -98,7 +98,9 @@ const NewTabContent = () => {
           <HardDrive
             key={item.filesystem}
             {...item}
-            handleOpenDirectory={handleOpenDirectory}
+            handleOpenDirectory={() =>
+              handleOpenDirectory(item.mounted, item.mounted)
+            }
           />
         ))}
       </StyledDrivesWrapper>
