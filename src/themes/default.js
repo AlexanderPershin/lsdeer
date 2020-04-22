@@ -24,6 +24,8 @@ const defaultTheme = {
   sizes: {
     iconWidth: '80px',
     iconHeight: '80px',
+    navHeight: '35px',
+    focusOutlineWidth: '2px',
   },
 };
 

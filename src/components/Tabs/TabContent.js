@@ -5,6 +5,7 @@ import { setActiveTab } from '../../actions/activeTabActions';
 import styled from 'styled-components';
 import { hexToRgba } from 'hex-and-rgba';
 import { nanoid } from 'nanoid';
+import { Icon } from '@fluentui/react/lib/Icon';
 
 import NewTabContent from './NewTabContent';
 import TabItem from './TabItem';
@@ -58,7 +59,7 @@ const StyledFiles = styled.div`
 
 const StyledNav = styled.div`
   width: 100%;
-  height: 50px;
+  height: ${({ theme }) => theme.sizes.navHeight};
   position: fixed;
   border-bottom: 3px solid ${({ theme }) => theme.bg.tabBg};
   border-top: 3px solid ${({ theme }) => theme.bg.tabBg};
@@ -73,18 +74,25 @@ const StyledNavPlaceholder = styled.div`
   align-self: stretch;
   justify-self: stretch;
   grid-column: 1 / -1;
-  height: 50px;
+  height: ${({ theme }) => theme.sizes.navHeight};
 `;
 
 const StyledUp = styled.button`
+  display: flex;
+  justify-content: center;
+  align-items: center;
   border: none;
   background-color: darkgreen;
   color: ${({ theme }) => theme.colors.appColor};
-  padding: 10px 20px;
+  padding: 0 5px;
   cursor: pointer;
   flex-grow: 0;
   flex-shrink: 0;
   font-size: ${({ theme }) => theme.font.pathBarFontSize};
+  &:focus {
+    outline: ${({ theme }) => theme.bg.selectedBg} solid
+      ${({ theme }) => theme.sizes.focusOutlineWidth};
+  }
   &:disabled {
     background-color: lightgray;
     cursor: default;
@@ -98,11 +106,13 @@ const StyledTabPath = styled.input`
   color: ${({ theme }) => theme.colors.appColor};
   border: none;
   padding: 0 1rem;
+  opacity: 0.6;
   font-size: ${({ theme }) => theme.font.pathBarFontSize};
   &:focus {
-    outline: ${({ theme }) => theme.bg.selectedBg} solid 2px;
+    opacity: 1;
+    outline: ${({ theme }) => theme.bg.selectedBg} solid
+      ${({ theme }) => theme.sizes.focusOutlineWidth};
   }
-  opacity: 0.6;
 `;
 
 const TabContent = ({ id, name, content, createNew = false, path }) => {
@@ -113,19 +123,47 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
   const activeTab = useSelector((state) => state.activeTab);
   const dispatch = useDispatch();
 
-  const handleSelect = (e, name) => {
-    // check if ctrl or shift pressed
+  const handleSelect = (e, selectedName) => {
+    // TODO: rectangle selection onMouseDown/onMouseUp select elements
+    // under drawn rectangle and remove rectangle from the DOM
 
-    if (e.ctrlKey && selected.includes(name)) {
+    if (e.ctrlKey && selected.includes(selectedName)) {
       // deselect this item
-      setSelected((prev) => prev.filter((item) => item !== name));
+      setSelected((prev) => prev.filter((item) => item !== selectedName));
       return;
-    } else if (e.ctrlKey && !selected.includes(name)) {
-      setSelected((prev) => [...prev, name]);
-    } else if (!e.ctrlKey && !selected.includes(name)) {
-      setSelected([name]);
+    } else if (e.ctrlKey && !selected.includes(selectedName)) {
+      setSelected((prev) => [...prev, selectedName]);
+      return;
+    } else if (e.shiftKey && selected.length > 0) {
+      const elementFrom = selected[selected.length - 1];
+
+      const contentIdxFrom = content.findIndex(
+        (item) => item.name === elementFrom
+      );
+      const contentIdxTo = content.findIndex(
+        (item) => item.name === selectedName
+      );
+
+      const newSelectedArr = content
+        .slice(
+          Math.min(contentIdxFrom, contentIdxTo),
+          Math.max(contentIdxFrom, contentIdxTo)
+        )
+        .map((i) => i.name);
+
+      setSelected((prev) => {
+        // Need to make sure that there are only unique names in the array
+        const nextSelected = [...prev, ...newSelectedArr, selectedName];
+        const nextUnique = [...new Set(nextSelected)];
+        return nextUnique;
+      });
+      return;
+    } else if (!e.ctrlKey && !selected.includes(selectedName)) {
+      setSelected([selectedName]);
+      return;
     } else {
       setSelected([]);
+      return;
     }
   };
 
@@ -199,7 +237,9 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
         <StyledFiles>
           <StyledNavPlaceholder />
           <StyledNav>
-            <StyledUp onClick={handleGoUp}>Up</StyledUp>
+            <StyledUp onClick={handleGoUp}>
+              <Icon iconName='SortUp' className='ms-IconExample' />
+            </StyledUp>
             <StyledTabPath value={path} onChange={() => {}} readonly />
           </StyledNav>
 

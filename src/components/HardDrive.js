@@ -8,12 +8,21 @@ import 'react-circular-progressbar/dist/styles.css';
 import styled, { ThemeContext } from 'styled-components';
 import Drive from '../img/Drive';
 
-const StyledDiskWrapper = styled.div`
+const StyledDiskWrapper = styled.button`
   max-width: 10rem;
   max-height: 10rem;
   min-width: 10rem;
   min-height: 10rem;
   user-select: none;
+  color: inherit;
+  background: transparent;
+  border-radius: 1000rem;
+  border: ${({ theme }) => theme.sizes.focusOutlineWidth} solid transparent;
+  outline: none;
+  &:focus {
+    border: ${({ theme }) => theme.sizes.focusOutlineWidth} solid
+      ${({ theme }) => theme.bg.selectedBg};
+  }
 `;
 
 const StyledDiskContent = styled.div`
