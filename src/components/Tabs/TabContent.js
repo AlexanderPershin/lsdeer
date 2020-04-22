@@ -2,6 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { openDir, addTab, closeTab } from '../../actions/tabsActions';
 import { setActiveTab } from '../../actions/activeTabActions';
+import {
+  addSelectedFiles,
+  clearSelectedFiles,
+} from '../../actions/selectFilesActions';
 import styled from 'styled-components';
 import { hexToRgba } from 'hex-and-rgba';
 import { nanoid } from 'nanoid';
@@ -10,6 +14,8 @@ import { Icon } from '@fluentui/react/lib/Icon';
 import NewTabContent from './NewTabContent';
 import TabItem from './TabItem';
 import deerBg from '../../img/deer.svg';
+
+const { remote, ipcRenderer, shell } = window.require('electron');
 
 const StyledTabContent = styled.div`
   z-index: ${({ active }) => (active ? 100 : 50)};
@@ -117,25 +123,26 @@ const StyledTabPath = styled.input`
 
 const TabContent = ({ id, name, content, createNew = false, path }) => {
   const contentRef = useRef(null);
-  const [selected, setSelected] = useState([]);
   const [loadedItems, setLoadItems] = useState(100);
 
   const activeTab = useSelector((state) => state.activeTab);
+  const selectedStore = useSelector((state) => state.selected);
   const dispatch = useDispatch();
 
   const handleSelect = (e, selectedName) => {
     // TODO: rectangle selection onMouseDown/onMouseUp select elements
     // under drawn rectangle and remove rectangle from the DOM
 
-    if (e.ctrlKey && selected.includes(selectedName)) {
-      // deselect this item
-      setSelected((prev) => prev.filter((item) => item !== selectedName));
+    if (e.ctrlKey && selectedStore.includes(selectedName)) {
+      dispatch(
+        addSelectedFiles(selectedStore.filter((item) => item !== selectedName))
+      );
       return;
-    } else if (e.ctrlKey && !selected.includes(selectedName)) {
-      setSelected((prev) => [...prev, selectedName]);
+    } else if (e.ctrlKey && !selectedStore.includes(selectedName)) {
+      dispatch(addSelectedFiles([...selectedStore, selectedName]));
       return;
-    } else if (e.shiftKey && selected.length > 0) {
-      const elementFrom = selected[selected.length - 1];
+    } else if (e.shiftKey && selectedStore.length > 0) {
+      const elementFrom = selectedStore[selectedStore.length - 1];
 
       const contentIdxFrom = content.findIndex(
         (item) => item.name === elementFrom
@@ -151,18 +158,19 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
         )
         .map((i) => i.name);
 
-      setSelected((prev) => {
-        // Need to make sure that there are only unique names in the array
-        const nextSelected = [...prev, ...newSelectedArr, selectedName];
-        const nextUnique = [...new Set(nextSelected)];
-        return nextUnique;
-      });
+      const nextSelectedStore = [
+        ...selectedStore,
+        ...newSelectedArr,
+        selectedName,
+      ];
+      const nextUniqueStore = [...new Set(nextSelectedStore)];
+      dispatch(addSelectedFiles(nextUniqueStore));
       return;
-    } else if (!e.ctrlKey && !selected.includes(selectedName)) {
-      setSelected([selectedName]);
+    } else if (!e.ctrlKey && !selectedStore.includes(selectedName)) {
+      dispatch(addSelectedFiles([selectedName]));
       return;
     } else {
-      setSelected([]);
+      dispatch(clearSelectedFiles());
       return;
     }
   };
@@ -219,11 +227,38 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
         <TabItem
           key={`${item.name} ${i}`}
           {...item}
-          selected={selected.includes(item.name)}
+          selected={selectedStore.includes(item.name)}
           handleSelect={handleSelect}
         />
       ));
   };
+
+  useEffect(() => {
+    dispatch(clearSelectedFiles());
+  }, [activeTab, dispatch]);
+
+  useEffect(() => {
+    ipcRenderer.on('select-all', (event, data) => {
+      const contentNames = content.map((i) => i.name);
+
+      dispatch(addSelectedFiles(contentNames));
+    });
+  }, [content, dispatch, selectedStore]);
+
+  useEffect(() => {
+    ipcRenderer.on('copy-to-clipboard', (event, data) => {
+      ipcRenderer.send('copied-file', path, selectedStore);
+    });
+
+    ipcRenderer.on('paste-from-clipboard', (event, data) => {
+      ipcRenderer.send('pasted-file', path);
+      dispatch(openDir(id, path));
+    });
+
+    return () => {
+      ipcRenderer.removeAllListeners();
+    };
+  }, [path, selectedStore]);
 
   // TODO: create selected files reucer and actions
   // set selected array to [] on open new tab or close current or switch to another tab

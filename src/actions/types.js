@@ -6,3 +6,5 @@ export const SET_ACTIVE = 'SET_ACTIVE';
 export const OPEN_DIR = 'OPEN_DIR';
 export const TEST_ACTION = 'TEST_ACTION';
 export const SET_TAB_PATH = 'SET_TAB_PATH';
+export const ADD_SELECTED_FILES = 'ADD_SELECTED_FILES';
+export const CLEAR_SELECTED_FILES = 'CLEAR_SELECTED_FILES';

@@ -1,6 +1,8 @@
 const electron = require('electron');
 const { exec } = require('child_process');
 const os = require('os');
+const fs = require('fs');
+const path = require('path');
 const { clearArrayOfStrings } = require('./helpersMain/helpers');
 
 const formDirArrayWin = require('./helpersMain/formDirArrayWin');
@@ -12,17 +14,27 @@ const {
   copyHandler,
   pasteHandler,
   deleteHandler,
-} = require('./helpersMain/shortCutHandlers/shortCutHandlers');
+} = require('./helpersMain/shortCutHandlers/globalShortCutHandlers');
 
-const { app, BrowserWindow, ipcMain, Menu, globalShortcut } = electron;
+const {
+  app,
+  BrowserWindow,
+  ipcMain,
+  Menu,
+  globalShortcut,
+  clipboard,
+  dialog,
+} = electron;
 
 let mainWindow;
 
+let copiedFiles = [];
+
 const createWindow = () => {
-  globalShortcut.register('CommandOrControl+A', selectAllHandler);
-  globalShortcut.register('CommandOrControl+C', copyHandler);
-  globalShortcut.register('CommandOrControl+V', pasteHandler);
-  globalShortcut.register('delete', deleteHandler);
+  // globalShortcut.register('CommandOrControl+A', selectAllHandler);
+  // globalShortcut.register('CommandOrControl+C', copyHandler);
+  // globalShortcut.register('CommandOrControl+V', pasteHandler);
+  // globalShortcut.register('delete', deleteHandler);
 
   Menu.setApplicationMenu(applicationMenu);
 
@@ -127,6 +139,57 @@ ipcMain.on('test', (event) => {
   mainWindow.webContents.send('test-response', { msg: 'test complete' });
 });
 
+ipcMain.on('copied-file', (event, dirPath, namesArray) => {
+  copiedFiles = [];
+  namesArray.map((name) => copiedFiles.push(dirPath + name));
+  console.log('Copied Files ', copiedFiles);
+});
+
+ipcMain.on('pasted-file', (event, dirPath) => {
+  if (copiedFiles.length > 0) {
+    // TODO: refactor this code into a function
+    // send event when dialog window closed to refresh page with files
+    exec(
+      `ls "${dirPath}" -p --hide=*.sys --hide="System Volume Information" --group-directories-first`,
+      (error, stdout, stderr) => {
+        const namesArray = clearArrayOfStrings(stdout.toString().split('\n'));
+        console.log('namesArray', namesArray);
+
+        copiedFiles.map((filename) => {
+          console.log('filename ', filename);
+          const fileTrueName = filename.split('/').pop();
+          console.log('fileTrueName', fileTrueName);
+
+          if (namesArray.includes(fileTrueName)) {
+            console.log('File with such name already there');
+            let opts = {
+              title: 'Save file',
+              defaultPath: dirPath,
+              filters: [
+                {
+                  name: 'Allowed extensions',
+                  extensions: [path.extname(fileTrueName).substr(1)],
+                },
+              ],
+              buttonLabel: 'Save',
+            };
+
+            const newPath = dialog.showSaveDialogSync(mainWindow, opts);
+
+            exec(`cp -R ${filename} ${newPath}`, (error, stdout, stderr) => {
+              console.log(`Copied ${filename} to ${newPath}`);
+            });
+            return;
+          }
+          exec(`cp -R ${filename} ${dirPath}`, (error, stdout, stderr) => {
+            console.log(`Copied ${filename} to ${dirPath}`);
+          });
+        });
+      }
+    );
+  }
+});
+
 const template = [
   {
     label: 'File',
@@ -154,23 +217,26 @@ const template = [
     submenu: [
       {
         label: 'Select All',
-        accelerator: 'CommandOrControl+A',
+        accelerator: 'CommandOrControl+shift+A',
         click(e) {
-          selectAllHandler(e);
+          // selectAllHandler(e);
+          mainWindow.webContents.send('select-all');
         },
       },
       {
         label: 'Copy',
-        accelerator: 'CommandOrControl+C',
+        accelerator: 'CommandOrControl+shift+C',
         click(e) {
-          copyHandler(e);
+          // copyHandler(e);
+          mainWindow.webContents.send('copy-to-clipboard');
         },
       },
       {
         label: 'Paste',
-        accelerator: 'CommandOrControl+V',
+        accelerator: 'CommandOrControl+shift+V',
         click(e) {
-          pasteHandler(e);
+          // pasteHandler(e);
+          mainWindow.webContents.send('paste-from-clipboard');
         },
       },
       {
@@ -178,6 +244,18 @@ const template = [
         accelerator: 'delete',
         click(e) {
           deleteHandler(e);
+        },
+      },
+    ],
+  },
+  {
+    label: 'View',
+    submenu: [
+      {
+        label: 'Open DevTools',
+        accelerator: 'CommandOrControl+`',
+        click(e) {
+          mainWindow.webContents.openDevTools();
         },
       },
     ],
