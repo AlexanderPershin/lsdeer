@@ -225,6 +225,10 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
       ));
   };
 
+  // TODO: create selected files reucer and actions
+  // set selected array to [] on open new tab or close current or switch to another tab
+  // it is needed to CRUD operations with selected files
+
   return (
     <StyledTabContent
       ref={contentRef}

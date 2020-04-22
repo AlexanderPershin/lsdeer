@@ -7,12 +7,28 @@ const formDirArrayWin = require('./helpersMain/formDirArrayWin');
 const formDirArrayLinux = require('./helpersMain/formDirArrayLinux');
 const checkFileAndOpen = require('./helpersMain/checkFileAndOpen');
 
-const { app, BrowserWindow, ipcMain } = electron;
+const {
+  selectAllHandler,
+  copyHandler,
+  pasteHandler,
+  deleteHandler,
+} = require('./helpersMain/shortCutHandlers/shortCutHandlers');
+
+const { app, BrowserWindow, ipcMain, Menu, globalShortcut } = electron;
 
 let mainWindow;
 
 const createWindow = () => {
+  globalShortcut.register('CommandOrControl+A', selectAllHandler);
+  globalShortcut.register('CommandOrControl+C', copyHandler);
+  globalShortcut.register('CommandOrControl+V', pasteHandler);
+  globalShortcut.register('delete', deleteHandler);
+
+  Menu.setApplicationMenu(applicationMenu);
+
   mainWindow = new BrowserWindow({
+    title: 'lsdeer',
+    icon: __dirname + '/appAssets/Renna.png',
     webPreferences: {
       nodeIntegration: true,
     },
@@ -110,3 +126,80 @@ ipcMain.on('delete-file', (event, dirPath) => {
 ipcMain.on('test', (event) => {
   mainWindow.webContents.send('test-response', { msg: 'test complete' });
 });
+
+const template = [
+  {
+    label: 'File',
+    submenu: [
+      {
+        label: 'Save File',
+        accelerator: 'CommandOrControl+S',
+        click() {
+          console.log('Save command');
+
+          // mainWindow.webContents.send('save-markdown');
+        },
+      },
+      {
+        label: 'Quit',
+        accelerator: 'CommandOrControl+Q',
+        click() {
+          app.quit();
+        },
+      },
+    ],
+  },
+  {
+    label: 'Edit',
+    submenu: [
+      {
+        label: 'Select All',
+        accelerator: 'CommandOrControl+A',
+        click(e) {
+          selectAllHandler(e);
+        },
+      },
+      {
+        label: 'Copy',
+        accelerator: 'CommandOrControl+C',
+        click(e) {
+          copyHandler(e);
+        },
+      },
+      {
+        label: 'Paste',
+        accelerator: 'CommandOrControl+V',
+        click(e) {
+          pasteHandler(e);
+        },
+      },
+      {
+        label: 'Delete',
+        accelerator: 'delete',
+        click(e) {
+          deleteHandler(e);
+        },
+      },
+    ],
+  },
+];
+
+if (process.platform === 'darwin') {
+  const applicationName = 'Lsdeer';
+  template.unshift({
+    label: applicationName,
+    submenu: [
+      {
+        label: `About ${applicationName}`,
+      },
+      {
+        label: `Quit ${applicationName}`,
+        click() {
+          app.quit();
+        },
+      },
+    ],
+  });
+}
+
+const applicationMenu = Menu.buildFromTemplate(template);
