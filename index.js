@@ -8,6 +8,7 @@ const { clearArrayOfStrings } = require('./helpersMain/helpers');
 const formDirArrayWin = require('./helpersMain/formDirArrayWin');
 const formDirArrayLinux = require('./helpersMain/formDirArrayLinux');
 const checkFileAndOpen = require('./helpersMain/checkFileAndOpen');
+const pasteUnderNewName = require('./helpersMain/pasteUnderNewName');
 
 const {
   selectAllHandler,
@@ -155,34 +156,56 @@ ipcMain.on('pasted-file', (event, dirPath) => {
         const namesArray = clearArrayOfStrings(stdout.toString().split('\n'));
         console.log('namesArray', namesArray);
 
-        copiedFiles.map((filename) => {
+        copiedFiles.map((filename, i) => {
           console.log('filename ', filename);
           const fileTrueName = filename.split('/').pop();
           console.log('fileTrueName', fileTrueName);
 
           if (namesArray.includes(fileTrueName)) {
             console.log('File with such name already there');
-            let opts = {
-              title: 'Save file',
-              defaultPath: dirPath,
-              filters: [
-                {
-                  name: 'Allowed extensions',
-                  extensions: [path.extname(fileTrueName).substr(1)],
-                },
-              ],
-              buttonLabel: 'Save',
+            console.log('dirPath ', dirPath);
+
+            // let opts = {
+            //   title: 'File with such name already exists',
+            //   defaultPath: dirPath + fileTrueName,
+            //   filters: [
+            //     {
+            //       name: 'Allowed extensions',
+            //       extensions: [path.extname(fileTrueName).substr(1)],
+            //     },
+            //   ],
+            //   buttonLabel: 'Save',
+            // };
+
+            // const newPath = dialog.showSaveDialogSync(mainWindow, opts);
+
+            let options = {
+              buttons: ['Yes', 'No', 'Cancel'],
+              message:
+                'File with such name already exists, replace with new one?',
             };
 
-            const newPath = dialog.showSaveDialogSync(mainWindow, opts);
+            // userChoise 0 - Yes, 1 - No, 2 - Cancel
+            const userChoise = dialog.showMessageBoxSync(options);
 
-            exec(`cp -R ${filename} ${newPath}`, (error, stdout, stderr) => {
-              console.log(`Copied ${filename} to ${newPath}`);
-            });
+            if (userChoise === 0) {
+              exec(`cp -R ${filename} ${dirPath}`, (error, stdout, stderr) => {
+                console.log(`Copied ${filename} to ${dirPath}`);
+                mainWindow.webContents.send('file-was-pasted');
+              });
+            } else if (userChoise === 1) {
+              // TODO: save file under filename(1).ext name
+              // find a way to count and increase (number) on file rename
+              pasteUnderNewName(filename, dirPath, () => {
+                mainWindow.webContents.send('file-was-pasted');
+              });
+            }
+
             return;
           }
           exec(`cp -R ${filename} ${dirPath}`, (error, stdout, stderr) => {
             console.log(`Copied ${filename} to ${dirPath}`);
+            mainWindow.webContents.send('file-was-pasted');
           });
         });
       }

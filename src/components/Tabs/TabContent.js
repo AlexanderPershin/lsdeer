@@ -252,6 +252,9 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
 
     ipcRenderer.on('paste-from-clipboard', (event, data) => {
       ipcRenderer.send('pasted-file', path);
+    });
+
+    ipcRenderer.on('file-was-pasted', (event, data) => {
       dispatch(openDir(id, path));
     });
 
