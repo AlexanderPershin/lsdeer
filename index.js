@@ -3,6 +3,9 @@ const { exec } = require('child_process');
 const os = require('os');
 const fs = require('fs');
 const path = require('path');
+
+const ProgressBar = require('electron-progressbar');
+
 const { clearArrayOfStrings } = require('./helpersMain/helpers');
 
 const formDirArrayWin = require('./helpersMain/formDirArrayWin');
@@ -149,55 +152,116 @@ ipcMain.on('copied-file', (event, dirPath, namesArray) => {
 ipcMain.on('pasted-file', (event, dirPath) => {
   if (copiedFiles.length > 0) {
     // TODO: refactor this code into a function
-    // send event when dialog window closed to refresh page with files
     exec(
       `ls "${dirPath}" -p --hide=*.sys --hide="System Volume Information" --group-directories-first`,
       (error, stdout, stderr) => {
         const namesArray = clearArrayOfStrings(stdout.toString().split('\n'));
-        console.log('namesArray', namesArray);
+
+        const progressBar = new ProgressBar({
+          indeterminate: false,
+          text: 'Preparing data...',
+          detail: 'Copying data please wait...',
+          maxValue: copiedFiles.length,
+          browserWindow: {
+            text: 'Preparing data...',
+            detail: 'Wait...',
+            webPreferences: {
+              nodeIntegration: true,
+            },
+          },
+          webPreferences: {
+            nodeIntegration: true,
+          },
+        });
+
+        console.log('Progr max val ', progressBar.getOptions().maxValue);
+
+        progressBar
+          .on('completed', function () {
+            console.info(`completed...`);
+
+            progressBar.detail = 'Task completed. Exiting...';
+          })
+          .on('aborted', function (value) {
+            console.info(`aborted... ${value}`);
+          })
+          .on('progress', function (value) {
+            progressBar.detail = `Value ${value} out of ${
+              progressBar.getOptions().maxValue
+            }...`;
+          });
+
+        let replaceAll = false;
+        let noAll = false;
 
         copiedFiles.map((filename, i) => {
-          console.log('filename ', filename);
+          console.log('progressBar.value', progressBar.value);
+
           const fileTrueName = filename.split('/').pop();
-          console.log('fileTrueName', fileTrueName);
 
           if (namesArray.includes(fileTrueName)) {
             console.log('File with such name already there');
-            console.log('dirPath ', dirPath);
-
-            // let opts = {
-            //   title: 'File with such name already exists',
-            //   defaultPath: dirPath + fileTrueName,
-            //   filters: [
-            //     {
-            //       name: 'Allowed extensions',
-            //       extensions: [path.extname(fileTrueName).substr(1)],
-            //     },
-            //   ],
-            //   buttonLabel: 'Save',
-            // };
-
-            // const newPath = dialog.showSaveDialogSync(mainWindow, opts);
 
             let options = {
-              buttons: ['Yes', 'No', 'Cancel'],
+              buttons: ['Yes', 'No', 'Replace All', 'No All', 'Cancel'],
               message:
                 'File with such name already exists, replace with new one?',
             };
 
-            // userChoise 0 - Yes, 1 - No, 2 - Cancel
-            const userChoise = dialog.showMessageBoxSync(options);
+            if (!replaceAll && !noAll) {
+              const userChoise = dialog.showMessageBoxSync(options);
+              switch (userChoise) {
+                case 0:
+                  exec(
+                    `cp -R ${filename} ${dirPath}`,
+                    (error, stdout, stderr) => {
+                      console.log(`Copied ${filename} to ${dirPath}`);
+                      progressBar.value += 1;
+                      mainWindow.webContents.send('edit-action-complete');
+                    }
+                  );
 
-            if (userChoise === 0) {
+                  break;
+                case 1:
+                  pasteUnderNewName(filename, dirPath, () => {
+                    progressBar.value += 1;
+                    mainWindow.webContents.send('edit-action-complete');
+                  });
+
+                  break;
+                case 2:
+                  replaceAll = true;
+                  exec(
+                    `cp -R ${filename} ${dirPath}`,
+                    (error, stdout, stderr) => {
+                      console.log(`Copied ${filename} to ${dirPath}`);
+                      progressBar.value += 1;
+                      mainWindow.webContents.send('edit-action-complete');
+                    }
+                  );
+
+                  break;
+                case 3:
+                  noAll = true;
+                  pasteUnderNewName(filename, dirPath, () => {
+                    progressBar.value += 1;
+                    mainWindow.webContents.send('edit-action-complete');
+                  });
+
+                  break;
+                default:
+                  return;
+              }
+            } else if (replaceAll) {
               exec(`cp -R ${filename} ${dirPath}`, (error, stdout, stderr) => {
-                console.log(`Copied ${filename} to ${dirPath}`);
-                mainWindow.webContents.send('file-was-pasted');
+                console.log(`Replaced ${filename} to ${dirPath}`);
+                progressBar.value += 1;
+                mainWindow.webContents.send('edit-action-complete');
               });
-            } else if (userChoise === 1) {
-              // TODO: save file under filename(1).ext name
-              // find a way to count and increase (number) on file rename
+            } else if (noAll) {
               pasteUnderNewName(filename, dirPath, () => {
-                mainWindow.webContents.send('file-was-pasted');
+                progressBar.value += 1;
+                mainWindow.webContents.send('edit-action-complete');
               });
             }
 
@@ -205,9 +269,12 @@ ipcMain.on('pasted-file', (event, dirPath) => {
           }
           exec(`cp -R ${filename} ${dirPath}`, (error, stdout, stderr) => {
             console.log(`Copied ${filename} to ${dirPath}`);
-            mainWindow.webContents.send('file-was-pasted');
+            progressBar.value += 1;
+            mainWindow.webContents.send('edit-action-complete');
           });
         });
+        replaceAll = false;
+        noAll = false;
       }
     );
   }

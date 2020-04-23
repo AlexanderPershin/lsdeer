@@ -246,6 +246,9 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
   }, [content, dispatch, selectedStore]);
 
   useEffect(() => {
+    // Shotcut was pressed and electron have sent an event
+    // Take file path and args and envoke new event
+    // for CRUD operation
     ipcRenderer.on('copy-to-clipboard', (event, data) => {
       ipcRenderer.send('copied-file', path, selectedStore);
     });
@@ -254,7 +257,10 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
       ipcRenderer.send('pasted-file', path);
     });
 
-    ipcRenderer.on('file-was-pasted', (event, data) => {
+    // Electron have envoked an event to show that
+    // CRUD operation was successful
+    // now need to refresh tab content
+    ipcRenderer.on('edit-action-complete', (event, data) => {
       dispatch(openDir(id, path));
     });
 

@@ -32,10 +32,6 @@ const pasteUderNewName = (filePath, destDir, callback) => {
             ) + 1;
         }
 
-        console.log('pasteUderNewName -> copyNum', copyNum);
-
-        console.log('pasteUderNewName -> existingCopies', existingCopies);
-
         const fileNewName = `${fileNameNoExt}(copy ${copyNum})${fileExt}`;
 
         exec(
@@ -43,10 +39,6 @@ const pasteUderNewName = (filePath, destDir, callback) => {
           (error, stdout, stderr) => {
             if (error) console.log(error);
             if (stderr) console.log(stderr);
-
-            console.log(
-              `Command exec: cp -R ${filePath} ${destDir}${fileNewName}`
-            );
             callback();
           }
         );
