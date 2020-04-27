@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { openDir } from '../../actions/tabsActions';
@@ -8,8 +8,8 @@ import { hexToRgba } from 'hex-and-rgba';
 import { Icon } from '@fluentui/react/lib/Icon';
 import { getFileTypeIconProps, FileIconType } from '@uifabric/file-type-icons';
 
-const { remote, ipcRenderer, shell } = window.require('electron');
-const mainProcess = remote.require('./index.js');
+// const { remote, ipcRenderer, shell } = window.require('electron');
+// const mainProcess = remote.require('./index.js');
 
 const StyledItem = styled.div`
   display: flex;
@@ -48,10 +48,19 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
     dispatch(openDir(activeTab, newPath));
   };
 
+  const handleSelectThis = useCallback((e) => handleSelect(e, name), [
+    handleSelect,
+    name,
+  ]);
+
+  useEffect(() => {
+    console.log('Rerender TabItem');
+  }, []);
+
   // TODO: jpg image preview
   return (
     <StyledItem
-      onClick={(e) => handleSelect(e, name)}
+      onClick={handleSelectThis}
       onDoubleClick={handleOpenDirectory}
       sel={selected}
     >

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { openDir, addTab, closeTab } from '../../actions/tabsActions';
 import { setActiveTab } from '../../actions/activeTabActions';
@@ -129,51 +129,58 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
   const selectedStore = useSelector((state) => state.selected);
   const dispatch = useDispatch();
 
-  const handleSelect = (e, selectedName) => {
-    // TODO: rectangle selection onMouseDown/onMouseUp select elements
-    // under drawn rectangle and remove rectangle from the DOM
+  // Optimize handleSelect with useCallback hook
 
-    if (e.ctrlKey && selectedStore.includes(selectedName)) {
-      dispatch(
-        addSelectedFiles(selectedStore.filter((item) => item !== selectedName))
-      );
-      return;
-    } else if (e.ctrlKey && !selectedStore.includes(selectedName)) {
-      dispatch(addSelectedFiles([...selectedStore, selectedName]));
-      return;
-    } else if (e.shiftKey && selectedStore.length > 0) {
-      const elementFrom = selectedStore[selectedStore.length - 1];
+  const handleSelect = useCallback(
+    (e, selectedName) => {
+      // TODO: rectangle selection onMouseDown/onMouseUp select elements
+      // under drawn rectangle and remove rectangle from the DOM
 
-      const contentIdxFrom = content.findIndex(
-        (item) => item.name === elementFrom
-      );
-      const contentIdxTo = content.findIndex(
-        (item) => item.name === selectedName
-      );
+      if (e.ctrlKey && selectedStore.includes(selectedName)) {
+        dispatch(
+          addSelectedFiles(
+            selectedStore.filter((item) => item !== selectedName)
+          )
+        );
+        return;
+      } else if (e.ctrlKey && !selectedStore.includes(selectedName)) {
+        dispatch(addSelectedFiles([...selectedStore, selectedName]));
+        return;
+      } else if (e.shiftKey && selectedStore.length > 0) {
+        const elementFrom = selectedStore[selectedStore.length - 1];
 
-      const newSelectedArr = content
-        .slice(
-          Math.min(contentIdxFrom, contentIdxTo),
-          Math.max(contentIdxFrom, contentIdxTo)
-        )
-        .map((i) => i.name);
+        const contentIdxFrom = content.findIndex(
+          (item) => item.name === elementFrom
+        );
+        const contentIdxTo = content.findIndex(
+          (item) => item.name === selectedName
+        );
 
-      const nextSelectedStore = [
-        ...selectedStore,
-        ...newSelectedArr,
-        selectedName,
-      ];
-      const nextUniqueStore = [...new Set(nextSelectedStore)];
-      dispatch(addSelectedFiles(nextUniqueStore));
-      return;
-    } else if (!e.ctrlKey && !selectedStore.includes(selectedName)) {
-      dispatch(addSelectedFiles([selectedName]));
-      return;
-    } else {
-      dispatch(clearSelectedFiles());
-      return;
-    }
-  };
+        const newSelectedArr = content
+          .slice(
+            Math.min(contentIdxFrom, contentIdxTo),
+            Math.max(contentIdxFrom, contentIdxTo)
+          )
+          .map((i) => i.name);
+
+        const nextSelectedStore = [
+          ...selectedStore,
+          ...newSelectedArr,
+          selectedName,
+        ];
+        const nextUniqueStore = [...new Set(nextSelectedStore)];
+        dispatch(addSelectedFiles(nextUniqueStore));
+        return;
+      } else if (!e.ctrlKey && !selectedStore.includes(selectedName)) {
+        dispatch(addSelectedFiles([selectedName]));
+        return;
+      } else {
+        dispatch(clearSelectedFiles());
+        return;
+      }
+    },
+    [content, dispatch, selectedStore]
+  );
 
   const addTabAndActivate = () => {
     const newTab = {
@@ -268,6 +275,10 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
       ipcRenderer.removeAllListeners();
     };
   }, [path, selectedStore]);
+
+  useEffect(() => {
+    console.log('Rerender TabContent');
+  }, []);
 
   // TODO: create selected files reucer and actions
   // set selected array to [] on open new tab or close current or switch to another tab
