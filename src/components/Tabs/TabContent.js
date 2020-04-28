@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  createRef,
+  useCallback,
+} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { openDir, addTab, closeTab } from '../../actions/tabsActions';
 import { setActiveTab } from '../../actions/activeTabActions';
@@ -10,6 +16,10 @@ import styled from 'styled-components';
 import { hexToRgba } from 'hex-and-rgba';
 import { nanoid } from 'nanoid';
 import { Icon } from '@fluentui/react/lib/Icon';
+
+import useMousePosition from '@react-hook/mouse-position';
+import composeRefs from '@seznam/compose-react-refs';
+import useDynamicRefs from 'use-dynamic-refs';
 
 import NewTabContent from './NewTabContent';
 import TabItem from './TabItem';
@@ -59,6 +69,7 @@ const StyledFiles = styled.div`
   justify-items: center;
   background-color: ${({ theme }) =>
     hexToRgba(theme.bg.appBg + theme.opac.tabOpac).toString()};
+  position: relative;
 `;
 
 // TODO: Add margin to grid or empty row on the top for the nav element
@@ -121,9 +132,44 @@ const StyledTabPath = styled.input`
   }
 `;
 
+const StyledSelectionFrame = styled.div`
+  position: absolute;
+  top: ${({ selectionRect }) => Math.min(selectionRect.y1, selectionRect.y2)}px;
+  left: ${({ selectionRect }) =>
+    Math.min(selectionRect.x1, selectionRect.x2)}px;
+  width: ${({ selectionRect }) =>
+    Math.abs(selectionRect.x1 - selectionRect.x2)}px;
+  height: ${({ selectionRect }) =>
+    Math.abs(selectionRect.y1 - selectionRect.y2)}px;
+  border: 2px dashed blue;
+  background-color: ${({ theme }) => theme.bg.selectedBg};
+  z-index: 1000;
+  opacity: 0.5;
+  display: ${({ show }) => (show ? 'block' : 'none')};
+`;
+
 const TabContent = ({ id, name, content, createNew = false, path }) => {
   const contentRef = useRef(null);
+  const filesRef = useRef(null);
+  const selectionFrameRef = useRef(null);
+
+  // Todo Give TabItem elements refs somehow and then get their boundingClientRects
+  const elementsRefs = useRef(content.map(() => createRef()));
   const [loadedItems, setLoadItems] = useState(100);
+
+  const [mousePosition, mouseRef] = useMousePosition(
+    0, // enterDelay
+    0, // leaveDelay
+    15 // fps
+  );
+  const [mouseIsDown, setMouseIsDown] = useState(false);
+  const [isDrawingSelectionRect, setDrawingSelectionRect] = useState(false);
+  const [selectionRect, setSelectionRect] = useState({
+    x1: null,
+    y1: null,
+    x2: null,
+    y2: null,
+  });
 
   const activeTab = useSelector((state) => state.activeTab);
   const selectedStore = useSelector((state) => state.selected);
@@ -207,7 +253,6 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
     dispatch(openDir(id, newPath));
   };
 
-  // TODO: optimize performance for huge folders with more than 1000 elements
   const handleLoadMoreOnScroll = (e) => {
     const contentEl = contentRef.current;
     try {
@@ -253,9 +298,6 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
   }, [content, dispatch, selectedStore]);
 
   useEffect(() => {
-    // Shotcut was pressed and electron have sent an event
-    // Take file path and args and envoke new event
-    // for CRUD operation
     ipcRenderer.on('copy-to-clipboard', (event, data) => {
       ipcRenderer.send('copied-file', path, selectedStore);
     });
@@ -264,9 +306,6 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
       ipcRenderer.send('pasted-file', path);
     });
 
-    // Electron have envoked an event to show that
-    // CRUD operation was successful
-    // now need to refresh tab content
     ipcRenderer.on('edit-action-complete', (event, data) => {
       dispatch(openDir(id, path));
     });
@@ -276,13 +315,57 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
     };
   }, [path, selectedStore]);
 
-  useEffect(() => {
-    console.log('Rerender TabContent');
-  }, []);
-
   // TODO: create selected files reucer and actions
   // set selected array to [] on open new tab or close current or switch to another tab
   // it is needed to CRUD operations with selected files
+
+  // TODO: add mousemove/mousedown/mouseup events through addEventListener on mount in useEffect hook to ref
+
+  const handleMouseDown = (e) => {
+    if (e.target !== filesRef.current) {
+      // Target is TabItem => OpenDir on dblclick
+      return;
+    }
+
+    setMouseIsDown(true);
+    setSelectionRect((prev) => ({
+      ...prev,
+      x1: mousePosition.x,
+      y1: mousePosition.y,
+    }));
+  };
+
+  const handleMouseUp = (e) => {
+    console.log(
+      'SelectionFrameRef',
+      selectionFrameRef.current.getBoundingClientRect()
+    );
+
+    setMouseIsDown(false);
+    setDrawingSelectionRect(false);
+    setSelectionRect((prev) => ({
+      ...prev,
+      x2: mousePosition.x,
+      y2: mousePosition.y,
+    }));
+  };
+
+  const handleMouseMove = (e) => {
+    if (mouseIsDown) {
+      setDrawingSelectionRect(true);
+      setSelectionRect((prev) => ({
+        ...prev,
+        x2: mousePosition.x,
+        y2: mousePosition.y,
+      }));
+    } else {
+      return;
+    }
+  };
+
+  useEffect(() => {
+    console.log('SelectionRect', selectionRect);
+  }, [selectionRect]);
 
   return (
     <StyledTabContent
@@ -293,7 +376,12 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
       {createNew || path === '/' ? (
         <NewTabContent />
       ) : (
-        <StyledFiles>
+        <StyledFiles
+          ref={composeRefs(mouseRef, filesRef)}
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
+          onMouseMove={handleMouseMove}
+        >
           <StyledNavPlaceholder />
           <StyledNav>
             <StyledUp onClick={handleGoUp}>
@@ -303,6 +391,11 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
           </StyledNav>
 
           {renderContent()}
+          <StyledSelectionFrame
+            selectionRect={selectionRect}
+            ref={selectionFrameRef}
+            show={isDrawingSelectionRect}
+          />
         </StyledFiles>
       )}
     </StyledTabContent>

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { openDir } from '../../actions/tabsActions';
@@ -41,7 +41,11 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
   const tabs = useSelector((state) => state.tabs);
   const dispatch = useDispatch();
 
-  const handleOpenDirectory = () => {
+  const handleOpenDirectory = (e) => {
+    console.log('TabItem clicked');
+
+    e.stopPropagation();
+    e.preventDefault();
     const activePath = tabs.filter((item) => item.id === activeTab)[0].path;
     const newPath = `${activePath}${name}`;
 
@@ -63,6 +67,8 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
       onClick={handleSelectThis}
       onDoubleClick={handleOpenDirectory}
       sel={selected}
+      name={name}
+      id={name}
     >
       <Icon
         {...getFileTypeIconProps({
