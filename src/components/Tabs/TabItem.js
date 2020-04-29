@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { openDir } from '../../actions/tabsActions';
@@ -40,36 +40,53 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
   const activeTab = useSelector((state) => state.activeTab);
   const tabs = useSelector((state) => state.tabs);
   const dispatch = useDispatch();
+  let clickTimeout;
 
   const handleOpenDirectory = (e) => {
-    console.log('TabItem clicked');
+    console.log('TabItem openDirectory');
 
-    e.stopPropagation();
-    e.preventDefault();
+    // e.stopPropagation();
+    // e.preventDefault();
     const activePath = tabs.filter((item) => item.id === activeTab)[0].path;
     const newPath = `${activePath}${name}`;
 
     dispatch(openDir(activeTab, newPath));
+
+    e.stopPropagation();
+    e.preventDefault();
   };
 
-  const handleSelectThis = useCallback((e) => handleSelect(e, name), [
-    handleSelect,
-    name,
-  ]);
+  const handleSelectThis = (e) => {
+    e.persist();
+
+    handleSelect(e, name);
+  };
 
   useEffect(() => {
-    console.log('Rerender TabItem');
+    clickTimeout = null;
   }, []);
 
-  // TODO: jpg image preview
+  const handleClicks = (e) => {
+    e.persist();
+    if (clickTimeout !== null) {
+      console.log('double click executes');
+      handleOpenDirectory(e);
+      clearTimeout(clickTimeout);
+      clickTimeout = null;
+      return;
+    } else {
+      console.log('single click');
+      clickTimeout = setTimeout(() => {
+        console.log('first click executes ');
+        handleSelectThis(e);
+        clearTimeout(clickTimeout);
+        clickTimeout = null;
+      }, 175);
+    }
+  };
+
   return (
-    <StyledItem
-      onClick={handleSelectThis}
-      onDoubleClick={handleOpenDirectory}
-      sel={selected}
-      name={name}
-      id={name}
-    >
+    <StyledItem onClick={handleClicks} sel={selected} name={name} id={name}>
       <Icon
         {...getFileTypeIconProps({
           type: isFile && ext ? '' : FileIconType.folder,

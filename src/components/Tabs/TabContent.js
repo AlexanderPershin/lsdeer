@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  createRef,
-  useCallback,
-} from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { openDir, addTab, closeTab } from '../../actions/tabsActions';
 import { setActiveTab } from '../../actions/activeTabActions';
@@ -16,9 +10,6 @@ import styled from 'styled-components';
 import { hexToRgba } from 'hex-and-rgba';
 import { nanoid } from 'nanoid';
 import { Icon } from '@fluentui/react/lib/Icon';
-
-import useMousePosition from '@react-hook/mouse-position';
-import composeRefs from '@seznam/compose-react-refs';
 
 import { FixedSizeGrid as Grid } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
@@ -123,20 +114,19 @@ const StyledTabPath = styled.input`
   }
 `;
 
-const StyledSelectionFrame = styled.div`
-  position: absolute;
-  top: ${({ selectionRect }) => Math.min(selectionRect.y1, selectionRect.y2)}px;
-  left: ${({ selectionRect }) =>
-    Math.min(selectionRect.x1, selectionRect.x2)}px;
-  width: ${({ selectionRect }) =>
-    Math.abs(selectionRect.x1 - selectionRect.x2)}px;
-  height: ${({ selectionRect }) =>
-    Math.abs(selectionRect.y1 - selectionRect.y2)}px;
-  border: 2px dashed blue;
-  background-color: ${({ theme }) => theme.bg.selectedBg};
-  z-index: 1000;
-  opacity: 0.5;
-  display: ${({ show }) => (show ? 'block' : 'none')};
+const StyledRWGrid = styled(Grid)`
+  &::-webkit-scrollbar {
+    width: 1rem;
+    background-color: ${({ theme }) => theme.bg.activeTabBg};
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: ${({ theme }) => theme.bg.tabBg};
+    border-left: 2px solid ${({ theme }) => theme.bg.activeTabBg};
+    border-right: 2px solid ${({ theme }) => theme.bg.activeTabBg};
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: ${({ theme }) => theme.bg.scrollbarBg};
+  }
 `;
 
 const TabContent = ({ id, name, content, createNew = false, path }) => {
@@ -158,6 +148,7 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
     (e, selectedName) => {
       // TODO: rectangle selection onMouseDown/onMouseUp select elements
       // under drawn rectangle and remove rectangle from the DOM
+      console.log('Select TabItem');
 
       if (e.ctrlKey && selectedStore.includes(selectedName)) {
         dispatch(
@@ -213,13 +204,14 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
       createNew: true,
       path: '/',
     };
+    dispatch(clearSelectedFiles());
     dispatch(addTab(newTab));
     dispatch(setActiveTab(newTab.id));
     dispatch(closeTab(id));
   };
 
   const handleGoUp = () => {
-    if (path.length <= 2) {
+    if (path.length <= 3) {
       addTabAndActivate();
       return;
     }
@@ -228,6 +220,11 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
     path_arr.splice(-2, 2);
     const newPath = path_arr.join('/') + '/';
     dispatch(openDir(id, newPath));
+
+    const timer = setTimeout(() => {
+      dispatch(clearSelectedFiles());
+      clearTimeout(timer);
+    }, [100]);
   };
 
   const handleLoadMoreOnScroll = (e) => {
@@ -330,7 +327,7 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
 
           <AutoSizer>
             {({ height, width }) => (
-              <Grid
+              <StyledRWGrid
                 className='Grid'
                 columnCount={calcColCount(width)}
                 columnWidth={colWidth}
@@ -341,7 +338,7 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
                 itemData={calcColCount(width)}
               >
                 {Cell}
-              </Grid>
+              </StyledRWGrid>
             )}
           </AutoSizer>
         </StyledFiles>
