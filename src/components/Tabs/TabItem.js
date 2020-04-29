@@ -15,6 +15,7 @@ const StyledItem = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   background-color: ${({ theme, sel }) =>
     sel ? hexToRgba(theme.bg.selectedBg + 'cc').toString() : 'transparent'};
   z-index: ${({ sel }) => (sel ? 10 : 5)};
@@ -42,7 +43,7 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
   const dispatch = useDispatch();
 
   let clickTimeout = null;
-  const clickDelay = 200;
+  const clickDelay = 175;
 
   const handleOpenDirectory = (e) => {
     console.log('TabItem openDirectory');
@@ -83,14 +84,7 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
   };
 
   return (
-    <StyledItem
-      onClick={handleClicks}
-      // onClick={handleSelectThis}
-      // onDoubleClick={handleOpenDirectory}
-      id={name}
-      name={name}
-      sel={selected}
-    >
+    <StyledItem onClick={handleClicks} id={name} name={name} sel={selected}>
       <Icon
         {...getFileTypeIconProps({
           type: isFile && ext ? '' : FileIconType.folder,

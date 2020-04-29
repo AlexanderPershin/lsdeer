@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { closeTab } from '../../actions/tabsActions';
 import { setActiveTab } from '../../actions/activeTabActions';
+import { ContextMenu, MenuItem, ContextMenuTrigger } from 'react-contextmenu';
+import { Icon } from '@fluentui/react/lib/Icon';
 import styled from 'styled-components';
 
 const StyledTab = styled.div`
@@ -22,15 +24,28 @@ const StyledTab = styled.div`
   }
 `;
 
-const StyledXBtn = styled.span`
-  margin-left: 1rem;
-  font-size: 1.2rem;
+const StyledContextMenu = styled(ContextMenu)`
+  background-color: ${({ theme }) => theme.bg.appBg};
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 5px;
+  z-index: 1000;
+  border: 2px solid #fff;
+`;
+
+const StyledTabIcon = styled(Icon)`
+  font-size: 70%;
+  margin-left: 10px;
 `;
 
 const Tab = ({ id, name }) => {
   const activeTab = useSelector((state) => state.activeTab);
   const tabs = useSelector((state) => state.tabs);
   const dispatch = useDispatch();
+
+  const [isLocked, setLocked] = useState(false);
 
   const closeThisTab = (e) => {
     e.stopPropagation();
@@ -47,13 +62,38 @@ const Tab = ({ id, name }) => {
     dispatch(setActiveTab(id));
   };
 
+  const toggleLock = () => {
+    setLocked((prev) => !prev);
+  };
+
   return (
-    <StyledTab activeTab={id === activeTab ? true : false} onClick={setActive}>
-      <span>{name}</span>
-      {id === 'plus_tab' ? null : (
-        <StyledXBtn onClick={closeThisTab}>&times;</StyledXBtn>
-      )}
-    </StyledTab>
+    <React.Fragment>
+      <ContextMenuTrigger id={id}>
+        {' '}
+        <StyledTab
+          activeTab={id === activeTab ? true : false}
+          onClick={setActive}
+        >
+          <span>{name}</span>
+          {isLocked ? (
+            <StyledTabIcon iconName='LockSolid' />
+          ) : (
+            <StyledTabIcon iconName='ChromeClose' onClick={closeThisTab} />
+          )}
+        </StyledTab>
+      </ContextMenuTrigger>{' '}
+      <StyledContextMenu id={id}>
+        {!isLocked && (
+          <MenuItem data={{ foo: 'bar' }} onClick={closeThisTab}>
+            Close Tab
+          </MenuItem>
+        )}
+        <MenuItem data={{ foo: 'bar' }} onClick={toggleLock}>
+          {isLocked ? 'Unlock Tab' : 'Lock Tab'}
+        </MenuItem>
+        <MenuItem divider />
+      </StyledContextMenu>
+    </React.Fragment>
   );
 };
 
