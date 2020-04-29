@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { openDir } from '../../actions/tabsActions';
@@ -40,30 +40,27 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
   const activeTab = useSelector((state) => state.activeTab);
   const tabs = useSelector((state) => state.tabs);
   const dispatch = useDispatch();
-  let clickTimeout;
+
+  let clickTimeout = null;
+  const clickDelay = 200;
 
   const handleOpenDirectory = (e) => {
     console.log('TabItem openDirectory');
 
-    // e.stopPropagation();
-    // e.preventDefault();
     const activePath = tabs.filter((item) => item.id === activeTab)[0].path;
     const newPath = `${activePath}${name}`;
 
     dispatch(openDir(activeTab, newPath));
-
-    e.stopPropagation();
-    e.preventDefault();
   };
 
   const handleSelectThis = (e) => {
-    e.persist();
-
     handleSelect(e, name);
   };
 
   useEffect(() => {
+    clearTimeout(clickTimeout);
     clickTimeout = null;
+    console.log('render item');
   }, []);
 
   const handleClicks = (e) => {
@@ -81,12 +78,19 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
         handleSelectThis(e);
         clearTimeout(clickTimeout);
         clickTimeout = null;
-      }, 175);
+      }, clickDelay);
     }
   };
 
   return (
-    <StyledItem onClick={handleClicks} sel={selected} name={name} id={name}>
+    <StyledItem
+      onClick={handleClicks}
+      // onClick={handleSelectThis}
+      // onDoubleClick={handleOpenDirectory}
+      id={name}
+      name={name}
+      sel={selected}
+    >
       <Icon
         {...getFileTypeIconProps({
           type: isFile && ext ? '' : FileIconType.folder,

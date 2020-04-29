@@ -114,6 +114,10 @@ const StyledTabPath = styled.input`
   }
 `;
 
+const StyledAutoSizer = styled(AutoSizer)`
+  padding-top: 50px;
+`;
+
 const StyledRWGrid = styled(Grid)`
   &::-webkit-scrollbar {
     width: 1rem;
@@ -131,12 +135,8 @@ const StyledRWGrid = styled(Grid)`
 
 const TabContent = ({ id, name, content, createNew = false, path }) => {
   const contentRef = useRef(null);
-  const filesRef = useRef(null);
-  const selectionFrameRef = useRef(null);
 
   const [loadedItems, setLoadItems] = useState(100);
-
-  const [currentColsCount, setCurrentColCount] = useState(1);
 
   const activeTab = useSelector((state) => state.activeTab);
   const selectedStore = useSelector((state) => state.selected);
@@ -325,7 +325,7 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
             <StyledTabPath value={path} onChange={() => {}} readonly />
           </StyledNav>
 
-          <AutoSizer>
+          <StyledAutoSizer>
             {({ height, width }) => (
               <StyledRWGrid
                 className='Grid'
@@ -340,7 +340,7 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
                 {Cell}
               </StyledRWGrid>
             )}
-          </AutoSizer>
+          </StyledAutoSizer>
         </StyledFiles>
       )}
     </StyledTabContent>
