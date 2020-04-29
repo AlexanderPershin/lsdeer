@@ -79,7 +79,7 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
         })}
       />
       <StyledName title={name} sel={selected}>
-        {truncate(!isFile ? name.slice(0, -1) : name, 20)}
+        {name && truncate(!isFile ? name.slice(0, -1) : name, 20)}
       </StyledName>
     </StyledItem>
   );

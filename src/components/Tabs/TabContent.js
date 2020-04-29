@@ -19,7 +19,9 @@ import { Icon } from '@fluentui/react/lib/Icon';
 
 import useMousePosition from '@react-hook/mouse-position';
 import composeRefs from '@seznam/compose-react-refs';
-import useDynamicRefs from 'use-dynamic-refs';
+
+import { FixedSizeGrid as Grid } from 'react-window';
+import AutoSizer from 'react-virtualized-auto-sizer';
 
 import NewTabContent from './NewTabContent';
 import TabItem from './TabItem';
@@ -61,15 +63,11 @@ const StyledTabContent = styled.div`
 const StyledFiles = styled.div`
   width: 100%;
   height: 100%;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(100px, min-content));
-  grid-auto-rows: min-content;
-  grid-gap: 20px;
-  align-items: start;
-  justify-items: center;
+  display: block;
   background-color: ${({ theme }) =>
     hexToRgba(theme.bg.appBg + theme.opac.tabOpac).toString()};
   position: relative;
+  overflow: hidden;
 `;
 
 // TODO: Add margin to grid or empty row on the top for the nav element
@@ -85,13 +83,6 @@ const StyledNav = styled.div`
   align-items: stretch;
   font-size: ${({ theme }) => theme.font.pathBarFontSize};
   z-index: 150;
-`;
-
-const StyledNavPlaceholder = styled.div`
-  align-self: stretch;
-  justify-self: stretch;
-  grid-column: 1 / -1;
-  height: ${({ theme }) => theme.sizes.navHeight};
 `;
 
 const StyledUp = styled.button`
@@ -153,23 +144,9 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
   const filesRef = useRef(null);
   const selectionFrameRef = useRef(null);
 
-  // Todo Give TabItem elements refs somehow and then get their boundingClientRects
-  const elementsRefs = useRef(content.map(() => createRef()));
   const [loadedItems, setLoadItems] = useState(100);
 
-  const [mousePosition, mouseRef] = useMousePosition(
-    0, // enterDelay
-    0, // leaveDelay
-    15 // fps
-  );
-  const [mouseIsDown, setMouseIsDown] = useState(false);
-  const [isDrawingSelectionRect, setDrawingSelectionRect] = useState(false);
-  const [selectionRect, setSelectionRect] = useState({
-    x1: null,
-    y1: null,
-    x2: null,
-    y2: null,
-  });
+  const [currentColsCount, setCurrentColCount] = useState(1);
 
   const activeTab = useSelector((state) => state.activeTab);
   const selectedStore = useSelector((state) => state.selected);
@@ -272,19 +249,6 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
     }
   };
 
-  const renderContent = () => {
-    return content
-      .slice(0, loadedItems)
-      .map((item, i) => (
-        <TabItem
-          key={`${item.name} ${i}`}
-          {...item}
-          selected={selectedStore.includes(item.name)}
-          handleSelect={handleSelect}
-        />
-      ));
-  };
-
   useEffect(() => {
     dispatch(clearSelectedFiles());
   }, [activeTab, dispatch]);
@@ -319,53 +283,33 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
   // set selected array to [] on open new tab or close current or switch to another tab
   // it is needed to CRUD operations with selected files
 
-  // TODO: add mousemove/mousedown/mouseup events through addEventListener on mount in useEffect hook to ref
-
-  const handleMouseDown = (e) => {
-    if (e.target !== filesRef.current) {
-      // Target is TabItem => OpenDir on dblclick
-      return;
-    }
-
-    setMouseIsDown(true);
-    setSelectionRect((prev) => ({
-      ...prev,
-      x1: mousePosition.x,
-      y1: mousePosition.y,
-    }));
+  const calculateFlatIndex = (colIndex, rowIndex, colCount) => {
+    const index = rowIndex * colCount + colIndex;
+    return index;
   };
 
-  const handleMouseUp = (e) => {
-    console.log(
-      'SelectionFrameRef',
-      selectionFrameRef.current.getBoundingClientRect()
-    );
+  const Cell = ({ columnIndex, rowIndex, style, data: colCount }) => {
+    const item = content[calculateFlatIndex(columnIndex, rowIndex, colCount)];
 
-    setMouseIsDown(false);
-    setDrawingSelectionRect(false);
-    setSelectionRect((prev) => ({
-      ...prev,
-      x2: mousePosition.x,
-      y2: mousePosition.y,
-    }));
+    return item ? (
+      <div style={style}>
+        <TabItem
+          {...item}
+          handleSelect={handleSelect}
+          selected={selectedStore.includes(item.name)}
+        />
+      </div>
+    ) : null;
   };
 
-  const handleMouseMove = (e) => {
-    if (mouseIsDown) {
-      setDrawingSelectionRect(true);
-      setSelectionRect((prev) => ({
-        ...prev,
-        x2: mousePosition.x,
-        y2: mousePosition.y,
-      }));
-    } else {
-      return;
-    }
+  const colWidth = 150;
+  const rowHeight = 150;
+  const calcColCount = (w) => Math.floor(w / colWidth);
+  const calcRowCount = (w) => {
+    const colCount = calcColCount(w);
+    const rowCount = Math.ceil(content.length / colCount);
+    return rowCount;
   };
-
-  useEffect(() => {
-    console.log('SelectionRect', selectionRect);
-  }, [selectionRect]);
 
   return (
     <StyledTabContent
@@ -373,16 +317,10 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
       active={id === activeTab}
       onScroll={handleLoadMoreOnScroll}
     >
-      {createNew || path === '/' ? (
+      {createNew ? (
         <NewTabContent />
       ) : (
-        <StyledFiles
-          ref={composeRefs(mouseRef, filesRef)}
-          onMouseDown={handleMouseDown}
-          onMouseUp={handleMouseUp}
-          onMouseMove={handleMouseMove}
-        >
-          <StyledNavPlaceholder />
+        <StyledFiles>
           <StyledNav>
             <StyledUp onClick={handleGoUp}>
               <Icon iconName='SortUp' className='ms-IconExample' />
@@ -390,12 +328,22 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
             <StyledTabPath value={path} onChange={() => {}} readonly />
           </StyledNav>
 
-          {renderContent()}
-          <StyledSelectionFrame
-            selectionRect={selectionRect}
-            ref={selectionFrameRef}
-            show={isDrawingSelectionRect}
-          />
+          <AutoSizer>
+            {({ height, width }) => (
+              <Grid
+                className='Grid'
+                columnCount={calcColCount(width)}
+                columnWidth={colWidth}
+                height={height}
+                rowCount={calcRowCount(width)}
+                rowHeight={rowHeight}
+                width={width}
+                itemData={calcColCount(width)}
+              >
+                {Cell}
+              </Grid>
+            )}
+          </AutoSizer>
         </StyledFiles>
       )}
     </StyledTabContent>

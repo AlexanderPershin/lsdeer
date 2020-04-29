@@ -22,10 +22,11 @@
     "react-file-icon": "^0.2.0",
     "react-redux": "^7.2.0",
     "react-scripts": "3.4.1",
+    "react-virtualized-auto-sizer": "^1.0.2",
+    "react-window": "^1.8.5",
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
-    "styled-components": "^5.1.0",
-    "use-dynamic-refs": "^1.0.0"
+    "styled-components": "^5.1.0"
   },
   "scripts": {
     "start": "react-scripts start",

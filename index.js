@@ -306,6 +306,13 @@ const template = [
     label: 'Edit',
     submenu: [
       {
+        label: 'Refresh Page',
+        accelerator: 'CmdOrCtrl+R',
+        click() {
+          mainWindow.reload();
+        },
+      },
+      {
         label: 'Select All',
         accelerator: 'CommandOrControl+shift+A',
         click(e) {
