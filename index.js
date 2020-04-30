@@ -14,13 +14,6 @@ const checkFileAndOpen = require('./helpersMain/checkFileAndOpen');
 const pasteUnderNewName = require('./helpersMain/pasteUnderNewName');
 
 const {
-  selectAllHandler,
-  copyHandler,
-  pasteHandler,
-  deleteHandler,
-} = require('./helpersMain/shortCutHandlers/globalShortCutHandlers');
-
-const {
   app,
   BrowserWindow,
   ipcMain,
@@ -35,13 +28,6 @@ let mainWindow;
 let copiedFiles = [];
 
 const createWindow = () => {
-  // globalShortcut.register('CommandOrControl+A', selectAllHandler);
-  // globalShortcut.register('CommandOrControl+C', copyHandler);
-  // globalShortcut.register('CommandOrControl+V', pasteHandler);
-  // globalShortcut.register('delete', deleteHandler);
-
-  Menu.setApplicationMenu(applicationMenu);
-
   mainWindow = new BrowserWindow({
     title: 'lsdeer',
     icon: __dirname + '/appAssets/Renna.png',
@@ -50,6 +36,7 @@ const createWindow = () => {
     },
     height: 600,
     width: 800,
+    frame: false,
   });
 
   const startUrl =
@@ -279,102 +266,3 @@ ipcMain.on('pasted-file', (event, dirPath) => {
     );
   }
 });
-
-const template = [
-  {
-    label: 'File',
-    submenu: [
-      {
-        label: 'Save File',
-        accelerator: 'CommandOrControl+S',
-        click() {
-          console.log('Save command');
-
-          // mainWindow.webContents.send('save-markdown');
-        },
-      },
-      {
-        label: 'Quit',
-        accelerator: 'CommandOrControl+Q',
-        click() {
-          app.quit();
-        },
-      },
-    ],
-  },
-  {
-    label: 'Edit',
-    submenu: [
-      {
-        label: 'Refresh Page',
-        accelerator: 'CmdOrCtrl+R',
-        click() {
-          mainWindow.reload();
-        },
-      },
-      {
-        label: 'Select All',
-        accelerator: 'CommandOrControl+shift+A',
-        click(e) {
-          // selectAllHandler(e);
-          mainWindow.webContents.send('select-all');
-        },
-      },
-      {
-        label: 'Copy',
-        accelerator: 'CommandOrControl+shift+C',
-        click(e) {
-          // copyHandler(e);
-          mainWindow.webContents.send('copy-to-clipboard');
-        },
-      },
-      {
-        label: 'Paste',
-        accelerator: 'CommandOrControl+shift+V',
-        click(e) {
-          // pasteHandler(e);
-          mainWindow.webContents.send('paste-from-clipboard');
-        },
-      },
-      {
-        label: 'Delete',
-        accelerator: 'delete',
-        click(e) {
-          deleteHandler(e);
-        },
-      },
-    ],
-  },
-  {
-    label: 'View',
-    submenu: [
-      {
-        label: 'Open DevTools',
-        accelerator: 'CommandOrControl+`',
-        click(e) {
-          mainWindow.webContents.openDevTools();
-        },
-      },
-    ],
-  },
-];
-
-if (process.platform === 'darwin') {
-  const applicationName = 'Lsdeer';
-  template.unshift({
-    label: applicationName,
-    submenu: [
-      {
-        label: `About ${applicationName}`,
-      },
-      {
-        label: `Quit ${applicationName}`,
-        click() {
-          app.quit();
-        },
-      },
-    ],
-  });
-}
-
-const applicationMenu = Menu.buildFromTemplate(template);
