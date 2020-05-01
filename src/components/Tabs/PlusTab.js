@@ -4,13 +4,14 @@ import { useDispatch } from 'react-redux';
 import { addTab } from '../../actions/tabsActions';
 import { setActiveTab } from '../../actions/activeTabActions';
 import { nanoid } from 'nanoid';
+import { Icon } from '@fluentui/react/lib/Icon';
 
 const StyledTab = styled.div`
   flex: 0 0 2rem;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 0.5rem 1rem;
+  padding: 0.7rem 1rem;
   background-color: ${({ theme, activeTab }) =>
     activeTab ? theme.bg.activeTabBg : theme.bg.tabBg};
   user-select: none;
@@ -19,7 +20,12 @@ const StyledTab = styled.div`
   }
   &:hover {
     cursor: pointer;
+    background-color: ${({ theme }) => theme.bg.selectedBg};
   }
+`;
+
+const StyledTabIcon = styled(Icon)`
+  font-size: 70%;
 `;
 
 const PlusTab = ({ setPlusClicked }) => {
@@ -38,7 +44,11 @@ const PlusTab = ({ setPlusClicked }) => {
     dispatch(setActiveTab(newTab.id));
   };
 
-  return <StyledTab onClick={addTabAndActivate}>+</StyledTab>;
+  return (
+    <StyledTab onClick={addTabAndActivate}>
+      <StyledTabIcon iconName='Add' />
+    </StyledTab>
+  );
 };
 
 export default PlusTab;

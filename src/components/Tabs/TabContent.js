@@ -30,8 +30,7 @@ const StyledTabContent = styled.div`
   height: 100%;
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: 1fr;
-  grid-gap: 20px;
+  grid-template-rows: ${({ theme }) => theme.sizes.navHeight} 1fr;
   overflow-y: auto;
   background: url(${deerBg});
   background-size: contain;
@@ -66,7 +65,6 @@ const StyledFiles = styled.div`
 const StyledNav = styled.div`
   width: 100%;
   height: ${({ theme }) => theme.sizes.navHeight};
-  position: fixed;
   border-bottom: 3px solid ${({ theme }) => theme.bg.tabBg};
   border-top: 3px solid ${({ theme }) => theme.bg.tabBg};
   display: flex;
@@ -115,7 +113,7 @@ const StyledTabPath = styled.input`
 `;
 
 const StyledAutoSizer = styled(AutoSizer)`
-  padding-top: 50px;
+  /* margin-top: 50px; */
 `;
 
 const StyledRWGrid = styled(Grid)`
@@ -137,6 +135,7 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
   const contentRef = useRef(null);
 
   const [loadedItems, setLoadItems] = useState(100);
+  const [selectedItems, setSelectedItems] = useState([]);
 
   const activeTab = useSelector((state) => state.activeTab);
   const selectedStore = useSelector((state) => state.selected);
@@ -156,6 +155,7 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
             selectedStore.filter((item) => item !== selectedName)
           )
         );
+
         return;
       } else if (e.ctrlKey && !selectedStore.includes(selectedName)) {
         dispatch(addSelectedFiles([...selectedStore, selectedName]));
@@ -317,31 +317,32 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
       {createNew ? (
         <NewTabContent />
       ) : (
-        <StyledFiles>
+        <React.Fragment>
           <StyledNav>
             <StyledUp onClick={handleGoUp}>
               <Icon iconName='SortUp' className='ms-IconExample' />
             </StyledUp>
             <StyledTabPath value={path} onChange={() => {}} readonly />
           </StyledNav>
-
-          <StyledAutoSizer>
-            {({ height, width }) => (
-              <StyledRWGrid
-                className='Grid'
-                columnCount={calcColCount(width)}
-                columnWidth={colWidth}
-                height={height}
-                rowCount={calcRowCount(width)}
-                rowHeight={rowHeight}
-                width={width}
-                itemData={calcColCount(width)}
-              >
-                {Cell}
-              </StyledRWGrid>
-            )}
-          </StyledAutoSizer>
-        </StyledFiles>
+          <StyledFiles>
+            <StyledAutoSizer>
+              {({ height, width }) => (
+                <StyledRWGrid
+                  className='Grid'
+                  columnCount={calcColCount(width)}
+                  columnWidth={colWidth}
+                  height={height}
+                  rowCount={calcRowCount(width)}
+                  rowHeight={rowHeight}
+                  width={width}
+                  itemData={calcColCount(width)}
+                >
+                  {Cell}
+                </StyledRWGrid>
+              )}
+            </StyledAutoSizer>
+          </StyledFiles>
+        </React.Fragment>
       )}
     </StyledTabContent>
   );

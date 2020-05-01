@@ -138,6 +138,65 @@ const StyledApp = styled.div`
   grid-template-rows: min-content 1fr;
 `;
 
+const StyledElectronBar = styled.div`
+  .electronbar {
+    background-color: ${({ theme }) => theme.bg.appBarBg};
+    font-size: ${({ theme }) => theme.font.appBarFontSize};
+  }
+  .electronbar-title {
+    color: white;
+    text-align: center;
+  }
+  .electronbar-top-menu-item-children {
+    padding: 0;
+    background-color: ${({ theme }) => theme.bg.activeTabBg};
+  }
+  .electronbar-top-menu-item-children,
+  .electronbar-menu-item-children {
+    box-shadow: ${({ theme }) => theme.shadows.menuShadow};
+  }
+  .electronbar-menu-item-label {
+    padding: 0 15px;
+  }
+  .electronbar-menu-item-label-text {
+    font-size: ${({ theme }) => theme.font.appBarMenuFontSize};
+  }
+  .electronbar-menu-item-label-accelerator {
+    font-size: ${({ theme }) => theme.font.appBarMenuFontSize};
+  }
+  .electronbar-top-menu-item.open,
+  .electronbar-menu-item.open {
+    background-color: ${({ theme }) => theme.bg.appBarActiveItemBg};
+  }
+  .electronbar-top-menu-item:not(.disabled):hover,
+  .electronbar-menu-item:not(.disabled):hover {
+    background-color: ${({ theme }) => theme.bg.selectedBg};
+  }
+  .electronbar-button {
+    font-size: 0.7rem;
+  }
+  .electronbar-icon-minimize,
+  .electronbar-icon-maximize,
+  .electronbar-icon-unfullscreen,
+  .electronbar-icon-close {
+    font-size: 0.5rem;
+  }
+  .electronbar-button-minimize,
+  .electronbar-button-maximize,
+  .electronbar-button-unfullscreen,
+  .electronbar-button-close {
+    padding: 0 1.1rem;
+  }
+  .electronbar-button-minimize:hover,
+  .electronbar-button-maximize:hover,
+  .electronbar-button-unfullscreen:hover {
+    background-color: ${({ theme }) => theme.bg.activeTabBg};
+  }
+  .electronbar-button-close:hover {
+    background-color: ${({ theme }) => theme.bg.appBarXBtnHover};
+  }
+`;
+
 function App() {
   const tabs = useSelector((state) => state.tabs);
   const activeTab = useSelector((state) => state.activeTab);
@@ -206,7 +265,9 @@ function App() {
 
   return (
     <ThemeProvider theme={defaultTheme}>
-      <div ref={electronbarMount} />
+      <StyledElectronBar>
+        <div ref={electronbarMount} />
+      </StyledElectronBar>
       <GlobalStyle />
       <StyledApp className='app'>
         <Tabs list={tabs} addNewTab={addNewTab} closeTab={closeTab} />

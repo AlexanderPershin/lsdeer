@@ -8,9 +8,10 @@ import styled from 'styled-components';
 
 const TabsContainer = styled.div`
   display: flex;
-  justify-content: flex-start;
+  justify-content: stretch;
   align-items: stretch;
   overflow-x: auto;
+
   &::-webkit-scrollbar {
     height: 0.5rem;
     background-color: ${({ theme }) => theme.bg.activeTabBg};

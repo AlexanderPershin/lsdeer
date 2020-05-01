@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { closeTab } from '../../actions/tabsActions';
+import {
+  closeTab,
+  closeAllTabs,
+  lockTab,
+  unlockTab,
+} from '../../actions/tabsActions';
 import { setActiveTab } from '../../actions/activeTabActions';
 import { ContextMenu, MenuItem, ContextMenuTrigger } from 'react-contextmenu';
 import { Icon } from '@fluentui/react/lib/Icon';
@@ -21,6 +26,7 @@ const StyledTab = styled.div`
   }
   &:hover {
     cursor: pointer;
+    background-color: ${({ theme }) => theme.bg.selectedBg};
   }
 `;
 
@@ -29,10 +35,20 @@ const StyledContextMenu = styled(ContextMenu)`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  align-items: flex-start;
-  padding: 5px;
+  align-items: stretch;
   z-index: 1000;
-  border: 2px solid #fff;
+  box-shadow: ${({ theme }) => theme.shadows.menuShadow};
+`;
+
+const StyledMenuItem = styled(MenuItem)`
+  padding: 2px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  &:hover {
+    background-color: ${({ theme }) => theme.bg.selectedBg};
+  }
 `;
 
 const StyledTabIcon = styled(Icon)`
@@ -45,7 +61,10 @@ const Tab = ({ id, name }) => {
   const tabs = useSelector((state) => state.tabs);
   const dispatch = useDispatch();
 
-  const [isLocked, setLocked] = useState(false);
+  const currentTab = tabs.find((item) => item.id === id);
+  const { isLocked } = currentTab;
+
+  // const [isLocked, setLocked] = useState(false);
 
   const closeThisTab = (e) => {
     e.stopPropagation();
@@ -58,13 +77,28 @@ const Tab = ({ id, name }) => {
     dispatch(closeTab(id));
   };
 
+  const closeAll = () => {
+    const firstLocked = tabs.filter((item) => item.isLocked)[0];
+
+    firstLocked && dispatch(setActiveTab(firstLocked.id));
+
+    dispatch(closeAllTabs());
+  };
+
   const setActive = () => {
     dispatch(setActiveTab(id));
   };
 
   const toggleLock = () => {
-    setLocked((prev) => !prev);
+    if (isLocked) {
+      dispatch(unlockTab(id));
+    } else {
+      dispatch(lockTab(id));
+    }
   };
+
+  // TODO: Replace icons in context menu with shortcuts
+  // Add shortcuts ctrl+w ctrl+t to create and close tabs
 
   return (
     <React.Fragment>
@@ -84,13 +118,17 @@ const Tab = ({ id, name }) => {
       </ContextMenuTrigger>{' '}
       <StyledContextMenu id={id}>
         {!isLocked && (
-          <MenuItem data={{ foo: 'bar' }} onClick={closeThisTab}>
-            Close Tab
-          </MenuItem>
+          <StyledMenuItem data={{ foo: 'bar' }} onClick={closeThisTab}>
+            Close <StyledTabIcon iconName='Clear' />
+          </StyledMenuItem>
         )}
-        <MenuItem data={{ foo: 'bar' }} onClick={toggleLock}>
-          {isLocked ? 'Unlock Tab' : 'Lock Tab'}
-        </MenuItem>
+        <StyledMenuItem data={{ foo: 'bar' }} onClick={toggleLock}>
+          {isLocked ? 'Unlock' : 'Lock'}{' '}
+          <StyledTabIcon iconName={isLocked ? 'UnlockSolid' : 'LockSolid'} />
+        </StyledMenuItem>
+        <StyledMenuItem data={{ foo: 'bar' }} onClick={closeAll}>
+          Close All <StyledTabIcon iconName='Broom' />
+        </StyledMenuItem>
         <MenuItem divider />
       </StyledContextMenu>
     </React.Fragment>

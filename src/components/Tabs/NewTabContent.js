@@ -12,6 +12,7 @@ const StyledContent = styled.div`
   background-color: ${({ theme }) =>
     hexToRgba(theme.bg.appBg + 'cc').toString()};
   min-height: 100%;
+  grid-row: 1 / 3;
 `;
 
 const StyledDrivesWrapper = styled.div`

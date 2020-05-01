@@ -5,6 +5,8 @@ import {
   CLOSE_TAB,
   OPEN_DIR,
   TEST_ACTION,
+  LOCK_TAB,
+  UNLOCK_TAB,
 } from '../actions/types';
 
 const tabsReducer = function (state = [], action) {
@@ -15,8 +17,26 @@ const tabsReducer = function (state = [], action) {
       return [...state, action.payload];
     case CLOSE_TAB:
       return state.filter((item) => item.id !== action.payload);
+    case LOCK_TAB:
+      return state.map((item) => {
+        if (item.id !== action.payload) {
+          return item;
+        } else {
+          item.isLocked = true;
+          return item;
+        }
+      });
+    case UNLOCK_TAB:
+      return state.map((item) => {
+        if (item.id !== action.payload) {
+          return item;
+        } else {
+          item.isLocked = false;
+          return item;
+        }
+      });
     case CLOSE_ALL_TABS:
-      return [];
+      return state.filter((item) => item.isLocked === true);
     case OPEN_DIR: {
       const { id, newPath, newContent, name } = action.payload;
       return state.map((tab) => {

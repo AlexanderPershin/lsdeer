@@ -5,6 +5,8 @@ import {
   CLOSE_TAB,
   OPEN_DIR,
   TEST_ACTION,
+  LOCK_TAB,
+  UNLOCK_TAB,
 } from './types';
 
 const { remote, ipcRenderer, shell } = window.require('electron');
@@ -31,6 +33,20 @@ export const addTab = (tab) => {
 export const closeTab = (id) => {
   return {
     type: CLOSE_TAB,
+    payload: id,
+  };
+};
+
+export const lockTab = (id) => {
+  return {
+    type: LOCK_TAB,
+    payload: id,
+  };
+};
+
+export const unlockTab = (id) => {
+  return {
+    type: UNLOCK_TAB,
     payload: id,
   };
 };

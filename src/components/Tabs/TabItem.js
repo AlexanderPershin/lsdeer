@@ -3,6 +3,10 @@ import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { openDir } from '../../actions/tabsActions';
 import { hexToRgba } from 'hex-and-rgba';
+import {
+  addSelectedFiles,
+  clearSelectedFiles,
+} from '../../actions/selectFilesActions';
 
 // fluentui
 import { Icon } from '@fluentui/react/lib/Icon';
@@ -11,25 +15,33 @@ import { getFileTypeIconProps, FileIconType } from '@uifabric/file-type-icons';
 // const { remote, ipcRenderer, shell } = window.require('electron');
 // const mainProcess = remote.require('./index.js');
 
-const StyledItem = styled.div`
+const StyledItem = styled.button`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   background-color: ${({ theme, sel }) =>
     sel ? hexToRgba(theme.bg.selectedBg + 'cc').toString() : 'transparent'};
   z-index: ${({ sel }) => (sel ? 10 : 5)};
   user-select: none;
   cursor: pointer;
-  width: 100%;
   position: relative;
   padding: 5px;
+  border: none;
+  outline: none;
+  color: inherit;
+  font-size: inherit;
+  &:active,
+  &:focus {
+    background-color: ${({ theme }) => theme.bg.selectedBg};
+  }
 `;
 
-const StyledName = styled.div`
+const StyledName = styled.span`
   background-color: ${({ theme, sel }) =>
     sel ? hexToRgba(theme.bg.selectedBg + 'cc').toString() : 'transparent'};
-  width: 100%;
+  width: 100px;
+  white-space: normal;
   word-wrap: break-word;
   text-align: center;
 `;
@@ -40,10 +52,11 @@ const truncate = (input, num) =>
 const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
   const activeTab = useSelector((state) => state.activeTab);
   const tabs = useSelector((state) => state.tabs);
+  const selectedStore = useSelector((state) => state.selected);
   const dispatch = useDispatch();
 
   let clickTimeout = null;
-  const clickDelay = 175;
+  const clickDelay = 200;
 
   const handleOpenDirectory = (e) => {
     console.log('TabItem openDirectory');
@@ -54,9 +67,10 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
     dispatch(openDir(activeTab, newPath));
   };
 
-  const handleSelectThis = (e) => {
-    handleSelect(e, name);
-  };
+  const handleSelectThis = useCallback((e) => handleSelect(e, name), [
+    handleSelect,
+    name,
+  ]);
 
   useEffect(() => {
     clearTimeout(clickTimeout);
@@ -69,11 +83,13 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
     if (clickTimeout !== null) {
       console.log('double click executes');
       handleOpenDirectory(e);
+
       clearTimeout(clickTimeout);
       clickTimeout = null;
       return;
     } else {
       console.log('single click');
+
       clickTimeout = setTimeout(() => {
         console.log('first click executes ');
         handleSelectThis(e);
@@ -94,7 +110,9 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
         })}
       />
       <StyledName title={name} sel={selected}>
-        {name && truncate(!isFile ? name.slice(0, -1) : name, 20)}
+        {name && selected
+          ? name
+          : truncate(!isFile ? name.slice(0, -1) : name, 30)}
       </StyledName>
     </StyledItem>
   );
