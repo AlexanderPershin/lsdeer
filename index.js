@@ -139,8 +139,18 @@ ipcMain.on('copied-file', (event, dirPath, namesArray) => {
 ipcMain.on('pasted-file', (event, dirPath) => {
   if (copiedFiles.length > 0) {
     // TODO: refactor this code into a function
+
+    let hiddenDirs;
+    const win32HiddenDirs = '--hide=*.sys --hide="System Volume Information"';
+    const darwinHiddenDirs = '';
+    if (process.platform === 'win32') {
+      hiddenDirs = win32HiddenDirs;
+    } else if (process.platform === 'darwin') {
+      hiddenDirs = darwinHiddenDirs;
+    }
+
     exec(
-      `ls "${dirPath}" -p --hide=*.sys --hide="System Volume Information" --group-directories-first`,
+      `ls "${dirPath}" -Ap ${hiddenDirs} --group-directories-first`,
       (error, stdout, stderr) => {
         const namesArray = clearArrayOfStrings(stdout.toString().split('\n'));
 

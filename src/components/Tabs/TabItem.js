@@ -1,12 +1,14 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import styled from 'styled-components';
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+  useContext,
+  useRef,
+} from 'react';
+import styled, { ThemeContext } from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { openDir } from '../../actions/tabsActions';
 import { hexToRgba } from 'hex-and-rgba';
-import {
-  addSelectedFiles,
-  clearSelectedFiles,
-} from '../../actions/selectFilesActions';
 
 // fluentui
 import { Icon } from '@fluentui/react/lib/Icon';
@@ -35,11 +37,12 @@ const StyledItem = styled.button`
   &:focus {
     background-color: ${({ theme }) => theme.bg.selectedBg};
   }
+  &:not(:focus) {
+    /* background-color: transparent; */
+  }
 `;
 
 const StyledName = styled.span`
-  background-color: ${({ theme, sel }) =>
-    sel ? hexToRgba(theme.bg.selectedBg + 'cc').toString() : 'transparent'};
   width: 100px;
   white-space: normal;
   word-wrap: break-word;
@@ -55,8 +58,13 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
   const selectedStore = useSelector((state) => state.selected);
   const dispatch = useDispatch();
 
+  const thisItem = useRef(null);
+
+  const themeContext = useContext(ThemeContext);
+  const { fileIconSize } = themeContext.sizes;
+
   let clickTimeout = null;
-  const clickDelay = 200;
+  const clickDelay = 300;
 
   const handleOpenDirectory = (e) => {
     console.log('TabItem openDirectory');
@@ -75,23 +83,19 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
   useEffect(() => {
     clearTimeout(clickTimeout);
     clickTimeout = null;
-    console.log('render item');
   }, []);
 
   const handleClicks = (e) => {
     e.persist();
+
     if (clickTimeout !== null) {
-      console.log('double click executes');
       handleOpenDirectory(e);
 
       clearTimeout(clickTimeout);
       clickTimeout = null;
       return;
     } else {
-      console.log('single click');
-
       clickTimeout = setTimeout(() => {
-        console.log('first click executes ');
         handleSelectThis(e);
         clearTimeout(clickTimeout);
         clickTimeout = null;
@@ -100,19 +104,27 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
   };
 
   return (
-    <StyledItem onClick={handleClicks} id={name} name={name} sel={selected}>
+    <StyledItem
+      onClick={handleClicks}
+      id={name}
+      name={name}
+      sel={selected}
+      ref={thisItem}
+    >
       <Icon
         {...getFileTypeIconProps({
           type: isFile && ext ? '' : FileIconType.folder,
           extension: isFile && ext ? ext : '',
-          size: 48,
+          size: fileIconSize,
           imageFileType: 'svg',
         })}
       />
       <StyledName title={name} sel={selected}>
         {name && selected
-          ? name
-          : truncate(!isFile ? name.slice(0, -1) : name, 30)}
+          ? !isFile
+            ? name.slice(0, -1)
+            : name
+          : truncate(!isFile ? name.slice(0, -1) : name, 20)}
       </StyledName>
     </StyledItem>
   );

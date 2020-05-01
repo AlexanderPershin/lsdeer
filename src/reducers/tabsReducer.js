@@ -7,6 +7,7 @@ import {
   TEST_ACTION,
   LOCK_TAB,
   UNLOCK_TAB,
+  SET_PROPERTY,
 } from '../actions/types';
 
 const tabsReducer = function (state = [], action) {
@@ -17,6 +18,15 @@ const tabsReducer = function (state = [], action) {
       return [...state, action.payload];
     case CLOSE_TAB:
       return state.filter((item) => item.id !== action.payload);
+    case SET_PROPERTY:
+      return state.map((item) => {
+        if (item.id !== action.payload.id) {
+          return item;
+        } else {
+          item[action.payload.propname] = action.payload.propval;
+          return item;
+        }
+      });
     case LOCK_TAB:
       return state.map((item) => {
         if (item.id !== action.payload) {

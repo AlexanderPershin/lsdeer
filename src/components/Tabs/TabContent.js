@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useContext,
+} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { openDir, addTab, closeTab } from '../../actions/tabsActions';
 import { setActiveTab } from '../../actions/activeTabActions';
@@ -6,7 +12,7 @@ import {
   addSelectedFiles,
   clearSelectedFiles,
 } from '../../actions/selectFilesActions';
-import styled from 'styled-components';
+import styled, { ThemeContext } from 'styled-components';
 import { hexToRgba } from 'hex-and-rgba';
 import { nanoid } from 'nanoid';
 import { Icon } from '@fluentui/react/lib/Icon';
@@ -17,6 +23,8 @@ import AutoSizer from 'react-virtualized-auto-sizer';
 import NewTabContent from './NewTabContent';
 import TabItem from './TabItem';
 import deerBg from '../../img/deer.svg';
+
+import addTabAndActivate from '../../helpers/addTabAndActivate';
 
 const { remote, ipcRenderer, shell } = window.require('electron');
 
@@ -131,15 +139,23 @@ const StyledRWGrid = styled(Grid)`
   }
 `;
 
+const StyledCell = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+`;
+
 const TabContent = ({ id, name, content, createNew = false, path }) => {
   const contentRef = useRef(null);
 
   const [loadedItems, setLoadItems] = useState(100);
-  const [selectedItems, setSelectedItems] = useState([]);
 
   const activeTab = useSelector((state) => state.activeTab);
   const selectedStore = useSelector((state) => state.selected);
   const dispatch = useDispatch();
+
+  const themeContext = useContext(ThemeContext);
+  const { rowHeight, colWidth } = themeContext.sizes;
 
   // Optimize handleSelect with useCallback hook
 
@@ -147,7 +163,6 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
     (e, selectedName) => {
       // TODO: rectangle selection onMouseDown/onMouseUp select elements
       // under drawn rectangle and remove rectangle from the DOM
-      console.log('Select TabItem');
 
       if (e.ctrlKey && selectedStore.includes(selectedName)) {
         dispatch(
@@ -196,23 +211,10 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
     [content, dispatch, selectedStore]
   );
 
-  const addTabAndActivate = () => {
-    const newTab = {
-      id: nanoid(),
-      name: 'New',
-      content: [],
-      createNew: true,
-      path: '/',
-    };
-    dispatch(clearSelectedFiles());
-    dispatch(addTab(newTab));
-    dispatch(setActiveTab(newTab.id));
-    dispatch(closeTab(id));
-  };
-
   const handleGoUp = () => {
     if (path.length <= 3) {
-      addTabAndActivate();
+      addTabAndActivate(dispatch);
+      dispatch(closeTab(id));
       return;
     }
     let path_arr = path.split('/');
@@ -241,7 +243,6 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
       contentEl.scrollHeight - 150 <=
       Math.ceil(contentEl.scrollTop + contentEl.clientHeight)
     ) {
-      console.log('Scrolled bottom');
       setLoadItems((prev) => prev + 50);
     }
   };
@@ -289,18 +290,16 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
     const item = content[calculateFlatIndex(columnIndex, rowIndex, colCount)];
 
     return item ? (
-      <div style={style}>
+      <StyledCell style={style}>
         <TabItem
           {...item}
           handleSelect={handleSelect}
           selected={selectedStore.includes(item.name)}
         />
-      </div>
+      </StyledCell>
     ) : null;
   };
 
-  const colWidth = 150;
-  const rowHeight = 150;
   const calcColCount = (w) => Math.floor(w / colWidth);
   const calcRowCount = (w) => {
     const colCount = calcColCount(w);

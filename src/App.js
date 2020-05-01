@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled, { ThemeProvider } from 'styled-components';
 import { nanoid } from 'nanoid';
-import { addTab } from './actions/tabsActions';
+import { addTab, closeTab } from './actions/tabsActions';
 import { setActiveTab } from './actions/activeTabActions';
 import GlobalStyle from './themes/globalStyle';
 import { initializeFileTypeIcons } from '@uifabric/file-type-icons';
@@ -17,6 +17,8 @@ import Tabs from './components/Tabs/Tabs';
 import TabContentContainer from './components/Tabs/TabContentContainer';
 
 import appIcon from './img/Renna.png';
+
+import addTabAndActivate from './helpers/addTabAndActivate';
 
 const { remote, ipcRenderer, shell, app } = window.require('electron');
 const electron = window.require('electron');
@@ -91,6 +93,20 @@ const template = [
         accelerator: 'delete',
         click(e) {
           console.log('delete');
+        },
+      },
+    ],
+  },
+  {
+    label: 'Tabs',
+    submenu: [
+      {
+        label: 'Close',
+        accelerator: 'CmdOrCtrl+W',
+        click() {
+          // TODO: add ipc main event and emit it here
+          // in App component listen to response and close current tab
+          console.log('close current tab');
         },
       },
     ],
@@ -229,6 +245,16 @@ function App() {
       }
       if (e.which === 65 && e.ctrlKey) {
         mainWindow.webContents.send('select-all');
+        // ipcRenderer.send('select-all');
+      }
+      if (e.which === 84 && e.ctrlKey) {
+        addTabAndActivate(dispatch);
+      }
+      if (e.which === 87 && e.ctrlKey) {
+        // ctrl+w = close current tab causes infinite loop
+        // because added inside useEffect on mount
+        // add event and listend to it
+        // dispatch(closeTab(activeTab));
       }
     });
   }, []);

@@ -7,6 +7,7 @@ import {
   TEST_ACTION,
   LOCK_TAB,
   UNLOCK_TAB,
+  SET_PROPERTY,
 } from './types';
 
 const { remote, ipcRenderer, shell } = window.require('electron');
@@ -37,18 +38,24 @@ export const closeTab = (id) => {
   };
 };
 
-export const lockTab = (id) => {
+// Sets tab property (for example isLocked etc)
+export const setTabProperty = (id, propname, propval) => {
   return {
-    type: LOCK_TAB,
-    payload: id,
+    type: SET_PROPERTY,
+    payload: {
+      id,
+      propname,
+      propval,
+    },
   };
 };
 
+export const lockTab = (id) => {
+  return setTabProperty(id, 'isLocked', true);
+};
+
 export const unlockTab = (id) => {
-  return {
-    type: UNLOCK_TAB,
-    payload: id,
-  };
+  return setTabProperty(id, 'isLocked', false);
 };
 
 export const closeAllTabs = () => {

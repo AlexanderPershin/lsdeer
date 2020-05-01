@@ -4,6 +4,7 @@ export const ADD_TAB = 'ADD_TAB';
 export const CLOSE_TAB = 'CLOSE_TAB';
 export const SET_ACTIVE = 'SET_ACTIVE';
 export const SET_TAB_PATH = 'SET_TAB_PATH';
+export const SET_PROPERTY = 'SET_PROPERTY';
 export const LOCK_TAB = 'LOCK_TAB';
 export const UNLOCK_TAB = 'UNLOCK_TAB';
 export const OPEN_DIR = 'OPEN_DIR';

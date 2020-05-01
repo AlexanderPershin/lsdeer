@@ -1,10 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
-import { addTab } from '../../actions/tabsActions';
-import { setActiveTab } from '../../actions/activeTabActions';
-import { nanoid } from 'nanoid';
 import { Icon } from '@fluentui/react/lib/Icon';
+
+import addTabAndActivate from '../../helpers/addTabAndActivate';
 
 const StyledTab = styled.div`
   flex: 0 0 2rem;
@@ -31,21 +30,8 @@ const StyledTabIcon = styled(Icon)`
 const PlusTab = ({ setPlusClicked }) => {
   const dispatch = useDispatch();
 
-  const addTabAndActivate = () => {
-    const newTab = {
-      id: nanoid(),
-      name: 'New',
-      content: [],
-      createNew: true,
-      path: '/',
-    };
-    setPlusClicked(true);
-    dispatch(addTab(newTab));
-    dispatch(setActiveTab(newTab.id));
-  };
-
   return (
-    <StyledTab onClick={addTabAndActivate}>
+    <StyledTab onClick={() => addTabAndActivate(dispatch)}>
       <StyledTabIcon iconName='Add' />
     </StyledTab>
   );
