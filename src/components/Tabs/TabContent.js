@@ -229,6 +229,7 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
     const newPath = path_arr.join('/') + '/';
     dispatch(openDir(id, newPath));
 
+    // TODO: find another solution for this
     const timer = setTimeout(() => {
       dispatch(clearSelectedFiles());
       clearTimeout(timer);
