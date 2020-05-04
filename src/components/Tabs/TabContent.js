@@ -161,9 +161,6 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
 
   const handleSelect = useCallback(
     (e, selectedName) => {
-      // TODO: rectangle selection onMouseDown/onMouseUp select elements
-      // under drawn rectangle and remove rectangle from the DOM
-
       if (e.ctrlKey && selectedStore.includes(selectedName)) {
         dispatch(
           addSelectedFiles(
@@ -202,6 +199,15 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
         return;
       } else if (!e.ctrlKey && !selectedStore.includes(selectedName)) {
         dispatch(addSelectedFiles([selectedName]));
+        return;
+      } else if (
+        !e.ctrlKey &&
+        selectedStore.includes(selectedName) &&
+        selectedStore.length === 1
+      ) {
+        // Only this item is selected -> do nothing
+        // DON'T CHANGE THIS - VERY IMPORTANT
+        // ENABLES DOUBLE CLICK EVENT TO OPEN DIRECTORY!
         return;
       } else {
         dispatch(clearSelectedFiles());

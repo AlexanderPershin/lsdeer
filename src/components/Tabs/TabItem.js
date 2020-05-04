@@ -33,10 +33,10 @@ const StyledItem = styled.button`
   outline: none;
   color: inherit;
   font-size: inherit;
-  &:active,
+  /* &:active,
   &:focus {
     background-color: ${({ theme }) => theme.bg.selectedBg};
-  }
+  } */
   &:not(:focus) {
     /* background-color: transparent; */
   }
@@ -63,9 +63,6 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
   const themeContext = useContext(ThemeContext);
   const { fileIconSize } = themeContext.sizes;
 
-  let clickTimeout = null;
-  const clickDelay = 300;
-
   const handleOpenDirectory = (e) => {
     console.log('TabItem openDirectory');
 
@@ -80,34 +77,10 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
     name,
   ]);
 
-  useEffect(() => {
-    clearTimeout(clickTimeout);
-    clickTimeout = null;
-  }, []);
-
-  const handleClicks = (e) => {
-    e.persist();
-
-    if (clickTimeout !== null) {
-      handleOpenDirectory(e);
-
-      clearTimeout(clickTimeout);
-      clickTimeout = null;
-      return;
-    } else {
-      clickTimeout = setTimeout(() => {
-        handleSelectThis(e);
-        clearTimeout(clickTimeout);
-        clickTimeout = null;
-      }, clickDelay);
-    }
-  };
-
   return (
     <StyledItem
-      onClick={handleClicks}
-      id={name}
-      name={name}
+      onClick={handleSelectThis}
+      onDoubleClick={handleOpenDirectory}
       sel={selected}
       ref={thisItem}
     >
@@ -120,7 +93,7 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
         })}
       />
       <StyledName title={name} sel={selected}>
-        {name && selected
+        {name && selected && selectedStore.length === 1
           ? !isFile
             ? name.slice(0, -1)
             : name
