@@ -254,6 +254,19 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
     }
   };
 
+  const handleDeselectOnMisclick = (e) => {
+    if (
+      e.target &&
+      (e.target.classList.contains('TabItem') ||
+        e.target.parentNode.classList.contains('TabItem'))
+    ) {
+      // TabItem clicked -> do nothing
+      return;
+    } else {
+      dispatch(clearSelectedFiles());
+    }
+  };
+
   useEffect(() => {
     dispatch(clearSelectedFiles());
   }, [activeTab, dispatch]);
@@ -267,22 +280,11 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
   }, [content, dispatch, selectedStore]);
 
   useEffect(() => {
-    ipcRenderer.on('copy-to-clipboard', (event, data) => {
-      ipcRenderer.send('copied-file', path, selectedStore);
-    });
-
-    ipcRenderer.on('paste-from-clipboard', (event, data) => {
-      ipcRenderer.send('pasted-file', path);
-    });
-
-    ipcRenderer.on('edit-action-complete', (event, data) => {
-      dispatch(openDir(id, path));
-    });
-
+    document.addEventListener('click', handleDeselectOnMisclick);
     return () => {
-      ipcRenderer.removeAllListeners();
+      document.removeEventListener('click', handleDeselectOnMisclick);
     };
-  }, [path, selectedStore]);
+  }, []);
 
   // TODO: create selected files reucer and actions
   // set selected array to [] on open new tab or close current or switch to another tab

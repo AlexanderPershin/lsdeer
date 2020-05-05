@@ -2,7 +2,8 @@ import React, { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled, { ThemeProvider } from 'styled-components';
 import { nanoid } from 'nanoid';
-import { addTab, closeTab } from './actions/tabsActions';
+import { addTab, closeTab, openDir } from './actions/tabsActions';
+import { setDrives, clearDrives } from './actions/drivesActions';
 import { setActiveTab } from './actions/activeTabActions';
 import GlobalStyle from './themes/globalStyle';
 import { initializeFileTypeIcons } from '@uifabric/file-type-icons';
@@ -20,9 +21,10 @@ import appIcon from './img/Renna.png';
 
 import addTabAndActivate from './helpers/addTabAndActivate';
 
-const { remote, ipcRenderer, shell, app } = window.require('electron');
+import parseDrivesData from './helpers/parseDrivesData';
+
+const { remote, ipcRenderer } = window.require('electron');
 const electron = window.require('electron');
-const mainProcess = remote.require('./index.js');
 const mainWindow = remote.getCurrentWindow();
 
 initializeIcons();
@@ -216,7 +218,11 @@ const StyledElectronBar = styled.div`
 function App() {
   const tabs = useSelector((state) => state.tabs);
   const activeTab = useSelector((state) => state.activeTab);
+  const selectedStore = useSelector((state) => state.selected);
+  const drives = useSelector((state) => state.drives);
   const dispatch = useDispatch();
+
+  const activeTabObect = tabs.filter((item) => item.id === activeTab)[0];
 
   const electronbarMount = useRef(null);
   let electronbar = useRef(null);
@@ -259,6 +265,34 @@ function App() {
     });
   }, []);
 
+  useEffect(() => {
+    const tabPath = activeTabObect ? activeTabObect.path : null;
+
+    ipcRenderer.on('copy-to-clipboard', (event, data) => {
+      ipcRenderer.send('copied-file', tabPath, selectedStore);
+    });
+
+    ipcRenderer.on('paste-from-clipboard', (event, data) => {
+      ipcRenderer.send('pasted-file', tabPath);
+    });
+
+    ipcRenderer.on('edit-action-complete', (event, data) => {
+      dispatch(openDir(activeTab, tabPath));
+    });
+
+    ipcRenderer.once('drives-response', (event, data) => {
+      const newDrives = parseDrivesData(data.response);
+
+      // shallow comparison
+      if (JSON.stringify(drives) === JSON.stringify(newDrives)) {
+        // drives are "equal" -> don't set
+        return;
+      } else {
+        dispatch(setDrives(newDrives));
+      }
+    });
+  }, [activeTab, activeTabObect, dispatch, selectedStore]);
+
   const addNewTab = () => {
     const newTab = {
       id: nanoid(),
@@ -271,23 +305,6 @@ function App() {
   const closeTab = (id) => {
     dispatch(closeTab(id));
   };
-
-  const lsDir = (path) => {
-    ipcRenderer.send('ls-directory', path);
-  };
-
-  const getDisks = () => {
-    ipcRenderer.send('get-disks');
-  };
-
-  const renderTestBtns = () => (
-    <React.Fragment>
-      <button onClick={() => lsDir('~')}>ls ~</button>
-      <button onClick={() => lsDir('/h/')}>h</button>
-      <button onClick={() => lsDir('')}>ls current</button>
-      <button onClick={getDisks}>getDisks</button>
-    </React.Fragment>
-  );
 
   return (
     <ThemeProvider theme={defaultTheme}>

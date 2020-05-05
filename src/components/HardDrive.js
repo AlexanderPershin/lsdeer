@@ -23,12 +23,14 @@ const StyledDiskWrapper = styled.button`
     border: ${({ theme }) => theme.sizes.focusOutlineWidth} solid
       ${({ theme }) => theme.bg.selectedBg};
   }
+  &:hover {
+    cursor: pointer;
+  }
 `;
 
 const StyledDiskContent = styled.div`
   font-size: 1.2rem;
   margin: 1rem;
-  cursor: pointer;
   display: flex;
   flex-direction: column;
   justify-content: center;

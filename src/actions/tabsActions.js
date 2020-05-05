@@ -65,6 +65,8 @@ export const closeAllTabs = () => {
 };
 
 export const openDir = (id, newPath, name) => (dispatch) => {
+  ipcRenderer.send('ls-directory', newPath);
+
   ipcRenderer.once('resp-dir', (event, data) => {
     dispatch({
       type: OPEN_DIR,
@@ -76,8 +78,6 @@ export const openDir = (id, newPath, name) => (dispatch) => {
       },
     });
   });
-
-  ipcRenderer.send('ls-directory', newPath);
 };
 
 export const testAction = () => (dispatch) => {

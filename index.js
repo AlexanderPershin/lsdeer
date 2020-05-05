@@ -1,8 +1,6 @@
 const electron = require('electron');
 const { exec } = require('child_process');
 const os = require('os');
-const fs = require('fs');
-const path = require('path');
 
 const ProgressBar = require('electron-progressbar');
 
@@ -13,15 +11,7 @@ const formDirArrayLinux = require('./helpersMain/formDirArrayLinux');
 const checkFileAndOpen = require('./helpersMain/checkFileAndOpen');
 const pasteUnderNewName = require('./helpersMain/pasteUnderNewName');
 
-const {
-  app,
-  BrowserWindow,
-  ipcMain,
-  Menu,
-  globalShortcut,
-  clipboard,
-  dialog,
-} = electron;
+const { app, BrowserWindow, ipcMain, dialog } = electron;
 
 let mainWindow;
 
@@ -81,14 +71,14 @@ ipcMain.on('ls-directory', (event, dirPath) => {
   }
 });
 
-ipcMain.on('get-disks', (event) => {
+ipcMain.on('get-drives', (event) => {
   const command = `df -h`;
 
   exec(command, (err, stdout, stderr) => {
     if (err) {
       console.error(err);
     } else {
-      mainWindow.webContents.send('resp-shelljs', {
+      mainWindow.webContents.send('drives-response', {
         response: stdout.split('\n'),
       });
     }

@@ -83,6 +83,7 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
       onDoubleClick={handleOpenDirectory}
       sel={selected}
       ref={thisItem}
+      className='TabItem'
     >
       <Icon
         {...getFileTypeIconProps({
@@ -91,8 +92,9 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
           size: fileIconSize,
           imageFileType: 'svg',
         })}
+        className='TabItem'
       />
-      <StyledName title={name} sel={selected}>
+      <StyledName title={name} sel={selected} className='TabItem'>
         {name && selected && selectedStore.length === 1
           ? !isFile
             ? name.slice(0, -1)
