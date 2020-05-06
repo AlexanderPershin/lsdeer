@@ -255,15 +255,19 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
   };
 
   const handleDeselectOnMisclick = (e) => {
-    if (
-      e.target &&
-      (e.target.classList.contains('TabItem') ||
-        e.target.parentNode.classList.contains('TabItem'))
-    ) {
-      // TabItem clicked -> do nothing
-      return;
-    } else {
-      dispatch(clearSelectedFiles());
+    try {
+      if (
+        e.target &&
+        (e.target.classList.contains('TabItem') ||
+          e.target.parentNode.classList.contains('TabItem'))
+      ) {
+        // TabItem clicked -> do nothing
+        return;
+      } else {
+        dispatch(clearSelectedFiles());
+      }
+    } catch (err) {
+      console.log(err);
     }
   };
 
