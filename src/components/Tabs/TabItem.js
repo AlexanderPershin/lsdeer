@@ -52,8 +52,8 @@ const StyledName = styled.span`
 
 const StyledImg = styled.img`
   width: 100%;
-  height: auto;
-  object-fit: contain;
+  height: 100px;
+  object-fit: cover;
 `;
 
 const truncate = (input, num) =>
@@ -93,7 +93,7 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
       ref={thisItem}
       className='TabItem'
     >
-      {isFile ? (
+      {isFile && imageExtensions.includes(ext.substr(1)) ? (
         <StyledImg
           src={`http://localhost:8000/file/${encodeURIComponent(path)}`}
           alt={name}
