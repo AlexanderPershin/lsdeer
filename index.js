@@ -1,10 +1,19 @@
 const electron = require('electron');
 const { exec } = require('child_process');
 const os = require('os');
+const path = require('path');
+const http = require('http');
+const cors = require('cors');
+const express = require('express');
+const expressApp = express();
+const router = express.Router();
 
 const ProgressBar = require('electron-progressbar');
 
-const { clearArrayOfStrings } = require('./helpersMain/helpers');
+const {
+  clearArrayOfStrings,
+  transfPathForWin,
+} = require('./helpersMain/helpers');
 
 const formDirArrayWin = require('./helpersMain/formDirArrayWin');
 const formDirArrayLinux = require('./helpersMain/formDirArrayLinux');
@@ -266,3 +275,28 @@ ipcMain.on('pasted-file', (event, dirPath) => {
     );
   }
 });
+
+expressApp.use(cors());
+const expressPort = 8000;
+
+router.get('/file/:fullpath', function (req, res) {
+  let filePath = req.params.fullpath;
+  console.log('Serving file:', filePath);
+  // if (process.platform === 'win32') {
+  //   const winPathArr = filePath.substr(1).split('/');
+  //   winPathArr[0] = winPathArr[0].toUpperCase() + ':';
+  //   const winPath = winPathArr.join('\\');
+  //   res.sendFile(winPath);
+  // } else {
+  //   res.sendFile(filePath);
+  // }
+  res.sendFile(filePath);
+});
+
+expressApp.use('/', router);
+
+http
+  .createServer(expressApp)
+  .listen(expressPort, () =>
+    console.log(`Image server is up on port ${expressPort}`)
+  );

@@ -9,6 +9,7 @@ import styled, { ThemeContext } from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { openDir } from '../../actions/tabsActions';
 import { hexToRgba } from 'hex-and-rgba';
+import imageExtensions from 'image-extensions';
 
 // fluentui
 import { Icon } from '@fluentui/react/lib/Icon';
@@ -49,6 +50,12 @@ const StyledName = styled.span`
   text-align: center;
 `;
 
+const StyledImg = styled.img`
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+`;
+
 const truncate = (input, num) =>
   input.length > num ? `${input.substring(0, num)}...` : input;
 
@@ -77,6 +84,7 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
     name,
   ]);
 
+  // TODO: check if ext is image plus resize properly
   return (
     <StyledItem
       onClick={handleSelectThis}
@@ -85,15 +93,22 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
       ref={thisItem}
       className='TabItem'
     >
-      <Icon
-        {...getFileTypeIconProps({
-          type: isFile && ext ? '' : FileIconType.folder,
-          extension: isFile && ext ? ext : '',
-          size: fileIconSize,
-          imageFileType: 'svg',
-        })}
-        className='TabItem'
-      />
+      {isFile ? (
+        <StyledImg
+          src={`http://localhost:8000/file/${encodeURIComponent(path)}`}
+          alt={name}
+        />
+      ) : (
+        <Icon
+          {...getFileTypeIconProps({
+            type: isFile && ext ? '' : FileIconType.folder,
+            extension: isFile && ext ? ext : '',
+            size: fileIconSize,
+            imageFileType: 'svg',
+          })}
+          className='TabItem'
+        />
+      )}
       <StyledName title={name} sel={selected} className='TabItem'>
         {name && selected && selectedStore.length === 1
           ? !isFile
