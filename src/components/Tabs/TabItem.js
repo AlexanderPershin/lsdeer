@@ -53,7 +53,7 @@ const StyledName = styled.span`
 const StyledImg = styled.img`
   width: 100%;
   height: 100px;
-  object-fit: cover;
+  object-fit: contain;
 `;
 
 const truncate = (input, num) =>

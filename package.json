@@ -19,6 +19,7 @@
     "express": "^4.17.1",
     "hex-and-rgba": "^1.4.2",
     "image-extensions": "^1.1.0",
+    "image-thumbnail": "^1.0.8",
     "nanoid": "^3.0.2",
     "react": "^16.13.1",
     "react-circular-progressbar": "^2.0.3",
