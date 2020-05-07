@@ -65,6 +65,8 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
   const selectedStore = useSelector((state) => state.selected);
   const dispatch = useDispatch();
 
+  const [imageIsBroken, setImageIsBroken] = useState(false);
+
   const thisItem = useRef(null);
 
   const themeContext = useContext(ThemeContext);
@@ -84,6 +86,10 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
     name,
   ]);
 
+  const addDefaultSrc = useCallback((e) => {
+    setImageIsBroken(true);
+  }, []);
+
   // TODO: check if ext is image plus resize properly
   return (
     <StyledItem
@@ -93,10 +99,11 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
       ref={thisItem}
       className='TabItem'
     >
-      {isFile && imageExtensions.includes(ext.substr(1)) ? (
+      {!imageIsBroken && isFile && imageExtensions.includes(ext.substr(1)) ? (
         <StyledImg
-          src={`http://localhost:8000/file/${encodeURIComponent(path)}`}
+          src={`http://localhost:15032/file/${encodeURIComponent(path)}`}
           alt={name}
+          onError={addDefaultSrc}
         />
       ) : (
         <Icon

@@ -275,7 +275,7 @@ ipcMain.on('pasted-file', (event, dirPath) => {
 });
 
 expressApp.use(cors());
-const expressPort = 8000;
+const expressPort = 15032;
 
 // Thumbnails for images
 router.get('/file/:fullpath', async function (req, res) {
@@ -292,6 +292,13 @@ router.get('/file/:fullpath', async function (req, res) {
     // Send full image on error: may be performance demanding
     res.sendFile(filePath);
   }
+});
+
+router.get('/video/:fullpath', async function (req, res) {
+  let filePath = req.params.fullpath;
+  console.log('Serving file:', filePath);
+
+  res.sendFile(filePath);
 });
 
 expressApp.use('/', router);
