@@ -344,7 +344,7 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
                   columnCount={calcColCount(width)}
                   columnWidth={colWidth}
                   height={height}
-                  rowCount={calcRowCount(width)}
+                  rowCount={calcRowCount(width) + 1}
                   rowHeight={rowHeight}
                   width={width}
                   itemData={calcColCount(width)}
