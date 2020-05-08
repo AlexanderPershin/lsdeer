@@ -8,6 +8,7 @@ export const SET_PROPERTY = 'SET_PROPERTY';
 export const LOCK_TAB = 'LOCK_TAB';
 export const UNLOCK_TAB = 'UNLOCK_TAB';
 export const OPEN_DIR = 'OPEN_DIR';
+export const OPEN_DIRECTORY = 'OPEN_DIRECTORY';
 export const ADD_SELECTED_FILES = 'ADD_SELECTED_FILES';
 export const CLEAR_SELECTED_FILES = 'CLEAR_SELECTED_FILES';
 export const SET_DRIVES = 'SET_DRIVES';

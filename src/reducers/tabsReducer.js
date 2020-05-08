@@ -8,6 +8,7 @@ import {
   LOCK_TAB,
   UNLOCK_TAB,
   SET_PROPERTY,
+  OPEN_DIRECTORY,
 } from '../actions/types';
 
 const tabsReducer = function (state = [], action) {
@@ -57,6 +58,20 @@ const tabsReducer = function (state = [], action) {
             : pathArr.length === 2
             ? newPath
             : pathArr[pathArr.length - 2];
+          tab.path = newPath;
+          tab.content = newContent;
+          delete tab.createNew;
+        }
+        return tab;
+      });
+    }
+    case OPEN_DIRECTORY: {
+      const { id, newPath, newContent } = action.payload;
+      return state.map((tab) => {
+        if (tab.id === id) {
+          const pathArr = newPath.split('/');
+          tab.name =
+            pathArr.length === 2 ? newPath : pathArr[pathArr.length - 2];
           tab.path = newPath;
           tab.content = newContent;
           delete tab.createNew;

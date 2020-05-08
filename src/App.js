@@ -2,9 +2,15 @@ import React, { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled, { ThemeProvider } from 'styled-components';
 import { nanoid } from 'nanoid';
-import { addTab, closeTab, openDir } from './actions/tabsActions';
+import {
+  addTab,
+  closeTab,
+  openDir,
+  openDirectory,
+} from './actions/tabsActions';
 import { setDrives, clearDrives } from './actions/drivesActions';
 import { setActiveTab } from './actions/activeTabActions';
+import { addSelectedFiles } from './actions/selectFilesActions';
 import GlobalStyle from './themes/globalStyle';
 import { initializeFileTypeIcons } from '@uifabric/file-type-icons';
 import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
@@ -265,6 +271,8 @@ function App() {
     });
   }, []);
 
+  // Events fire too many times, solve this subscription problem
+  // remove useEffect's dependensy array or organize remove listeners handler
   useEffect(() => {
     const tabPath = activeTabObect ? activeTabObect.path : null;
 
@@ -277,7 +285,9 @@ function App() {
     });
 
     ipcRenderer.on('edit-action-complete', (event, data) => {
-      dispatch(openDir(activeTab, tabPath));
+      // dispatch(openDir(activeTab, tabPath));
+      const { dirPath } = data;
+      ipcRenderer.send('open-directory', activeTab, dirPath);
     });
 
     ipcRenderer.once('drives-response', (event, data) => {
@@ -291,7 +301,32 @@ function App() {
         dispatch(setDrives(newDrives));
       }
     });
-  }, [activeTab, activeTabObect, dispatch, selectedStore]);
+
+    ipcRenderer.on('directory-opened', (event, { tabId, newPath }) => {
+      // Component opened directory and have sent event to backend
+      // backend sent 'directory-opened' response
+      // now list newPath directory and send 'resp-dir' event
+      ipcRenderer.send('ls-directory', newPath, tabId);
+    });
+
+    ipcRenderer.on('resp-dir', (event, data) => {
+      const newContent = data.response;
+      const tabId = data.tabId;
+      const newPath = data.newPath;
+
+      dispatch(openDirectory(tabId, newPath, newContent));
+    });
+
+    ipcRenderer.on('select-all', (event, data) => {
+      dispatch(
+        addSelectedFiles(activeTabObect.content.map((item) => item.name))
+      );
+    });
+
+    return () => {
+      ipcRenderer.removeAllListeners();
+    };
+  }, [activeTab, activeTabObect, dispatch, drives, selectedStore]);
 
   const addNewTab = () => {
     const newTab = {

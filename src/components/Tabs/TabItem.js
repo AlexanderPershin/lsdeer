@@ -8,6 +8,7 @@ import React, {
 import styled, { ThemeContext } from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { openDir } from '../../actions/tabsActions';
+import { clearSelectedFiles } from '../../actions/selectFilesActions';
 import { hexToRgba } from 'hex-and-rgba';
 import imageExtensions from 'image-extensions';
 
@@ -15,7 +16,7 @@ import imageExtensions from 'image-extensions';
 import { Icon } from '@fluentui/react/lib/Icon';
 import { getFileTypeIconProps, FileIconType } from '@uifabric/file-type-icons';
 
-// const { remote, ipcRenderer, shell } = window.require('electron');
+const { remote, ipcRenderer, shell } = window.require('electron');
 // const mainProcess = remote.require('./index.js');
 
 const StyledItem = styled.button`
@@ -78,7 +79,9 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
     const activePath = tabs.filter((item) => item.id === activeTab)[0].path;
     const newPath = `${activePath}${name}`;
 
-    dispatch(openDir(activeTab, newPath));
+    // dispatch(openDir(activeTab, newPath));
+    dispatch(clearSelectedFiles());
+    ipcRenderer.send('open-directory', activeTab, newPath);
   };
 
   const handleSelectThis = useCallback((e) => handleSelect(e, name), [

@@ -4,6 +4,7 @@ import {
   ADD_TAB,
   CLOSE_TAB,
   OPEN_DIR,
+  OPEN_DIRECTORY,
   TEST_ACTION,
   LOCK_TAB,
   UNLOCK_TAB,
@@ -78,6 +79,17 @@ export const openDir = (id, newPath, name) => (dispatch) => {
       },
     });
   });
+};
+
+export const openDirectory = (tabId, newPath, newContent) => {
+  return {
+    type: OPEN_DIRECTORY,
+    payload: {
+      id: tabId,
+      newPath,
+      newContent,
+    },
+  };
 };
 
 export const testAction = () => (dispatch) => {

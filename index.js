@@ -50,7 +50,7 @@ const createWindow = () => {
 
 app.on('ready', createWindow);
 
-ipcMain.on('ls-directory', (event, dirPath) => {
+ipcMain.on('ls-directory', (event, dirPath, tabId) => {
   const command = `ls "${dirPath}" -p --hide=*.sys --hide="System Volume Information" --group-directories-first`;
 
   try {
@@ -70,12 +70,23 @@ ipcMain.on('ls-directory', (event, dirPath) => {
           outputArray = formDirArrayLinux(namesArray, dirPath);
         }
 
-        mainWindow.webContents.send('resp-dir', { response: outputArray });
+        mainWindow.webContents.send('resp-dir', {
+          response: outputArray,
+          tabId,
+          newPath: dirPath,
+        });
       }
     });
   } catch (err) {
     console.log(err);
   }
+});
+
+ipcMain.on('open-directory', (event, tabId, newPath) => {
+  mainWindow.webContents.send('directory-opened', {
+    tabId,
+    newPath,
+  });
 });
 
 ipcMain.on('get-drives', (event) => {
@@ -133,6 +144,8 @@ ipcMain.on('copied-file', (event, dirPath, namesArray) => {
   console.log('Copied Files ', copiedFiles);
 });
 
+// TODO: works incorrectly
+// paste and rename simillar files silently like in windows file explorer
 ipcMain.on('pasted-file', (event, dirPath) => {
   if (copiedFiles.length > 0) {
     // TODO: refactor this code into a function
@@ -211,7 +224,9 @@ ipcMain.on('pasted-file', (event, dirPath) => {
                     (error, stdout, stderr) => {
                       console.log(`Copied ${filename} to ${dirPath}`);
                       progressBar.value += 1;
-                      mainWindow.webContents.send('edit-action-complete');
+                      mainWindow.webContents.send('edit-action-complete', {
+                        dirPath,
+                      });
                     }
                   );
 
@@ -219,7 +234,9 @@ ipcMain.on('pasted-file', (event, dirPath) => {
                 case 1:
                   pasteUnderNewName(filename, dirPath, () => {
                     progressBar.value += 1;
-                    mainWindow.webContents.send('edit-action-complete');
+                    mainWindow.webContents.send('edit-action-complete', {
+                      dirPath,
+                    });
                   });
 
                   break;
@@ -230,7 +247,9 @@ ipcMain.on('pasted-file', (event, dirPath) => {
                     (error, stdout, stderr) => {
                       console.log(`Copied ${filename} to ${dirPath}`);
                       progressBar.value += 1;
-                      mainWindow.webContents.send('edit-action-complete');
+                      mainWindow.webContents.send('edit-action-complete', {
+                        dirPath,
+                      });
                     }
                   );
 
@@ -239,7 +258,9 @@ ipcMain.on('pasted-file', (event, dirPath) => {
                   noAll = true;
                   pasteUnderNewName(filename, dirPath, () => {
                     progressBar.value += 1;
-                    mainWindow.webContents.send('edit-action-complete');
+                    mainWindow.webContents.send('edit-action-complete', {
+                      dirPath,
+                    });
                   });
 
                   break;
@@ -250,12 +271,16 @@ ipcMain.on('pasted-file', (event, dirPath) => {
               exec(`cp -R ${filename} ${dirPath}`, (error, stdout, stderr) => {
                 console.log(`Replaced ${filename} to ${dirPath}`);
                 progressBar.value += 1;
-                mainWindow.webContents.send('edit-action-complete');
+                mainWindow.webContents.send('edit-action-complete', {
+                  dirPath,
+                });
               });
             } else if (noAll) {
               pasteUnderNewName(filename, dirPath, () => {
                 progressBar.value += 1;
-                mainWindow.webContents.send('edit-action-complete');
+                mainWindow.webContents.send('edit-action-complete', {
+                  dirPath,
+                });
               });
             }
 
@@ -264,7 +289,7 @@ ipcMain.on('pasted-file', (event, dirPath) => {
           exec(`cp -R ${filename} ${dirPath}`, (error, stdout, stderr) => {
             console.log(`Copied ${filename} to ${dirPath}`);
             progressBar.value += 1;
-            mainWindow.webContents.send('edit-action-complete');
+            mainWindow.webContents.send('edit-action-complete', { dirPath });
           });
         });
         replaceAll = false;

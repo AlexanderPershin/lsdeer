@@ -227,13 +227,8 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
 
     path_arr.splice(-2, 2);
     const newPath = path_arr.join('/') + '/';
-    dispatch(openDir(id, newPath));
-
-    // TODO: find another solution for this
-    const timer = setTimeout(() => {
-      dispatch(clearSelectedFiles());
-      clearTimeout(timer);
-    }, [100]);
+    ipcRenderer.send('open-directory', id, newPath);
+    dispatch(clearSelectedFiles());
   };
 
   const handleLoadMoreOnScroll = (e) => {
@@ -275,24 +270,13 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
     dispatch(clearSelectedFiles());
   }, [activeTab, dispatch]);
 
-  useEffect(() => {
-    ipcRenderer.on('select-all', (event, data) => {
-      const contentNames = content.map((i) => i.name);
-
-      dispatch(addSelectedFiles(contentNames));
-    });
-  }, [content, dispatch, selectedStore]);
-
-  useEffect(() => {
-    document.addEventListener('click', handleDeselectOnMisclick);
-    return () => {
-      document.removeEventListener('click', handleDeselectOnMisclick);
-    };
-  }, []);
-
-  // TODO: create selected files reucer and actions
-  // set selected array to [] on open new tab or close current or switch to another tab
-  // it is needed to CRUD operations with selected files
+  // TODO: make file deselection on misclick
+  // useEffect(() => {
+  //   document.addEventListener('click', handleDeselectOnMisclick);
+  //   return () => {
+  //     document.removeEventListener('click', handleDeselectOnMisclick);
+  //   };
+  // }, []);
 
   const calculateFlatIndex = (colIndex, rowIndex, colCount) => {
     const index = rowIndex * colCount + colIndex;
