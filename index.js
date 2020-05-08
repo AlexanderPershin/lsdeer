@@ -294,13 +294,6 @@ router.get('/file/:fullpath', async function (req, res) {
   }
 });
 
-router.get('/video/:fullpath', async function (req, res) {
-  let filePath = req.params.fullpath;
-  console.log('Serving file:', filePath);
-
-  res.sendFile(filePath);
-});
-
 expressApp.use('/', router);
 
 http
