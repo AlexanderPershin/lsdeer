@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { openDir } from '../../actions/tabsActions';
 import HardDrive from '../HardDrive';
 import styled from 'styled-components';
 import { hexToRgba } from 'hex-and-rgba';
@@ -41,7 +40,7 @@ const NewTabContent = () => {
   const dispatch = useDispatch();
 
   const handleOpenDirectory = (newPath, name) => {
-    dispatch(openDir(activeTab, newPath, name));
+    ipcRenderer.send('open-directory', activeTab, newPath);
   };
 
   useEffect(() => {

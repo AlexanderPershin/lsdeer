@@ -167,6 +167,14 @@ const StyledElectronBar = styled.div`
     background-color: ${({ theme }) => theme.bg.appBarBg};
     font-size: ${({ theme }) => theme.font.appBarFontSize};
   }
+  .electronbar::before {
+    content: '';
+    -webkit-app-region: no-drag;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 20%;
+  }
   .electronbar-title {
     color: white;
     text-align: center;
