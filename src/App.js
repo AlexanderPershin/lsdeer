@@ -109,12 +109,21 @@ const template = [
     label: 'Tabs',
     submenu: [
       {
+        label: 'New',
+        accelerator: 'CmdOrCtrl+T',
+        click() {
+          console.log('open new tab');
+          ipcRenderer.send('new-tab');
+        },
+      },
+      {
         label: 'Close',
         accelerator: 'CmdOrCtrl+W',
         click() {
           // TODO: add ipc main event and emit it here
           // in App component listen to response and close current tab
           console.log('close current tab');
+          ipcRenderer.send('close-current-tab');
         },
       },
     ],
@@ -242,8 +251,10 @@ function App() {
   let electronbar = useRef(null);
 
   useEffect(() => {
-    tabs.length > 0 && dispatch(setActiveTab(tabs[0].id));
-  }, []);
+    if (!activeTab) {
+      tabs.length > 0 && dispatch(setActiveTab(tabs[0].id));
+    }
+  }, [activeTab, dispatch, tabs]);
 
   useEffect(() => {
     electronbar.current = new Electronbar({
@@ -268,13 +279,12 @@ function App() {
         // ipcRenderer.send('select-all');
       }
       if (e.which === 84 && e.ctrlKey) {
-        addTabAndActivate(dispatch);
+        // ctrl+t = new tab
+        // addTabAndActivate(dispatch);
+        // ipcRenderer.send('new-tab');
       }
       if (e.which === 87 && e.ctrlKey) {
-        // ctrl+w = close current tab causes infinite loop
-        // because added inside useEffect on mount
-        // add event and listend to it
-        // dispatch(closeTab(activeTab));
+        // ctrl+w = close current tab
       }
     });
   }, []);
@@ -331,10 +341,21 @@ function App() {
       );
     });
 
+    ipcRenderer.on('new-tab-created', (event) => {
+      addTabAndActivate(dispatch);
+    });
+
+    ipcRenderer.once('current-tab-closed', (event) => {
+      dispatch(closeTab(activeTab));
+      const remainingTabs = tabs.filter((item) => item.id !== activeTab);
+      remainingTabs.length > 0 &&
+        dispatch(setActiveTab(remainingTabs[remainingTabs.length - 1].id));
+    });
+
     return () => {
       ipcRenderer.removeAllListeners();
     };
-  }, [activeTab, activeTabObect, dispatch, drives, selectedStore]);
+  }, [activeTab, activeTabObect, dispatch, drives, selectedStore, tabs]);
 
   const addNewTab = () => {
     const newTab = {
@@ -345,7 +366,7 @@ function App() {
     dispatch(setActiveTab(newTab.id));
   };
 
-  const closeTab = (id) => {
+  const handleCloseTab = (id) => {
     dispatch(closeTab(id));
   };
 
@@ -356,7 +377,7 @@ function App() {
       </StyledElectronBar>
       <GlobalStyle />
       <StyledApp className='app'>
-        <Tabs list={tabs} addNewTab={addNewTab} closeTab={closeTab} />
+        <Tabs list={tabs} addNewTab={addNewTab} closeTab={handleCloseTab} />
         <TabContentContainer />
       </StyledApp>
     </ThemeProvider>

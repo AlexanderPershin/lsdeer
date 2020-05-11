@@ -89,6 +89,16 @@ ipcMain.on('open-directory', (event, tabId, newPath) => {
   });
 });
 
+// Tabs menu ===================================
+ipcMain.on('new-tab', (event) => {
+  mainWindow.webContents.send('new-tab-created');
+});
+
+ipcMain.on('close-current-tab', (event) => {
+  mainWindow.webContents.send('current-tab-closed');
+});
+// Tabs menu end ===============================
+
 ipcMain.on('get-drives', (event) => {
   const command = `df -h`;
 
