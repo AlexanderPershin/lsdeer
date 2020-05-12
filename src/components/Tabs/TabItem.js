@@ -93,7 +93,7 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
     setImageIsBroken(true);
   }, []);
 
-  // TODO: check if ext is image plus resize properly
+  // TODO: Exclude .psd and other unsupported by 'image-thumbnail' lib image extensioins!!!
   return (
     <StyledItem
       onClick={handleSelectThis}

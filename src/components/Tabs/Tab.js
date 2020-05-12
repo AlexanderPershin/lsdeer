@@ -10,6 +10,7 @@ import { setActiveTab } from '../../actions/activeTabActions';
 import { ContextMenu, MenuItem, ContextMenuTrigger } from 'react-contextmenu';
 import { Icon } from '@fluentui/react/lib/Icon';
 import styled from 'styled-components';
+const { ipcRenderer } = window.require('electron');
 
 const StyledTab = styled.div`
   flex: 0 0 2rem;
@@ -68,6 +69,7 @@ const Tab = ({ id, name }) => {
 
   const closeThisTab = (e) => {
     e.stopPropagation();
+    ipcRenderer.send('close-tab', id, currentTab.path);
     if (id === activeTab && tabs.length > 1) {
       const nextTab = tabs.filter((item) => item.id !== activeTab)[0].id;
 

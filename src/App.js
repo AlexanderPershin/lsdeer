@@ -84,7 +84,6 @@ const template = [
         accelerator: 'CmdOrCtrl+V',
         click(e) {
           ipcRenderer.send('paste-files');
-          // mainWindow.webContents.send('paste-from-clipboard');
         },
       },
       {
@@ -326,6 +325,7 @@ function App() {
       const newPath = data.newPath;
 
       dispatch(openDirectory(tabId, newPath, newContent));
+      ipcRenderer.send('start-watching-dir', newPath, tabId);
     });
 
     ipcRenderer.on('all-files-selected', (event, data) => {
@@ -343,6 +343,12 @@ function App() {
       const remainingTabs = tabs.filter((item) => item.id !== activeTab);
       remainingTabs.length > 0 &&
         dispatch(setActiveTab(remainingTabs[remainingTabs.length - 1].id));
+    });
+
+    ipcRenderer.on('closed-tab', (event, data) => {
+      const { tabId, tabPath } = data;
+      console.log('Closed tab', tabPath);
+      ipcRenderer.send('stop-watching-dir', tabPath, tabId);
     });
 
     return () => {

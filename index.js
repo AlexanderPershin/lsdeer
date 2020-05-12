@@ -6,23 +6,31 @@ const cors = require('cors');
 const express = require('express');
 const expressApp = express();
 const router = express.Router();
+const chokidar = require('chokidar');
 
 const ProgressBar = require('electron-progressbar');
 
 const imageThumbnail = require('image-thumbnail');
 
-const { clearArrayOfStrings } = require('./helpersMain/helpers');
+const {
+  clearArrayOfStrings,
+  transfPathForWin,
+} = require('./helpersMain/helpers');
 
 const formDirArrayWin = require('./helpersMain/formDirArrayWin');
 const formDirArrayLinux = require('./helpersMain/formDirArrayLinux');
 const checkFileAndOpen = require('./helpersMain/checkFileAndOpen');
 const pasteUnderNewName = require('./helpersMain/pasteUnderNewName');
 
-const { app, BrowserWindow, ipcMain, dialog } = electron;
+const { app, BrowserWindow, ipcMain } = electron;
 
 let mainWindow;
 
 let copiedFiles = [];
+
+let watcher;
+
+let watchedArray = []; // Array of tab id's and paths that are being watched now
 
 const createWindow = () => {
   mainWindow = new BrowserWindow({
@@ -40,10 +48,43 @@ const createWindow = () => {
     process.env.ELECTRON_START_URL || `file://${__dirname}/build/index.html`;
   mainWindow.loadURL(startUrl);
 
+  // Set chocadir watcher for current dir
+  watcher = chokidar
+    .watch('index.js', {
+      persistent: true,
+
+      ignored: 'node_modules',
+
+      ignoreInitial: false,
+      followSymlinks: true,
+      cwd: '.',
+      disableGlobbing: false,
+
+      usePolling: false,
+      interval: 100,
+      binaryInterval: 300,
+      alwaysStat: false,
+      depth: 0,
+      awaitWriteFinish: {
+        stabilityThreshold: 2000,
+        pollInterval: 100,
+      },
+
+      ignorePermissionErrors: false,
+      atomic: true, // or a custom 'atomicity delay', in milliseconds (default 100)
+    })
+    .on('all', (event, path) => {
+      console.log(event, path);
+      // console.log('watchedPaths = ', watcher.getWatched());
+      // Send here mainWindow.webContents('changes', {dirPath: path}) to update its conent - ls command again/reopen tab
+      console.log('watchedArray ', watchedArray);
+    });
+
   mainWindow.webContents.openDevTools();
 
   //enable garbage collector
   mainWindow.on('closed', () => {
+    watcher.close();
     mainWindow = null;
   });
 };
@@ -96,6 +137,13 @@ ipcMain.on('new-tab', (event) => {
 
 ipcMain.on('close-current-tab', (event) => {
   mainWindow.webContents.send('current-tab-closed');
+});
+
+ipcMain.on('close-tab', (event, tabId, tabPath) => {
+  mainWindow.webContents.send('closed-tab', {
+    tabId,
+    tabPath,
+  });
 });
 // Tabs menu end ===============================
 
@@ -283,3 +331,53 @@ http
   .listen(expressPort, () =>
     console.log(`Image server is up on port ${expressPort}`)
   );
+
+// Set/add/remove watchers for open in tabs directories
+
+// TODO: fix C drive "operation is not permitted" error
+ipcMain.on('start-watching-dir', (event, dirPath, tabId) => {
+  // On open new dir or subdir start watching this dir
+  console.log('Starting watching directory ', dirPath);
+  watchedArray = watchedArray.filter((item) => item.id !== tabId);
+  try {
+    if (process.platform === 'win32') {
+      const winDirPath = transfPathForWin(dirPath);
+
+      watchedArray.push({ id: tabId, path: dirPath });
+      watcher.add(winDirPath);
+    } else {
+      watchedArray.push({ id: tabId, path: dirPath });
+      watcher.add(dirPath);
+    }
+  } catch (err) {
+    // error watching - no access or something
+  }
+
+  // console.log('watcher.getWatched() ', watcher.getWatched());
+});
+
+ipcMain.on('stop-watching-dir', (event, dirPath, tabId) => {
+  // On close directory/go up/open sudirectory
+  console.log('Cancaling watching directory ', dirPath);
+
+  watchedArray = watchedArray.filter((item) => item.id === tabId);
+  try {
+    if (process.platform === 'win32') {
+      const winDirPath = transfPathForWin(dirPath);
+
+      watchedArray.push({ id: tabId, path: dirPath });
+      watcher.unwatch(winDirPath);
+    } else {
+      watchedArray.push({ id: tabId, path: dirPath });
+      watcher.unwatch(dirPath);
+    }
+  } catch (err) {
+    // error watching - no access or something
+  }
+});
+
+ipcMain.on('stop-watching-all', (event) => {
+  watcher
+    .close()
+    .then(() => console.log('Stop watching all directories with chokadir'));
+});
