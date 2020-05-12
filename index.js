@@ -7,8 +7,6 @@ const express = require('express');
 const expressApp = express();
 const router = express.Router();
 
-const ProgressBar = require('electron-progressbar');
-
 const imageThumbnail = require('image-thumbnail');
 
 const { clearArrayOfStrings } = require('./helpersMain/helpers');
@@ -113,6 +111,19 @@ ipcMain.on('get-drives', (event) => {
   });
 });
 
+// Edit menu ==================================
+ipcMain.on('select-all', (event) => {
+  mainWindow.webContents.send('all-files-selected');
+});
+
+ipcMain.on('copy-files', (event) => {
+  mainWindow.webContents.send('copy-to-clipboard');
+});
+
+ipcMain.on('paste-files', (event) => {
+  mainWindow.webContents.send('paste-from-clipboard');
+});
+
 // TODO: create universal command to remove files and folders array
 ipcMain.on('delete-dir', (event, dirPath) => {
   // Remove folder
@@ -158,156 +169,56 @@ ipcMain.on('copied-file', (event, dirPath, namesArray) => {
 // paste and rename simillar files silently like in windows file explorer
 ipcMain.on('pasted-file', (event, dirPath) => {
   if (copiedFiles.length > 0) {
-    // TODO: refactor this code into a function
+    console.log(`Files ${copiedFiles} pasted to ${dirPath}`);
+    const command = `ls "${dirPath}" -p --hide=*.sys --hide="System Volume Information" --group-directories-first`;
 
-    let hiddenDirs;
-    const win32HiddenDirs = '--hide=*.sys --hide="System Volume Information"';
-    const darwinHiddenDirs = '';
-    if (process.platform === 'win32') {
-      hiddenDirs = win32HiddenDirs;
-    } else if (process.platform === 'darwin') {
-      hiddenDirs = darwinHiddenDirs;
-    }
-
-    exec(
-      `ls "${dirPath}" -Ap ${hiddenDirs} --group-directories-first`,
-      (error, stdout, stderr) => {
+    const copiedFilesNames = copiedFiles.map((item) => {
+      const itemArr = item.split('/');
+      return itemArr[itemArr.length - 1] === ''
+        ? itemArr[itemArr.length - 2] + '/'
+        : itemArr[itemArr.length - 1];
+    });
+    console.log('copiedFilesNames', copiedFilesNames);
+    exec(command, (err, stdout, stderr) => {
+      if (err) {
+        console.error(err);
+      } else {
+        let outputArray = [];
         const namesArray = clearArrayOfStrings(stdout.toString().split('\n'));
 
-        const progressBar = new ProgressBar({
-          indeterminate: false,
-          text: 'Preparing data...',
-          detail: 'Copying data please wait...',
-          maxValue: copiedFiles.length,
-          browserWindow: {
-            text: 'Preparing data...',
-            detail: 'Wait...',
-            webPreferences: {
-              nodeIntegration: true,
-            },
-          },
-          webPreferences: {
-            nodeIntegration: true,
-          },
-        });
+        if (os.platform() === 'win32') {
+          outputArray = formDirArrayWin(namesArray, dirPath);
+        } else {
+          outputArray = formDirArrayLinux(namesArray, dirPath);
+        }
 
-        console.log('Progr max val ', progressBar.getOptions().maxValue);
-
-        progressBar
-          .on('completed', function () {
-            console.info(`completed...`);
-
-            progressBar.detail = 'Task completed. Exiting...';
-          })
-          .on('aborted', function (value) {
-            console.info(`aborted... ${value}`);
-          })
-          .on('progress', function (value) {
-            progressBar.detail = `Value ${value} out of ${
-              progressBar.getOptions().maxValue
-            }...`;
-          });
-
-        let replaceAll = false;
-        let noAll = false;
-
-        copiedFiles.map((filename, i) => {
-          console.log('progressBar.value', progressBar.value);
-
-          const fileTrueName = filename.split('/').pop();
-
-          if (namesArray.includes(fileTrueName)) {
-            console.log('File with such name already there');
-
-            let options = {
-              buttons: ['Yes', 'No', 'Replace All', 'No All', 'Cancel'],
-              message:
-                'File with such name already exists, replace with new one?',
-            };
-
-            if (!replaceAll && !noAll) {
-              const userChoise = dialog.showMessageBoxSync(options);
-              switch (userChoise) {
-                case 0:
-                  exec(
-                    `cp -R ${filename} ${dirPath}`,
-                    (error, stdout, stderr) => {
-                      console.log(`Copied ${filename} to ${dirPath}`);
-                      progressBar.value += 1;
-                      mainWindow.webContents.send('edit-action-complete', {
-                        dirPath,
-                      });
-                    }
-                  );
-
-                  break;
-                case 1:
-                  pasteUnderNewName(filename, dirPath, () => {
-                    progressBar.value += 1;
-                    mainWindow.webContents.send('edit-action-complete', {
-                      dirPath,
-                    });
-                  });
-
-                  break;
-                case 2:
-                  replaceAll = true;
-                  exec(
-                    `cp -R ${filename} ${dirPath}`,
-                    (error, stdout, stderr) => {
-                      console.log(`Copied ${filename} to ${dirPath}`);
-                      progressBar.value += 1;
-                      mainWindow.webContents.send('edit-action-complete', {
-                        dirPath,
-                      });
-                    }
-                  );
-
-                  break;
-                case 3:
-                  noAll = true;
-                  pasteUnderNewName(filename, dirPath, () => {
-                    progressBar.value += 1;
-                    mainWindow.webContents.send('edit-action-complete', {
-                      dirPath,
-                    });
-                  });
-
-                  break;
-                default:
-                  return;
+        copiedFilesNames.map((item, idx) => {
+          if (namesArray.includes(item)) {
+            console.log(`File ${item} already exists in ${dirPath}`);
+            pasteUnderNewName(copiedFiles[idx], dirPath, () => {
+              mainWindow.webContents.send('edit-action-complete', {
+                dirPath,
+              });
+            });
+          } else {
+            console.log(`File ${item} will be first in ${dirPath}`);
+            exec(
+              `cp -R \"${copiedFiles[idx]}\" \"${dirPath}${item}\"`,
+              (error, stdout, stderr) => {
+                if (error) console.log(error);
+                if (stderr) console.log(stderr);
+                mainWindow.webContents.send('edit-action-complete', {
+                  dirPath,
+                });
               }
-            } else if (replaceAll) {
-              exec(`cp -R ${filename} ${dirPath}`, (error, stdout, stderr) => {
-                console.log(`Replaced ${filename} to ${dirPath}`);
-                progressBar.value += 1;
-                mainWindow.webContents.send('edit-action-complete', {
-                  dirPath,
-                });
-              });
-            } else if (noAll) {
-              pasteUnderNewName(filename, dirPath, () => {
-                progressBar.value += 1;
-                mainWindow.webContents.send('edit-action-complete', {
-                  dirPath,
-                });
-              });
-            }
-
-            return;
+            );
           }
-          exec(`cp -R ${filename} ${dirPath}`, (error, stdout, stderr) => {
-            console.log(`Copied ${filename} to ${dirPath}`);
-            progressBar.value += 1;
-            mainWindow.webContents.send('edit-action-complete', { dirPath });
-          });
         });
-        replaceAll = false;
-        noAll = false;
       }
-    );
+    });
   }
 });
+// Edit menu end===============================
 
 expressApp.use(cors());
 const expressPort = 15032;

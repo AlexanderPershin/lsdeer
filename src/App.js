@@ -45,15 +45,6 @@ const template = [
     label: 'File',
     submenu: [
       {
-        label: 'Save File',
-        accelerator: 'CmdOrCtrl+S',
-        click() {
-          console.log('Save command');
-
-          // mainWindow.webContents.send('save-markdown');
-        },
-      },
-      {
         label: 'Quit',
         role: 'quit',
         accelerator: 'CmdOrCtrl+Q',
@@ -78,22 +69,22 @@ const template = [
         accelerator: 'CmdOrCtrl+A',
         role: 'selectAll',
         click(e) {
-          // selectAllHandler(e);
-          mainWindow.webContents.send('select-all');
+          ipcRenderer.send('select-all');
         },
       },
       {
         label: 'Copy',
         accelerator: 'CmdOrCtrl+C',
         click(e) {
-          mainWindow.webContents.send('copy-to-clipboard');
+          ipcRenderer.send('copy-files');
         },
       },
       {
         label: 'Paste',
         accelerator: 'CmdOrCtrl+V',
         click(e) {
-          mainWindow.webContents.send('paste-from-clipboard');
+          ipcRenderer.send('paste-files');
+          // mainWindow.webContents.send('paste-from-clipboard');
         },
       },
       {
@@ -269,19 +260,22 @@ function App() {
     // Rewrite built in chromium shortcuts
     window.addEventListener('keyup', (e) => {
       if (e.which === 67 && e.ctrlKey) {
-        mainWindow.webContents.send('copy-to-clipboard');
+        // ctrl+c copy to clipboard
+        // mainWindow.webContents.send('copy-to-clipboard');
+        ipcRenderer.send('copy-files');
       }
       if (e.which === 86 && e.ctrlKey) {
-        mainWindow.webContents.send('paste-from-clipboard');
+        // ctrl+v paste from clipboard
+        ipcRenderer.send('paste-files');
+        // mainWindow.webContents.send('paste-from-clipboard');
       }
       if (e.which === 65 && e.ctrlKey) {
-        mainWindow.webContents.send('select-all');
-        // ipcRenderer.send('select-all');
+        // ctrl+a select all files from current folder
+        // chromium default shortcut -> need to override here and in menubar
+        ipcRenderer.send('select-all');
       }
       if (e.which === 84 && e.ctrlKey) {
         // ctrl+t = new tab
-        // addTabAndActivate(dispatch);
-        // ipcRenderer.send('new-tab');
       }
       if (e.which === 87 && e.ctrlKey) {
         // ctrl+w = close current tab
@@ -294,16 +288,15 @@ function App() {
   useEffect(() => {
     const tabPath = activeTabObect ? activeTabObect.path : null;
 
-    ipcRenderer.on('copy-to-clipboard', (event, data) => {
+    ipcRenderer.on('copy-to-clipboard', (event) => {
       ipcRenderer.send('copied-file', tabPath, selectedStore);
     });
 
-    ipcRenderer.on('paste-from-clipboard', (event, data) => {
+    ipcRenderer.on('paste-from-clipboard', (event) => {
       ipcRenderer.send('pasted-file', tabPath);
     });
 
     ipcRenderer.on('edit-action-complete', (event, data) => {
-      // dispatch(openDir(activeTab, tabPath));
       const { dirPath } = data;
       ipcRenderer.send('open-directory', activeTab, dirPath);
     });
@@ -335,7 +328,7 @@ function App() {
       dispatch(openDirectory(tabId, newPath, newContent));
     });
 
-    ipcRenderer.on('select-all', (event, data) => {
+    ipcRenderer.on('all-files-selected', (event, data) => {
       dispatch(
         addSelectedFiles(activeTabObect.content.map((item) => item.name))
       );
