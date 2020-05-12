@@ -7,6 +7,8 @@ const express = require('express');
 const expressApp = express();
 const router = express.Router();
 
+const ProgressBar = require('electron-progressbar');
+
 const imageThumbnail = require('image-thumbnail');
 
 const { clearArrayOfStrings } = require('./helpersMain/helpers');
@@ -169,6 +171,38 @@ ipcMain.on('copied-file', (event, dirPath, namesArray) => {
 // paste and rename simillar files silently like in windows file explorer
 ipcMain.on('pasted-file', (event, dirPath) => {
   if (copiedFiles.length > 0) {
+    const progressBar = new ProgressBar({
+      indeterminate: false,
+      text: 'Preparing data...',
+      detail: 'Copying data please wait...',
+      maxValue: copiedFiles.length,
+      browserWindow: {
+        text: 'Preparing data...',
+        detail: 'Wait...',
+        webPreferences: {
+          nodeIntegration: true,
+        },
+      },
+      webPreferences: {
+        nodeIntegration: true,
+      },
+    });
+
+    progressBar
+      .on('completed', function () {
+        console.info(`completed...`);
+
+        progressBar.detail = 'Files were copied';
+      })
+      .on('aborted', function (value) {
+        console.info(`aborted... ${value}`);
+      })
+      .on('progress', function (value) {
+        progressBar.detail = `Value ${value} out of ${
+          progressBar.getOptions().maxValue
+        }...`;
+      });
+
     console.log(`Files ${copiedFiles} pasted to ${dirPath}`);
     const command = `ls "${dirPath}" -p --hide=*.sys --hide="System Volume Information" --group-directories-first`;
 
@@ -196,6 +230,7 @@ ipcMain.on('pasted-file', (event, dirPath) => {
           if (namesArray.includes(item)) {
             console.log(`File ${item} already exists in ${dirPath}`);
             pasteUnderNewName(copiedFiles[idx], dirPath, () => {
+              progressBar.value += 1;
               mainWindow.webContents.send('edit-action-complete', {
                 dirPath,
               });
@@ -207,6 +242,7 @@ ipcMain.on('pasted-file', (event, dirPath) => {
               (error, stdout, stderr) => {
                 if (error) console.log(error);
                 if (stderr) console.log(stderr);
+                progressBar.value += 1;
                 mainWindow.webContents.send('edit-action-complete', {
                   dirPath,
                 });
