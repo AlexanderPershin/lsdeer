@@ -1,12 +1,12 @@
 const electron = require('electron');
 const { exec } = require('child_process');
 const os = require('os');
+const fs = require('fs');
 const http = require('http');
 const cors = require('cors');
 const express = require('express');
 const expressApp = express();
 const router = express.Router();
-const chokidar = require('chokidar');
 
 const ProgressBar = require('electron-progressbar');
 
@@ -47,38 +47,6 @@ const createWindow = () => {
   const startUrl =
     process.env.ELECTRON_START_URL || `file://${__dirname}/build/index.html`;
   mainWindow.loadURL(startUrl);
-
-  // Set chocadir watcher for current dir
-  watcher = chokidar
-    .watch('index.js', {
-      persistent: true,
-
-      ignored: 'node_modules',
-
-      ignoreInitial: false,
-      followSymlinks: true,
-      cwd: '.',
-      disableGlobbing: false,
-
-      usePolling: false,
-      interval: 100,
-      binaryInterval: 300,
-      alwaysStat: false,
-      depth: 0,
-      awaitWriteFinish: {
-        stabilityThreshold: 2000,
-        pollInterval: 100,
-      },
-
-      ignorePermissionErrors: false,
-      atomic: true, // or a custom 'atomicity delay', in milliseconds (default 100)
-    })
-    .on('all', (event, path) => {
-      console.log(event, path);
-      // console.log('watchedPaths = ', watcher.getWatched());
-      // Send here mainWindow.webContents('changes', {dirPath: path}) to update its conent - ls command again/reopen tab
-      console.log('watchedArray ', watchedArray);
-    });
 
   mainWindow.webContents.openDevTools();
 
@@ -334,50 +302,65 @@ http
 
 // Set/add/remove watchers for open in tabs directories
 
-// TODO: fix C drive "operation is not permitted" error
+// TODO: watcher continues watching after close
+// sets up wathcer several times
+// debug watchedArray on open/close tab/change tab path
 ipcMain.on('start-watching-dir', (event, dirPath, tabId) => {
   // On open new dir or subdir start watching this dir
+  // TODO: envoke mainWindow.webContents event on change in tab with specific id and refreash it
   console.log('Starting watching directory ', dirPath);
+
+  let watcher;
+
+  // Unwatch previous path of this tab
+  const perviouslyThisTab = watchedArray.find((item) => item.id === tabId);
+
+  if (perviouslyThisTab) {
+    perviouslyThisTab.watcher.close();
+    console.log('Path unwatched', perviouslyThisTab.path);
+  }
+
   watchedArray = watchedArray.filter((item) => item.id !== tabId);
   try {
     if (process.platform === 'win32') {
       const winDirPath = transfPathForWin(dirPath);
 
-      watchedArray.push({ id: tabId, path: dirPath });
-      watcher.add(winDirPath);
+      watcher = fs.watch(winDirPath, (eventType, filename) => {
+        console.log('eventType, filename', eventType, filename);
+      });
+
+      watchedArray.push({ id: tabId, path: dirPath, watcher });
     } else {
-      watchedArray.push({ id: tabId, path: dirPath });
-      watcher.add(dirPath);
+      watcher = fs.watch(dirPath, (eventType, filename) => {
+        console.log('eventType, filename', eventType, filename);
+      });
+
+      watchedArray.push({ id: tabId, path: dirPath, watcher });
     }
   } catch (err) {
     // error watching - no access or something
   }
-
-  // console.log('watcher.getWatched() ', watcher.getWatched());
 });
 
 ipcMain.on('stop-watching-dir', (event, dirPath, tabId) => {
   // On close directory/go up/open sudirectory
   console.log('Cancaling watching directory ', dirPath);
 
-  watchedArray = watchedArray.filter((item) => item.id === tabId);
-  try {
-    if (process.platform === 'win32') {
-      const winDirPath = transfPathForWin(dirPath);
+  const watchedItem = watchedArray.find((item) => item.id === tabId);
 
-      watchedArray.push({ id: tabId, path: dirPath });
-      watcher.unwatch(winDirPath);
-    } else {
-      watchedArray.push({ id: tabId, path: dirPath });
-      watcher.unwatch(dirPath);
-    }
+  try {
+    watchedItem.watcher.close();
+
+    watchedArray = watchedArray.filter((item) => item.id !== tabId);
   } catch (err) {
     // error watching - no access or something
   }
 });
 
 ipcMain.on('stop-watching-all', (event) => {
-  watcher
-    .close()
-    .then(() => console.log('Stop watching all directories with chokadir'));
+  // unwatch all here
+});
+
+process.on('uncaughtException', function (error) {
+  // console.log('Uncought Exception on the main process', error);
 });

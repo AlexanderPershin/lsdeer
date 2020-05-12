@@ -317,6 +317,7 @@ function App() {
       // backend sent 'directory-opened' response
       // now list newPath directory and send 'resp-dir' event
       ipcRenderer.send('ls-directory', newPath, tabId);
+      ipcRenderer.send('start-watching-dir', newPath, tabId);
     });
 
     ipcRenderer.on('resp-dir', (event, data) => {
@@ -325,7 +326,6 @@ function App() {
       const newPath = data.newPath;
 
       dispatch(openDirectory(tabId, newPath, newContent));
-      ipcRenderer.send('start-watching-dir', newPath, tabId);
     });
 
     ipcRenderer.on('all-files-selected', (event, data) => {
@@ -338,7 +338,8 @@ function App() {
       addTabAndActivate(dispatch);
     });
 
-    ipcRenderer.once('current-tab-closed', (event) => {
+    ipcRenderer.on('current-tab-closed', (event) => {
+      ipcRenderer.send('close-tab', activeTab, tabPath);
       dispatch(closeTab(activeTab));
       const remainingTabs = tabs.filter((item) => item.id !== activeTab);
       remainingTabs.length > 0 &&
