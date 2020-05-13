@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { openDir, addTab, closeTab } from '../../actions/tabsActions';
+import { setSearch, toggleSearch } from '../../actions/searchActions';
 import { setActiveTab } from '../../actions/activeTabActions';
 import {
   addSelectedFiles,
@@ -25,6 +26,8 @@ import TabItem from './TabItem';
 import deerBg from '../../img/deer.svg';
 
 import addTabAndActivate from '../../helpers/addTabAndActivate';
+
+import FindBox from '../FindBox';
 
 const { remote, ipcRenderer, shell } = window.require('electron');
 
@@ -145,19 +148,28 @@ const StyledCell = styled.div`
   align-items: flex-start;
 `;
 
-const TabContent = ({ id, name, content, createNew = false, path }) => {
+const TabContent = ({
+  id,
+  name,
+  content: tContent,
+  createNew = false,
+  path,
+}) => {
   const contentRef = useRef(null);
 
   const [loadedItems, setLoadItems] = useState(100);
 
   const activeTab = useSelector((state) => state.activeTab);
   const selectedStore = useSelector((state) => state.selected);
+  const { searching, searchString } = useSelector((state) => state.search);
   const dispatch = useDispatch();
+
+  const content = searching
+    ? tContent.filter((item) => item.name.includes(searchString))
+    : tContent;
 
   const themeContext = useContext(ThemeContext);
   const { rowHeight, colWidth } = themeContext.sizes;
-
-  // Optimize handleSelect with useCallback hook
 
   const handleSelect = useCallback(
     (e, selectedName) => {
@@ -315,6 +327,7 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
               )}
             </StyledAutoSizer>
           </StyledFiles>
+          {searching ? <FindBox /> : null}
         </React.Fragment>
       )}
     </StyledTabContent>

@@ -11,6 +11,7 @@ import {
 import { setDrives, clearDrives } from './actions/drivesActions';
 import { setActiveTab } from './actions/activeTabActions';
 import { addSelectedFiles } from './actions/selectFilesActions';
+import { setSearch, toggleSearch } from './actions/searchActions';
 import GlobalStyle from './themes/globalStyle';
 import { initializeFileTypeIcons } from '@uifabric/file-type-icons';
 import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
@@ -310,6 +311,7 @@ function App() {
 
     ipcRenderer.on('find-start', (event) => {
       console.log('Search on page initiated');
+      dispatch(toggleSearch());
     });
 
     ipcRenderer.once('drives-response', (event, data) => {

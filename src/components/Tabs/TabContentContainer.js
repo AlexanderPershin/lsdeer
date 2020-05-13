@@ -16,6 +16,8 @@ const StyledConentContainer = styled.div`
 const TabContentContainer = () => {
   const tabs = useSelector((state) => state.tabs);
 
+  // TODO: Remove all rendered TabContent but one and render to it current tab's content not more
+
   const renderTabsContents = () => {
     return tabs.map((item) => <TabContent key={item.id} {...item} />);
   };

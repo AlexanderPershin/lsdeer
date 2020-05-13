@@ -3,12 +3,14 @@ import tabsReducer from './tabsReducer';
 import activeTabReducer from './activeTabReducer';
 import selectedFilesReducer from './selectedFilesReducer';
 import drivesReducer from './drivesReducer';
+import searchReducer from './searchReducer';
 
 const reducers = combineReducers({
   tabs: tabsReducer,
   activeTab: activeTabReducer,
   selected: selectedFilesReducer,
   drives: drivesReducer,
+  search: searchReducer,
 });
 
 export default reducers;
