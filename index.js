@@ -22,7 +22,7 @@ const formDirArrayLinux = require('./helpersMain/formDirArrayLinux');
 const checkFileAndOpen = require('./helpersMain/checkFileAndOpen');
 const pasteUnderNewName = require('./helpersMain/pasteUnderNewName');
 
-const { app, BrowserWindow, ipcMain } = electron;
+const { app, BrowserWindow, ipcMain, dialog } = electron;
 
 let mainWindow;
 
@@ -157,35 +157,41 @@ ipcMain.on('paste-files', (event) => {
   mainWindow.webContents.send('paste-from-clipboard');
 });
 
-// TODO: create universal command to remove files and folders array
-ipcMain.on('delete-dir', (event, dirPath) => {
-  // Remove folder
-  const command = `rmdir ${dirPath}`;
-
-  exec(command, (err, stdout, stderr) => {
-    if (err) {
-      console.error(err);
-    } else {
-      mainWindow.webContents.send('delete-dir-resp', {
-        response: true,
-      });
-    }
-  });
+ipcMain.on('delete-selected', (event) => {
+  mainWindow.webContents.send('selected-deleted');
 });
 
-ipcMain.on('delete-file', (event, dirPath) => {
-  // Remove file
-  const command = `rm ${dirPath}`;
+ipcMain.on('remove-directories', (event, dirPath, filenamesArr) => {
+  console.log('dirPath', dirPath);
+  console.log('filenamesArr', filenamesArr);
 
-  exec(command, (err, stdout, stderr) => {
-    if (err) {
-      console.error(err);
-    } else {
-      mainWindow.webContents.send('delete-file-resp', {
-        response: true,
+  let options = {
+    buttons: ['Ok', 'Cancel'],
+    message: 'Do you really want to delete these files?',
+  };
+
+  let response = dialog.showMessageBoxSync(options);
+  console.log('response', response);
+
+  if (response === 0) {
+    // delte all
+
+    filenamesArr.map((item) => {
+      const command = `rm -r "${dirPath}${item}"`;
+
+      exec(command, (err, stdout, stderr) => {
+        if (err) {
+          console.error(err);
+        } else {
+          mainWindow.webContents.send('delete-file-resp', {
+            response: true,
+          });
+        }
       });
-    }
-  });
+
+      return item;
+    });
+  }
 });
 
 ipcMain.on('test', (event) => {

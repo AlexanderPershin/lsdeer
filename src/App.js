@@ -90,7 +90,7 @@ const template = [
         label: 'Delete',
         accelerator: 'delete',
         click(e) {
-          console.log('delete');
+          ipcRenderer.send('delete-selected');
         },
       },
     ],
@@ -282,8 +282,6 @@ function App() {
     });
   }, []);
 
-  // Events fire too many times, solve this subscription problem
-  // remove useEffect's dependensy array or organize remove listeners handler
   useEffect(() => {
     const tabPath = activeTabObect ? activeTabObect.path : null;
 
@@ -295,9 +293,12 @@ function App() {
       ipcRenderer.send('pasted-file', tabPath);
     });
 
+    ipcRenderer.on('selected-deleted', (event) => {
+      ipcRenderer.send('remove-directories', tabPath, selectedStore);
+    });
+
     ipcRenderer.on('edit-action-complete', (event, data) => {
-      // const { dirPath } = data;
-      // ipcRenderer.send('open-directory', activeTab, dirPath);
+      // Here was refresh - redundunt after setting up watchers
     });
 
     ipcRenderer.once('drives-response', (event, data) => {
@@ -324,8 +325,6 @@ function App() {
       const newContent = data.response;
       const tabId = data.tabId;
       const newPath = data.newPath;
-
-      // ipcRenderer.send('start-watching-dir', newPath, tabId);
 
       dispatch(openDirectory(tabId, newPath, newContent));
     });
