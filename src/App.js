@@ -312,11 +312,12 @@ function App() {
       }
     });
 
-    ipcRenderer.on('directory-opened', (event, { tabId, newPath }) => {
+    ipcRenderer.on('directory-opened', (event, { tabId, newPath, isFile }) => {
       // Component opened directory and have sent event to backend
       // backend sent 'directory-opened' response
       // now list newPath directory and send 'resp-dir' event
       ipcRenderer.send('ls-directory', newPath, tabId);
+      if (!isFile) ipcRenderer.send('start-watching-dir', newPath, tabId);
     });
 
     ipcRenderer.on('resp-dir', (event, data) => {
@@ -324,7 +325,7 @@ function App() {
       const tabId = data.tabId;
       const newPath = data.newPath;
 
-      ipcRenderer.send('start-watching-dir', newPath, tabId);
+      // ipcRenderer.send('start-watching-dir', newPath, tabId);
 
       dispatch(openDirectory(tabId, newPath, newContent));
     });

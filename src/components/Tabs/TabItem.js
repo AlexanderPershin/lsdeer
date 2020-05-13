@@ -81,7 +81,7 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
 
     // dispatch(openDir(activeTab, newPath));
     dispatch(clearSelectedFiles());
-    ipcRenderer.send('open-directory', activeTab, newPath);
+    ipcRenderer.send('open-directory', activeTab, newPath, isFile);
   };
 
   const handleSelectThis = useCallback((e) => handleSelect(e, name), [
