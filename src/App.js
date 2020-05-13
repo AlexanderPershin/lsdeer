@@ -317,13 +317,14 @@ function App() {
       // backend sent 'directory-opened' response
       // now list newPath directory and send 'resp-dir' event
       ipcRenderer.send('ls-directory', newPath, tabId);
-      ipcRenderer.send('start-watching-dir', newPath, tabId);
     });
 
     ipcRenderer.on('resp-dir', (event, data) => {
       const newContent = data.response;
       const tabId = data.tabId;
       const newPath = data.newPath;
+
+      ipcRenderer.send('start-watching-dir', newPath, tabId);
 
       dispatch(openDirectory(tabId, newPath, newContent));
     });
@@ -348,8 +349,15 @@ function App() {
 
     ipcRenderer.on('closed-tab', (event, data) => {
       const { tabId, tabPath } = data;
-      console.log('Closed tab', tabPath);
       ipcRenderer.send('stop-watching-dir', tabPath, tabId);
+    });
+
+    ipcRenderer.on('refresh-tab', (event, data) => {
+      // Backend watcher sends this event when files changed in one of the opened directories
+      const { tabId, dirPath } = data;
+      const refreshTab = tabs.find((item) => item.id === tabId);
+      const refreshTabPath = refreshTab && refreshTab.path;
+      ipcRenderer.send('open-directory', tabId, refreshTabPath);
     });
 
     return () => {

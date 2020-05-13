@@ -113,6 +113,20 @@ ipcMain.on('close-tab', (event, tabId, tabPath) => {
     tabPath,
   });
 });
+
+ipcMain.on('close-tabs', (event, data) => {
+  const { excludedTabs } = data; // list of ids
+  watchedArray = watchedArray.filter((item) => {
+    if (excludedTabs.includes(item.id)) {
+      return true;
+    } else {
+      item.watcher.close();
+      return false;
+    }
+  });
+
+  console.log('watchedArray', watchedArray);
+});
 // Tabs menu end ===============================
 
 ipcMain.on('get-drives', (event) => {
@@ -183,8 +197,6 @@ ipcMain.on('copied-file', (event, dirPath, namesArray) => {
   console.log('Copied Files ', copiedFiles);
 });
 
-// TODO: works incorrectly
-// paste and rename simillar files silently like in windows file explorer
 ipcMain.on('pasted-file', (event, dirPath) => {
   if (copiedFiles.length > 0) {
     const progressBar = new ProgressBar({
@@ -327,12 +339,16 @@ ipcMain.on('start-watching-dir', (event, dirPath, tabId) => {
 
       watcher = fs.watch(winDirPath, (eventType, filename) => {
         console.log('eventType, filename', eventType, filename);
+        console.log('Envoked for tab ', tabId, ' with path ', dirPath);
+        console.log('Currently watching ', watchedArray);
+        mainWindow.webContents.send('refresh-tab', { tabId, dirPath });
       });
 
       watchedArray.push({ id: tabId, path: dirPath, watcher });
     } else {
       watcher = fs.watch(dirPath, (eventType, filename) => {
         console.log('eventType, filename', eventType, filename);
+        mainWindow.webContents.send('refresh-tab', { tabId, dirPath });
       });
 
       watchedArray.push({ id: tabId, path: dirPath, watcher });
@@ -359,6 +375,8 @@ ipcMain.on('stop-watching-dir', (event, dirPath, tabId) => {
 
 ipcMain.on('stop-watching-all', (event) => {
   // unwatch all here
+  watchedArray.map((item) => item.watcher.close());
+  watchedArray = [];
 });
 
 process.on('uncaughtException', function (error) {

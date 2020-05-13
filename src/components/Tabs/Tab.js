@@ -82,6 +82,10 @@ const Tab = ({ id, name }) => {
   const closeAll = () => {
     const firstLocked = tabs.filter((item) => item.isLocked)[0];
 
+    ipcRenderer.send('close-tabs', {
+      excludedTabs: tabs.filter((item) => item.isLocked).map((item) => item.id),
+    });
+
     firstLocked && dispatch(setActiveTab(firstLocked.id));
 
     dispatch(closeAllTabs());
