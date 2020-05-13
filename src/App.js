@@ -296,8 +296,8 @@ function App() {
     });
 
     ipcRenderer.on('edit-action-complete', (event, data) => {
-      const { dirPath } = data;
-      ipcRenderer.send('open-directory', activeTab, dirPath);
+      // const { dirPath } = data;
+      // ipcRenderer.send('open-directory', activeTab, dirPath);
     });
 
     ipcRenderer.once('drives-response', (event, data) => {
@@ -357,6 +357,9 @@ function App() {
       const { tabId, dirPath } = data;
       const refreshTab = tabs.find((item) => item.id === tabId);
       const refreshTabPath = refreshTab && refreshTab.path;
+      if (!refreshTabPath) return;
+      console.log('App -> refreshTabPath', refreshTabPath);
+
       ipcRenderer.send('open-directory', tabId, refreshTabPath);
     });
 

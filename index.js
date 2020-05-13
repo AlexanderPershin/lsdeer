@@ -92,6 +92,13 @@ ipcMain.on('ls-directory', (event, dirPath, tabId) => {
 });
 
 ipcMain.on('open-directory', (event, tabId, newPath) => {
+  try {
+    watchedArray = watchedArray
+      .map((item) => item.id === tabId)
+      .watcher.close()
+      .filter((item) => item.id === tabId);
+  } catch (err) {}
+
   mainWindow.webContents.send('directory-opened', {
     tabId,
     newPath,

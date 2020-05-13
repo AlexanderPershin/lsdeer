@@ -249,34 +249,11 @@ const TabContent = ({ id, name, content, createNew = false, path }) => {
     }
   };
 
-  const handleDeselectOnMisclick = (e) => {
-    try {
-      if (
-        e.target &&
-        (e.target.classList.contains('TabItem') ||
-          e.target.parentNode.classList.contains('TabItem'))
-      ) {
-        // TabItem clicked -> do nothing
-        return;
-      } else {
-        dispatch(clearSelectedFiles());
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
   useEffect(() => {
     dispatch(clearSelectedFiles());
   }, [activeTab, dispatch]);
 
   // TODO: make file deselection on misclick
-  // useEffect(() => {
-  //   document.addEventListener('click', handleDeselectOnMisclick);
-  //   return () => {
-  //     document.removeEventListener('click', handleDeselectOnMisclick);
-  //   };
-  // }, []);
 
   const calculateFlatIndex = (colIndex, rowIndex, colCount) => {
     const index = rowIndex * colCount + colIndex;

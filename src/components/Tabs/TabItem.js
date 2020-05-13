@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { openDir } from '../../actions/tabsActions';
 import { clearSelectedFiles } from '../../actions/selectFilesActions';
 import { hexToRgba } from 'hex-and-rgba';
-import imageExtensions from 'image-extensions';
+import imageExtensions from '../../image_ext.json';
 
 // fluentui
 import { Icon } from '@fluentui/react/lib/Icon';
@@ -74,10 +74,10 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
   const { fileIconSize } = themeContext.sizes;
 
   const handleOpenDirectory = (e) => {
-    console.log('TabItem openDirectory');
-
     const activePath = tabs.filter((item) => item.id === activeTab)[0].path;
     const newPath = `${activePath}${name}`;
+
+    console.log('TabItem openDirectory', newPath);
 
     // dispatch(openDir(activeTab, newPath));
     dispatch(clearSelectedFiles());
