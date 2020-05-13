@@ -93,6 +93,13 @@ const template = [
           ipcRenderer.send('delete-selected');
         },
       },
+      {
+        label: 'Find',
+        accelerator: 'CmdOrCtrl+F',
+        click(e) {
+          ipcRenderer.send('find');
+        },
+      },
     ],
   },
   {
@@ -299,6 +306,10 @@ function App() {
 
     ipcRenderer.on('edit-action-complete', (event, data) => {
       // Here was refresh - redundunt after setting up watchers
+    });
+
+    ipcRenderer.on('find-start', (event) => {
+      console.log('Search on page initiated');
     });
 
     ipcRenderer.once('drives-response', (event, data) => {

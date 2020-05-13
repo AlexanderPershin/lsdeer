@@ -161,17 +161,17 @@ ipcMain.on('delete-selected', (event) => {
   mainWindow.webContents.send('selected-deleted');
 });
 
-ipcMain.on('remove-directories', (event, dirPath, filenamesArr) => {
-  console.log('dirPath', dirPath);
-  console.log('filenamesArr', filenamesArr);
+ipcMain.on('find', (event) => {
+  mainWindow.webContents.send('find-start');
+});
 
+ipcMain.on('remove-directories', (event, dirPath, filenamesArr) => {
   let options = {
     buttons: ['Ok', 'Cancel'],
     message: 'Do you really want to delete these files?',
   };
 
   let response = dialog.showMessageBoxSync(options);
-  console.log('response', response);
 
   if (response === 0) {
     // delte all
