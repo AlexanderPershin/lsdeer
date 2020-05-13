@@ -11,7 +11,7 @@ import {
 import { setDrives, clearDrives } from './actions/drivesActions';
 import { setActiveTab } from './actions/activeTabActions';
 import { addSelectedFiles } from './actions/selectFilesActions';
-import { setSearch, toggleSearch } from './actions/searchActions';
+import { closeSearch, toggleSearch } from './actions/searchActions';
 import GlobalStyle from './themes/globalStyle';
 import { initializeFileTypeIcons } from '@uifabric/file-type-icons';
 import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
@@ -355,6 +355,7 @@ function App() {
     ipcRenderer.on('current-tab-closed', (event) => {
       ipcRenderer.send('close-tab', activeTab, tabPath);
       dispatch(closeTab(activeTab));
+      dispatch(closeSearch());
       const remainingTabs = tabs.filter((item) => item.id !== activeTab);
       remainingTabs.length > 0 &&
         dispatch(setActiveTab(remainingTabs[remainingTabs.length - 1].id));

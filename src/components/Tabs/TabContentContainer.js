@@ -15,14 +15,21 @@ const StyledConentContainer = styled.div`
 
 const TabContentContainer = () => {
   const tabs = useSelector((state) => state.tabs);
+  const activeTab = useSelector((state) => state.activeTab);
 
-  // TODO: Remove all rendered TabContent but one and render to it current tab's content not more
+  const currentTabObject = tabs.find((item) => item.id === activeTab);
 
-  const renderTabsContents = () => {
-    return tabs.map((item) => <TabContent key={item.id} {...item} />);
+  const renderCurrentTab = () => {
+    return <TabContent key={currentTabObject.id} {...currentTabObject} />;
   };
 
-  return <StyledConentContainer>{renderTabsContents()}</StyledConentContainer>;
+  return (
+    <StyledConentContainer>
+      {tabs.length > 0 && currentTabObject && currentTabObject.id
+        ? renderCurrentTab()
+        : null}
+    </StyledConentContainer>
+  );
 };
 
 export default TabContentContainer;

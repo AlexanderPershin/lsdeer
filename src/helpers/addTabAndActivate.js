@@ -1,7 +1,7 @@
 import { nanoid } from 'nanoid';
 import { addTab } from '../actions/tabsActions';
 import { setActiveTab } from '../actions/activeTabActions';
-import { clearSelectedFiles } from '../actions/selectFilesActions';
+import { closeSearch } from '../actions/searchActions';
 
 // Should pass dispatch = useDispatch()
 
@@ -14,6 +14,7 @@ const addTabAndActivate = (dispatch) => {
     path: '/',
   };
   // dispatch(clearSelectedFiles());
+  dispatch(closeSearch());
   dispatch(addTab(newTab));
   dispatch(setActiveTab(newTab.id));
 };

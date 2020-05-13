@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { setSearch, toggleSearch } from '../actions/searchActions';
@@ -14,9 +14,22 @@ const StyledFindBox = styled.form`
   align-items: stretch;
   border: 5px solid ${({ theme }) => theme.bg.appBg};
   box-shadow: ${({ theme }) => theme.shadows.menuShadow};
+  background-color: ${({ theme }) => theme.bg.appBg};
+  font-size: ${({ theme }) => theme.font.appSearchFontSize};
 `;
 
-const StyledSerchBtn = styled.button`
+const StyledInput = styled.input`
+  background: ${({ theme }) => theme.bg.inputBg};
+  color: ${({ theme }) => theme.colors.appColor};
+  height: 1.5rem;
+  border: none;
+  outline: none;
+  flex: 1;
+  font-size: inherit;
+  padding: 0 0.5em;
+`;
+
+const StyledSearchBtn = styled.button`
   color: ${({ theme }) => theme.colors.appColor};
   background-color: ${({ theme }) => theme.bg.appBg};
   border-color: transparent;
@@ -24,18 +37,28 @@ const StyledSerchBtn = styled.button`
   display: flex;
   justify-content: center;
   align-items: center;
+  border: none;
+  outline: none;
+  margin-left: 0.3em;
+  &:hover {
+    cursor: pointer;
+    color: ${({ theme }) => theme.bg.selectedBg};
+  }
+`;
+
+const CloseSearchBtn = styled(StyledSearchBtn)`
+  &:hover {
+    color: red;
+  }
 `;
 
 const FindBox = () => {
-  // TODO: organize filtering content mechanism here
-  // using redux store and tab content manipulations
-  // refetch tab content when FindBox is closed
-  // or add filterReducer to redux and paste there filtered data
-  // and search ? filteredData : content
   const { searching, searchString } = useSelector((state) => state.search);
   const dispatch = useDispatch();
 
   const [findStr, setFindStr] = useState(searchString || '');
+
+  const inputRef = useRef(null);
 
   const handleFindStr = (e) => {
     setFindStr(e.target.value);
@@ -43,7 +66,7 @@ const FindBox = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(setSearch(findStr));
+    dispatch(setSearch(findStr.trim()));
   };
 
   const handleClose = (e) => {
@@ -53,6 +76,7 @@ const FindBox = () => {
 
   const handleClearSearch = (e) => {
     e.preventDefault();
+    setFindStr('');
     dispatch(setSearch(''));
   };
 
@@ -60,18 +84,27 @@ const FindBox = () => {
     setFindStr(searchString);
   }, [searchString, searching]);
 
+  useEffect(() => {
+    inputRef && inputRef.current.focus();
+  }, []);
+
   return (
     <StyledFindBox onSubmit={handleSubmit}>
-      <input type='text' value={findStr} onChange={handleFindStr} />
-      <StyledSerchBtn type='submit'>
+      <StyledInput
+        ref={inputRef}
+        type='text'
+        value={findStr}
+        onChange={handleFindStr}
+      />
+      <StyledSearchBtn type='submit'>
         <Icon iconName='Search' />
-      </StyledSerchBtn>
-      <StyledSerchBtn onClick={handleClearSearch}>
+      </StyledSearchBtn>
+      <StyledSearchBtn onClick={handleClearSearch}>
         <Icon iconName='Delete' />
-      </StyledSerchBtn>
-      <StyledSerchBtn onClick={handleClose}>
+      </StyledSearchBtn>
+      <CloseSearchBtn onClick={handleClose}>
         <Icon iconName='Cancel' />
-      </StyledSerchBtn>
+      </CloseSearchBtn>
     </StyledFindBox>
   );
 };

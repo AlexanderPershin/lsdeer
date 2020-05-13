@@ -7,7 +7,11 @@ import React, {
 } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { openDir, addTab, closeTab } from '../../actions/tabsActions';
-import { setSearch, toggleSearch } from '../../actions/searchActions';
+import {
+  setSearch,
+  toggleSearch,
+  closeSearch,
+} from '../../actions/searchActions';
 import { setActiveTab } from '../../actions/activeTabActions';
 import {
   addSelectedFiles,
@@ -165,7 +169,9 @@ const TabContent = ({
   const dispatch = useDispatch();
 
   const content = searching
-    ? tContent.filter((item) => item.name.includes(searchString))
+    ? tContent.filter((item) =>
+        item.name.toLowerCase().includes(searchString.toLowerCase())
+      )
     : tContent;
 
   const themeContext = useContext(ThemeContext);
@@ -231,6 +237,7 @@ const TabContent = ({
 
   const handleGoUp = () => {
     if (path.length <= 3) {
+      dispatch(closeSearch());
       addTabAndActivate(dispatch);
       dispatch(closeTab(id));
       return;
@@ -240,6 +247,7 @@ const TabContent = ({
     path_arr.splice(-2, 2);
     const newPath = path_arr.join('/') + '/';
     ipcRenderer.send('open-directory', id, newPath);
+    dispatch(closeSearch());
     dispatch(clearSelectedFiles());
   };
 

@@ -14,5 +14,6 @@ export const CLEAR_SELECTED_FILES = 'CLEAR_SELECTED_FILES';
 export const SET_DRIVES = 'SET_DRIVES';
 export const CLEAR_DRIVES = 'CLEAR_DRIVES';
 export const TOGGLE_SEARCH = 'TOGGLE_SEARCH';
+export const CLOSE_SEARCH = 'CLOSE_SEARCH';
 export const SET_SEARCH = 'SET_SEARCH';
 export const TEST_ACTION = 'TEST_ACTION';

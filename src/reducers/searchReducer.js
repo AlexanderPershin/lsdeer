@@ -1,4 +1,4 @@
-import { TOGGLE_SEARCH, SET_SEARCH } from '../actions/types';
+import { TOGGLE_SEARCH, SET_SEARCH, CLOSE_SEARCH } from '../actions/types';
 
 const initialState = {
   searching: false,
@@ -11,6 +11,8 @@ const searchReducer = function (state = initialState, action) {
       return { ...state, searching: !state.searching };
     case SET_SEARCH:
       return { ...state, searchString: action.payload };
+    case CLOSE_SEARCH:
+      return { ...state, searching: false };
     default:
       return state;
   }

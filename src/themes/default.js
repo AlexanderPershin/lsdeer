@@ -16,12 +16,14 @@ const defaultTheme = {
     folderBg: '#787586',
     selectedBg: '#003366',
     pathBarBg: '#404040',
+    inputBg: '#707070',
   },
   font: {
     appFontFamily: 'Roboto, sans-serif',
     pathBarFontSize: '1.2rem',
     appBarFontSize: '1rem',
     appBarMenuFontSize: '0.8rem',
+    appSearchFontSize: '1.2rem',
   },
   opac: {
     tabOpac: 'cc',
