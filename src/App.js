@@ -31,6 +31,8 @@ import addTabAndActivate from './helpers/addTabAndActivate';
 
 import parseDrivesData from './helpers/parseDrivesData';
 
+import appConfig from './app_config.json';
+
 const { remote, ipcRenderer } = window.require('electron');
 const electron = window.require('electron');
 const mainWindow = remote.getCurrentWindow();
@@ -396,14 +398,26 @@ function App() {
     dispatch(setActiveTab(newTab.id));
   };
 
+  // Saving/Fetching tabs from tabs.json file from the root folder
+  // TODO: Save tabs every 5-10 minutes
   useEffect(() => {
     window.addEventListener('beforeunload', (ev) => {
       ipcRenderer.send('save-tabs', tabs);
     });
+
+    const MINUTES = appConfig.SAVE_TABS_DELAY || 5; // save tabs every 5 minutes
+    const intervDelay = MINUTES * 60 * 1000;
+
+    const saveInterval = setInterval(() => {
+      ipcRenderer.send('save-tabs', tabs);
+    }, intervDelay);
+
     return () => {
       window.removeEventListener('beforeunload', (ev) => {
         ipcRenderer.send('save-tabs', tabs);
       });
+
+      clearInterval(saveInterval);
     };
   }, [tabs]);
 
