@@ -331,6 +331,8 @@ function App() {
       // backend sent 'directory-opened' response
       // now list newPath directory and send 'resp-dir' event
       ipcRenderer.send('ls-directory', newPath, tabId);
+      // This process blocks app process
+      // TODO: make this async or something
       if (!isFile) ipcRenderer.send('start-watching-dir', newPath, tabId);
     });
 

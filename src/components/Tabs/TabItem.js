@@ -79,7 +79,6 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
 
     console.log('TabItem openDirectory', newPath);
 
-    // dispatch(openDir(activeTab, newPath));
     dispatch(clearSelectedFiles());
     ipcRenderer.send('open-directory', activeTab, newPath, isFile);
   };

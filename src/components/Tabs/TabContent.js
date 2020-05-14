@@ -101,6 +101,7 @@ const StyledUp = styled.button`
   flex-grow: 0;
   flex-shrink: 0;
   font-size: ${({ theme }) => theme.font.pathBarFontSize};
+  border: 1px solid ${({ theme }) => theme.colors.appColor};
   &:hover {
     background-color: ${({ theme }) => theme.bg.selectedBg};
   }
@@ -110,20 +111,37 @@ const StyledUp = styled.button`
   }
 `;
 
-const StyledTabPath = styled.input`
+const StyledTabPath = styled.div`
   flex-grow: 1;
   flex-shrink: 0;
+  display: flex;
+  justify-content: flex-start;
+  align-items: stretch;
   background-color: ${({ theme }) => theme.bg.pathBarBg};
   color: ${({ theme }) => theme.colors.appColor};
   border: none;
   padding: 0 1rem;
   opacity: 0.6;
   font-size: ${({ theme }) => theme.font.pathBarFontSize};
-  &:focus {
-    opacity: 1;
-    outline: ${({ theme }) => theme.bg.selectedBg} solid
-      ${({ theme }) => theme.sizes.focusOutlineWidth};
+`;
+
+const StyledPathItem = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  padding: 0 0.2em;
+  background-color: ${({ theme }) => theme.bg.pathBarBg};
+  &:hover {
+    background-color: ${({ theme }) => theme.bg.selectedBg};
   }
+`;
+
+const StyledPathIcon = styled(Icon)`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.8rem;
 `;
 
 const StyledAutoSizer = styled(AutoSizer)`
@@ -272,8 +290,39 @@ const TabContent = ({
     dispatch(clearSelectedFiles());
   }, [activeTab, dispatch]);
 
-  // TODO: make file deselection on misclick
+  const handlePathOpen = (pathArr) => {
+    const newPath = pathArr.join('/');
+    console.log('handlePathOpen -> newPath', newPath);
 
+    dispatch(clearSelectedFiles());
+    ipcRenderer.send('open-directory', activeTab, '/' + newPath + '/', false);
+  };
+
+  const renderPathNav = () => {
+    const pathArr = path.split('/').filter((i) => i);
+    return pathArr.map((item, idx) => {
+      if (item) {
+        return (
+          <React.Fragment key={item}>
+            <StyledPathItem
+              onClick={() => handlePathOpen(pathArr.slice(0, idx + 1))}
+            >
+              {item}
+            </StyledPathItem>
+            {idx + 1 === pathArr.length ? null : (
+              <StyledPathIcon
+                iconName='ChevronRightMed'
+                className='ms-IconExample'
+              />
+            )}
+          </React.Fragment>
+        );
+      }
+      return null;
+    });
+  };
+
+  // TODO: make file deselection on misclick
   const calculateFlatIndex = (colIndex, rowIndex, colCount) => {
     const index = rowIndex * colCount + colIndex;
     return index;
@@ -317,7 +366,7 @@ const TabContent = ({
             <StyledUp onClick={handleGoUp}>
               <Icon iconName='SortUp' className='ms-IconExample' />
             </StyledUp>
-            <StyledTabPath value={path} onChange={() => {}} readonly />
+            <StyledTabPath>{path && renderPathNav()}</StyledTabPath>
           </StyledNav>
           <StyledFiles>
             <StyledAutoSizer>
