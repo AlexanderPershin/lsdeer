@@ -94,16 +94,15 @@ const StyledUp = styled.button`
   justify-content: center;
   align-items: center;
   border: none;
-  background-color: darkgreen;
+  background-color: transparent;
   color: ${({ theme }) => theme.colors.appColor};
   padding: 0 5px;
   cursor: pointer;
   flex-grow: 0;
   flex-shrink: 0;
   font-size: ${({ theme }) => theme.font.pathBarFontSize};
-  &:focus {
-    outline: ${({ theme }) => theme.bg.selectedBg} solid
-      ${({ theme }) => theme.sizes.focusOutlineWidth};
+  &:hover {
+    background-color: ${({ theme }) => theme.bg.selectedBg};
   }
   &:disabled {
     background-color: lightgray;
@@ -300,6 +299,9 @@ const TabContent = ({
     const rowCount = Math.ceil(content.length / colCount);
     return rowCount;
   };
+
+  // TODO: replace input TabPath with div containing path pieces navigation like in windows
+  // default explorer
 
   return (
     <StyledTabContent

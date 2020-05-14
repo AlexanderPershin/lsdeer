@@ -378,6 +378,9 @@ function App() {
 
     ipcRenderer.on('previous-tabs', (event, data) => {
       dispatch(setTabs(data.tabs));
+      data.tabs.map((item) => {
+        ipcRenderer.send('start-watching-dir', item.path, item.id);
+      });
     });
 
     return () => {
