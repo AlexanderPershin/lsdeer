@@ -6,6 +6,7 @@ import {
   addTab,
   closeTab,
   openDir,
+  setTabs,
   openDirectory,
 } from './actions/tabsActions';
 import { setDrives, clearDrives } from './actions/drivesActions';
@@ -377,6 +378,10 @@ function App() {
       ipcRenderer.send('open-directory', tabId, refreshTabPath);
     });
 
+    ipcRenderer.on('previous-tabs', (event, data) => {
+      dispatch(setTabs(data.tabs));
+    });
+
     return () => {
       ipcRenderer.removeAllListeners();
     };
@@ -390,6 +395,21 @@ function App() {
     dispatch(addTab(newTab));
     dispatch(setActiveTab(newTab.id));
   };
+
+  useEffect(() => {
+    window.addEventListener('beforeunload', (ev) => {
+      ipcRenderer.send('save-tabs', tabs);
+    });
+    return () => {
+      window.removeEventListener('beforeunload', (ev) => {
+        ipcRenderer.send('save-tabs', tabs);
+      });
+    };
+  }, [tabs]);
+
+  useEffect(() => {
+    ipcRenderer.send('get-tabs');
+  }, []);
 
   const handleCloseTab = (id) => {
     dispatch(closeTab(id));

@@ -373,6 +373,28 @@ ipcMain.on('stop-watching-all', (event) => {
   watchedArray = [];
 });
 
+ipcMain.on('save-tabs', (event, tabs) => {
+  const tabsJson = JSON.stringify(tabs);
+  fs.writeFile('tabs.json', tabsJson, 'utf8', function (err) {
+    if (err) {
+      console.log('Error saving tabs.json');
+      return console.log(err);
+    }
+
+    console.log('Tabs were saved into tabs.json');
+  });
+});
+
+ipcMain.on('get-tabs', (event) => {
+  fs.readFile('tabs.json', (err, data) => {
+    if (err) throw err;
+
+    const tabsArray = JSON.parse(data);
+
+    mainWindow.webContents.send('previous-tabs', { tabs: tabsArray });
+  });
+});
+
 process.on('uncaughtException', function (error) {
   // console.log('Uncought Exception on the main process', error);
 });
