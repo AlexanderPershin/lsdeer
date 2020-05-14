@@ -307,7 +307,7 @@ const TabContent = ({
       active={id === activeTab}
       onScroll={handleLoadMoreOnScroll}
     >
-      {createNew ? (
+      {createNew || path === '/' ? (
         <NewTabContent />
       ) : (
         <React.Fragment>

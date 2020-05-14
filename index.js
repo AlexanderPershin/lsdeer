@@ -296,8 +296,9 @@ const expressPort = 15032;
 
 // Thumbnails for images
 router.get('/file/:fullpath', async function (req, res) {
+  // .ico images not supported by sharp, but were included
+  // they'll be sent unchanged, because of small size
   let filePath = req.params.fullpath;
-  console.log('Serving file:', filePath);
 
   let options = { width: 150, height: 100, percentage: 5 };
 
@@ -305,7 +306,7 @@ router.get('/file/:fullpath', async function (req, res) {
     const thumbnail = await imageThumbnail(filePath, options);
     res.send(thumbnail);
   } catch (err) {
-    console.error(err);
+    console.error(err, filePath);
     // Send full image on error: may be performance demanding
     res.sendFile(filePath);
   }
@@ -320,15 +321,7 @@ http
   );
 
 // Set/add/remove watchers for open in tabs directories
-
-// TODO: watcher continues watching after close
-// sets up wathcer several times
-// debug watchedArray on open/close tab/change tab path
 ipcMain.on('start-watching-dir', (event, dirPath, tabId) => {
-  // On open new dir or subdir start watching this dir
-  // TODO: envoke mainWindow.webContents event on change in tab with specific id and refreash it
-  console.log('Starting watching directory ', dirPath);
-
   let watcher;
 
   // Unwatch previous path of this tab
@@ -336,7 +329,6 @@ ipcMain.on('start-watching-dir', (event, dirPath, tabId) => {
 
   if (perviouslyThisTab) {
     perviouslyThisTab.watcher.close();
-    console.log('Path unwatched', perviouslyThisTab.path);
   }
 
   watchedArray = watchedArray.filter((item) => item.id !== tabId);
@@ -345,16 +337,12 @@ ipcMain.on('start-watching-dir', (event, dirPath, tabId) => {
       const winDirPath = transfPathForWin(dirPath);
 
       watcher = fs.watch(winDirPath, (eventType, filename) => {
-        console.log('eventType, filename', eventType, filename);
-        console.log('Envoked for tab ', tabId, ' with path ', dirPath);
-        console.log('Currently watching ', watchedArray);
         mainWindow.webContents.send('refresh-tab', { tabId, dirPath });
       });
 
       watchedArray.push({ id: tabId, path: dirPath, watcher });
     } else {
       watcher = fs.watch(dirPath, (eventType, filename) => {
-        console.log('eventType, filename', eventType, filename);
         mainWindow.webContents.send('refresh-tab', { tabId, dirPath });
       });
 
@@ -367,7 +355,6 @@ ipcMain.on('start-watching-dir', (event, dirPath, tabId) => {
 
 ipcMain.on('stop-watching-dir', (event, dirPath, tabId) => {
   // On close directory/go up/open sudirectory
-  console.log('Cancaling watching directory ', dirPath);
 
   const watchedItem = watchedArray.find((item) => item.id === tabId);
 
