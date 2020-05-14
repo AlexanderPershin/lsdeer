@@ -7,6 +7,7 @@ const cors = require('cors');
 const express = require('express');
 const expressApp = express();
 const router = express.Router();
+const chokidar = require('chokidar');
 
 const ProgressBar = require('electron-progressbar');
 
@@ -336,15 +337,93 @@ ipcMain.on('start-watching-dir', (event, dirPath, tabId) => {
     if (process.platform === 'win32') {
       const winDirPath = transfPathForWin(dirPath);
 
-      watcher = fs.watch(winDirPath, (eventType, filename) => {
-        mainWindow.webContents.send('refresh-tab', { tabId, dirPath });
+      // watcher = fs.watch(winDirPath, (eventType, filename) => {
+      //   mainWindow.webContents.send('refresh-tab', { tabId, dirPath });
+      // });
+
+      const watcher = chokidar.watch(winDirPath, {
+        persistent: true,
+
+        ignored: '*.sys',
+        ignoreInitial: true,
+        followSymlinks: true,
+        cwd: '.',
+        disableGlobbing: false,
+
+        usePolling: false,
+        interval: 100,
+        binaryInterval: 300,
+        alwaysStat: false,
+        depth: 0,
+        awaitWriteFinish: {
+          stabilityThreshold: 2000,
+          pollInterval: 100,
+        },
+
+        ignorePermissionErrors: false,
+        atomic: true, // or a custom 'atomicity delay', in milliseconds (default 100)
       });
+
+      // Add event listeners.
+      watcher
+        .on('add', (path) => {
+          console.log(`File ${path} has been added`);
+          mainWindow.webContents.send('refresh-tab', { tabId, dirPath });
+        })
+        .on('change', (path) => {
+          console.log(`File ${path} has been changed`);
+          mainWindow.webContents.send('refresh-tab', { tabId, dirPath });
+        })
+        .on('unlink', (path) => {
+          console.log(`File ${path} has been removed`);
+          mainWindow.webContents.send('refresh-tab', { tabId, dirPath });
+        })
+        .on('ready', () =>
+          console.log('Initial scan complete. Ready for changes')
+        );
 
       watchedArray.push({ id: tabId, path: dirPath, watcher });
     } else {
-      watcher = fs.watch(dirPath, (eventType, filename) => {
-        mainWindow.webContents.send('refresh-tab', { tabId, dirPath });
+      const watcher = chokidar.watch(dirPath, {
+        persistent: true,
+
+        ignored: '*.sys',
+        ignoreInitial: true,
+        followSymlinks: true,
+        cwd: '.',
+        disableGlobbing: false,
+
+        usePolling: false,
+        interval: 100,
+        binaryInterval: 300,
+        alwaysStat: false,
+        depth: 0,
+        awaitWriteFinish: {
+          stabilityThreshold: 2000,
+          pollInterval: 100,
+        },
+
+        ignorePermissionErrors: false,
+        atomic: true, // or a custom 'atomicity delay', in milliseconds (default 100)
       });
+
+      // Add event listeners.
+      watcher
+        .on('add', (path) => {
+          console.log(`File ${path} has been added`);
+          mainWindow.webContents.send('refresh-tab', { tabId, dirPath });
+        })
+        .on('change', (path) => {
+          console.log(`File ${path} has been changed`);
+          mainWindow.webContents.send('refresh-tab', { tabId, dirPath });
+        })
+        .on('unlink', (path) => {
+          console.log(`File ${path} has been removed`);
+          mainWindow.webContents.send('refresh-tab', { tabId, dirPath });
+        })
+        .on('ready', () =>
+          console.log('Initial scan complete. Ready for changes')
+        );
 
       watchedArray.push({ id: tabId, path: dirPath, watcher });
     }
