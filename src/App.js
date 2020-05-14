@@ -113,7 +113,6 @@ const template = [
         label: 'New',
         accelerator: 'CmdOrCtrl+T',
         click() {
-          console.log('open new tab');
           ipcRenderer.send('new-tab');
         },
       },
@@ -123,7 +122,6 @@ const template = [
         click() {
           // TODO: add ipc main event and emit it here
           // in App component listen to response and close current tab
-          console.log('close current tab');
           ipcRenderer.send('close-current-tab');
         },
       },
@@ -313,7 +311,6 @@ function App() {
     });
 
     ipcRenderer.on('find-start', (event) => {
-      console.log('Search on page initiated');
       dispatch(toggleSearch());
     });
 
@@ -375,7 +372,6 @@ function App() {
       const refreshTab = tabs.find((item) => item.id === tabId);
       const refreshTabPath = refreshTab && refreshTab.path;
       if (!refreshTabPath) return;
-      console.log('App -> refreshTabPath', refreshTabPath);
 
       ipcRenderer.send('open-directory', tabId, refreshTabPath);
     });
