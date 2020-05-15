@@ -60,7 +60,15 @@ const StyledImg = styled.img`
 const truncate = (input, num) =>
   input.length > num ? `${input.substring(0, num)}...` : input;
 
-const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
+const TabItem = ({
+  name,
+  path,
+  isFile,
+  ext,
+  selected,
+  handleSelect,
+  handleSelectRightClick,
+}) => {
   const activeTab = useSelector((state) => state.activeTab);
   const tabs = useSelector((state) => state.tabs);
   const selectedStore = useSelector((state) => state.selected);
@@ -88,6 +96,10 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
     name,
   ]);
 
+  const handleSelectContext = (e) => {
+    handleSelectRightClick(name);
+  };
+
   const addDefaultSrc = useCallback((e) => {
     setImageIsBroken(true);
   }, []);
@@ -96,6 +108,7 @@ const TabItem = ({ name, path, isFile, ext, selected, handleSelect }) => {
   return (
     <StyledItem
       onClick={handleSelectThis}
+      onContextMenu={handleSelectContext}
       onDoubleClick={handleOpenDirectory}
       sel={selected}
       ref={thisItem}

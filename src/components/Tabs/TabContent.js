@@ -25,6 +25,8 @@ import { Icon } from '@fluentui/react/lib/Icon';
 import { FixedSizeGrid as Grid } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
+import { ContextMenu, MenuItem, ContextMenuTrigger } from 'react-contextmenu';
+
 import NewTabContent from './NewTabContent';
 import TabItem from './TabItem';
 import deerBg from '../../img/deer.svg';
@@ -185,6 +187,27 @@ const StyledCell = styled.div`
   align-items: flex-start;
 `;
 
+const StyledContextMenu = styled(ContextMenu)`
+  background-color: ${({ theme }) => theme.bg.appBg};
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: stretch;
+  z-index: 1000;
+  box-shadow: ${({ theme }) => theme.shadows.menuShadow};
+`;
+
+const StyledMenuItem = styled(MenuItem)`
+  padding: 2px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  &:hover {
+    background-color: ${({ theme }) => theme.bg.selectedBg};
+  }
+`;
+
 const TabContent = ({
   id,
   name,
@@ -269,6 +292,10 @@ const TabContent = ({
     [content, dispatch, selectedStore]
   );
 
+  const handleSelectRightClick = (name) => {
+    dispatch(addSelectedFiles([name]));
+  };
+
   const handleGoUp = () => {
     if (path.length <= 3) {
       dispatch(closeSearch());
@@ -306,6 +333,10 @@ const TabContent = ({
   const handleScrollPath = (e) => {
     e.stopPropagation();
     pathRef.current.scrollLeft += e.deltaY;
+  };
+
+  const hanldeDeselectFiles = (e) => {
+    dispatch(clearSelectedFiles());
   };
 
   useEffect(() => {
@@ -358,6 +389,7 @@ const TabContent = ({
         <TabItem
           {...item}
           handleSelect={handleSelect}
+          handleSelectRightClick={handleSelectRightClick}
           selected={selectedStore.includes(item.name)}
         />
       </StyledCell>
@@ -392,24 +424,47 @@ const TabContent = ({
               {path && renderPathNav()}
             </StyledTabPath>
           </StyledNav>
-          <StyledFiles>
-            <StyledAutoSizer>
-              {({ height, width }) => (
-                <StyledRWGrid
-                  className='Grid'
-                  columnCount={calcColCount(width)}
-                  columnWidth={colWidth}
-                  height={height}
-                  rowCount={calcRowCount(width) + 1}
-                  rowHeight={rowHeight}
-                  width={width}
-                  itemData={calcColCount(width)}
-                >
-                  {Cell}
-                </StyledRWGrid>
-              )}
-            </StyledAutoSizer>
-          </StyledFiles>
+          <ContextMenuTrigger id={id + path}>
+            <StyledFiles>
+              <StyledAutoSizer>
+                {({ height, width }) => (
+                  <StyledRWGrid
+                    className='Grid'
+                    columnCount={calcColCount(width)}
+                    columnWidth={colWidth}
+                    height={height}
+                    rowCount={calcRowCount(width) + 1}
+                    rowHeight={rowHeight}
+                    width={width}
+                    itemData={calcColCount(width)}
+                  >
+                    {Cell}
+                  </StyledRWGrid>
+                )}
+              </StyledAutoSizer>
+            </StyledFiles>
+          </ContextMenuTrigger>
+          {selectedStore.length === 0 ? (
+            <StyledContextMenu id={id + path}>
+              <StyledMenuItem
+                data={{ foo: 'bar' }}
+                onClick={() => console.log('Hello!')}
+              >
+                Hello
+              </StyledMenuItem>
+              <MenuItem divider />
+            </StyledContextMenu>
+          ) : (
+            <StyledContextMenu id={id + path}>
+              <StyledMenuItem
+                data={{ foo: 'bar' }}
+                onClick={hanldeDeselectFiles}
+              >
+                Deselect
+              </StyledMenuItem>
+              <MenuItem divider />
+            </StyledContextMenu>
+          )}
           {searching ? <FindBox /> : null}
         </React.Fragment>
       )}

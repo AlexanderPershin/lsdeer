@@ -8,6 +8,7 @@ const express = require('express');
 const expressApp = express();
 const router = express.Router();
 const chokidar = require('chokidar');
+const trash = require('trash');
 
 const ProgressBar = require('electron-progressbar');
 
@@ -162,6 +163,10 @@ ipcMain.on('delete-selected', (event) => {
   mainWindow.webContents.send('selected-deleted');
 });
 
+ipcMain.on('x-delete-selected', (event) => {
+  mainWindow.webContents.send('selected-x-deleted');
+});
+
 ipcMain.on('find', (event) => {
   mainWindow.webContents.send('find-start');
 });
@@ -169,13 +174,38 @@ ipcMain.on('find', (event) => {
 ipcMain.on('remove-directories', (event, dirPath, filenamesArr) => {
   let options = {
     buttons: ['Ok', 'Cancel'],
-    message: 'Do you really want to delete these files?',
+    message: 'Move these files to trash?',
   };
 
   let response = dialog.showMessageBoxSync(options);
 
   if (response === 0) {
-    // delte all
+    // move to trash
+
+    filenamesArr.map((item) => {
+      if (process.platform === 'win32') {
+        trash(transfPathForWin(`${dirPath}${item}`)).then(
+          console.log(`${dirPath}${item} has been deleted`)
+        );
+      } else {
+        trash(`${dirPath}${item}`).then(
+          console.log(`${dirPath}${item} has been deleted`)
+        );
+      }
+    });
+  }
+});
+
+ipcMain.on('remove-directories-permanently', (event, dirPath, filenamesArr) => {
+  let options = {
+    buttons: ['Ok', 'Cancel'],
+    message: 'Permanently delete these files?',
+  };
+
+  let response = dialog.showMessageBoxSync(options);
+
+  if (response === 0) {
+    // delete all
 
     filenamesArr.map((item) => {
       const command = `rm -r "${dirPath}${item}"`;

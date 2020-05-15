@@ -98,6 +98,13 @@ const template = [
         },
       },
       {
+        label: 'XDelete',
+        accelerator: 'shift+delete',
+        click(e) {
+          ipcRenderer.send('x-delete-selected');
+        },
+      },
+      {
         label: 'Find',
         accelerator: 'CmdOrCtrl+F',
         click(e) {
@@ -288,6 +295,11 @@ function App() {
       if (e.which === 87 && e.ctrlKey) {
         // ctrl+w = close current tab
       }
+
+      if (e.which === 46 && e.shiftKey) {
+        // shift+delete = delete permanently
+        ipcRenderer.send('x-delete-selected');
+      }
     });
   }, []);
 
@@ -304,6 +316,14 @@ function App() {
 
     ipcRenderer.on('selected-deleted', (event) => {
       ipcRenderer.send('remove-directories', tabPath, selectedStore);
+    });
+
+    ipcRenderer.on('selected-x-deleted', (event) => {
+      ipcRenderer.send(
+        'remove-directories-permanently',
+        tabPath,
+        selectedStore
+      );
     });
 
     ipcRenderer.on('edit-action-complete', (event, data) => {
