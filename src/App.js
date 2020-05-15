@@ -384,6 +384,7 @@ function App() {
       dispatch(setTabs(data.tabs));
       data.tabs.map((item) => {
         ipcRenderer.send('start-watching-dir', item.path, item.id);
+        ipcRenderer.send('open-directory', item.id, item.path);
       });
     });
 
