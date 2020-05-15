@@ -380,7 +380,6 @@ function App() {
 
     ipcRenderer.on('previous-tabs', (event, data) => {
       // Reopen each tab because content could change after last closing lsdeer
-      // And no need to save all content of each tab - only id, path and isLocked
       dispatch(setTabs(data.tabs));
       data.tabs.map((item) => {
         ipcRenderer.send('start-watching-dir', item.path, item.id);

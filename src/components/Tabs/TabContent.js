@@ -87,6 +87,7 @@ const StyledNav = styled.div`
   align-items: stretch;
   font-size: ${({ theme }) => theme.font.pathBarFontSize};
   z-index: 150;
+  overflow: hidden;
 `;
 
 const StyledUp = styled.button`
@@ -112,8 +113,9 @@ const StyledUp = styled.button`
 `;
 
 const StyledTabPath = styled.div`
+  max-width: 100%;
   flex-grow: 1;
-  flex-shrink: 0;
+  flex-shrink: 1;
   display: flex;
   justify-content: flex-start;
   align-items: stretch;
@@ -123,9 +125,23 @@ const StyledTabPath = styled.div`
   padding: 0 1rem;
   opacity: 0.6;
   font-size: ${({ theme }) => theme.font.pathBarFontSize};
+  overflow-x: auto;
+  overflow-y: hidden;
+  &::-webkit-scrollbar {
+    height: 0.5rem;
+    background-color: ${({ theme }) => theme.bg.activeTabBg};
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: ${({ theme }) => theme.bg.tabBg};
+    border: 2px solid ${({ theme }) => theme.bg.activeTabBg};
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: ${({ theme }) => theme.bg.scrollbarBg};
+  }
 `;
 
 const StyledPathItem = styled.div`
+  flex: 0 1 0%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -177,6 +193,7 @@ const TabContent = ({
   path,
 }) => {
   const contentRef = useRef(null);
+  const pathRef = useRef(null);
 
   const [loadedItems, setLoadItems] = useState(100);
 
@@ -286,6 +303,11 @@ const TabContent = ({
     }
   };
 
+  const handleScrollPath = (e) => {
+    e.stopPropagation();
+    pathRef.current.scrollLeft += e.deltaY;
+  };
+
   useEffect(() => {
     dispatch(clearSelectedFiles());
   }, [activeTab, dispatch]);
@@ -366,7 +388,9 @@ const TabContent = ({
             <StyledUp onClick={handleGoUp}>
               <Icon iconName='SortUp' className='ms-IconExample' />
             </StyledUp>
-            <StyledTabPath>{path && renderPathNav()}</StyledTabPath>
+            <StyledTabPath ref={pathRef} onWheel={handleScrollPath}>
+              {path && renderPathNav()}
+            </StyledTabPath>
           </StyledNav>
           <StyledFiles>
             <StyledAutoSizer>
