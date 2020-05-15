@@ -11,7 +11,10 @@ import {
 } from './actions/tabsActions';
 import { setDrives, clearDrives } from './actions/drivesActions';
 import { setActiveTab } from './actions/activeTabActions';
-import { addSelectedFiles } from './actions/selectFilesActions';
+import {
+  addSelectedFiles,
+  clearSelectedFiles,
+} from './actions/selectFilesActions';
 import { closeSearch, toggleSearch } from './actions/searchActions';
 import GlobalStyle from './themes/globalStyle';
 import { initializeFileTypeIcons } from '@uifabric/file-type-icons';
@@ -316,6 +319,7 @@ function App() {
 
     ipcRenderer.on('selected-deleted', (event) => {
       ipcRenderer.send('remove-directories', tabPath, selectedStore);
+      dispatch(clearSelectedFiles());
     });
 
     ipcRenderer.on('selected-x-deleted', (event) => {
@@ -425,6 +429,7 @@ function App() {
   // TODO: Save tabs every 5-10 minutes
   useEffect(() => {
     window.addEventListener('beforeunload', (ev) => {
+      // Something is wrong - listeners stack like if they weren't removed
       ipcRenderer.send('save-tabs', tabs);
     });
 

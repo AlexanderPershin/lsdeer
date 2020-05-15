@@ -236,6 +236,8 @@ ipcMain.on('copied-file', (event, dirPath, namesArray) => {
 });
 
 ipcMain.on('pasted-file', (event, dirPath) => {
+  // TODO: send response to renderer with array of pasted filenames and select these files
+
   if (copiedFiles.length > 0) {
     const progressBar = new ProgressBar({
       indeterminate: false,

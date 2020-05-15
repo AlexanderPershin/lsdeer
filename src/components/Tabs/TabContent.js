@@ -197,6 +197,11 @@ const StyledContextMenu = styled(ContextMenu)`
   box-shadow: ${({ theme }) => theme.shadows.menuShadow};
 `;
 
+const StyledCtxShortcut = styled.span`
+  margin-left: 1rem;
+  color: #999999;
+`;
+
 const StyledMenuItem = styled(MenuItem)`
   padding: 2px 15px;
   display: flex;
@@ -221,6 +226,7 @@ const TabContent = ({
   const [loadedItems, setLoadItems] = useState(100);
 
   const activeTab = useSelector((state) => state.activeTab);
+  const tabs = useSelector((state) => state.tabs);
   const selectedStore = useSelector((state) => state.selected);
   const { searching, searchString } = useSelector((state) => state.search);
   const dispatch = useDispatch();
@@ -293,6 +299,7 @@ const TabContent = ({
   );
 
   const handleSelectRightClick = (name) => {
+    if (selectedStore.includes(name)) return;
     dispatch(addSelectedFiles([name]));
   };
 
@@ -335,8 +342,28 @@ const TabContent = ({
     pathRef.current.scrollLeft += e.deltaY;
   };
 
+  // Context menu handlers
   const hanldeDeselectFiles = (e) => {
     dispatch(clearSelectedFiles());
+  };
+
+  const handleOpenSelectedItem = (e) => {
+    if (selectedStore.length === 1) {
+      const activePath = tabs.filter((item) => item.id === activeTab)[0].path;
+      const isFile = tabs
+        .find((item) => item.id === activeTab)
+        .content.find((item) => item.name === selectedStore[0]).isFile;
+      const newPath = `${activePath}${selectedStore[0]}`;
+
+      dispatch(clearSelectedFiles());
+      ipcRenderer.send('open-directory', activeTab, newPath, isFile);
+    } else {
+      return;
+    }
+  };
+
+  const handleContextDelete = (e) => {
+    ipcRenderer.send('delete-selected');
   };
 
   useEffect(() => {
@@ -403,9 +430,6 @@ const TabContent = ({
     return rowCount;
   };
 
-  // TODO: replace input TabPath with div containing path pieces navigation like in windows
-  // default explorer
-
   return (
     <StyledTabContent
       ref={contentRef}
@@ -456,11 +480,14 @@ const TabContent = ({
             </StyledContextMenu>
           ) : (
             <StyledContextMenu id={id + path}>
-              <StyledMenuItem
-                data={{ foo: 'bar' }}
-                onClick={hanldeDeselectFiles}
-              >
+              <StyledMenuItem onClick={hanldeDeselectFiles}>
                 Deselect
+              </StyledMenuItem>
+              <StyledMenuItem onClick={handleOpenSelectedItem}>
+                Open
+              </StyledMenuItem>
+              <StyledMenuItem onClick={handleContextDelete}>
+                Delete <StyledCtxShortcut>delete</StyledCtxShortcut>
               </StyledMenuItem>
               <MenuItem divider />
             </StyledContextMenu>

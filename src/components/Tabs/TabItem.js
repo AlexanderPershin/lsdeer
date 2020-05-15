@@ -85,8 +85,6 @@ const TabItem = ({
     const activePath = tabs.filter((item) => item.id === activeTab)[0].path;
     const newPath = `${activePath}${name}`;
 
-    console.log('TabItem openDirectory', newPath);
-
     dispatch(clearSelectedFiles());
     ipcRenderer.send('open-directory', activeTab, newPath, isFile);
   };
