@@ -61,7 +61,7 @@ const createWindow = () => {
 app.on('ready', createWindow);
 
 ipcMain.on('ls-directory', (event, dirPath, tabId) => {
-  const command = `ls "${dirPath}" -p --hide=*.sys --hide="System Volume Information" --group-directories-first`;
+  const command = `ls "${dirPath}" -p -1v --hide=*.sys --hide="System Volume Information" --group-directories-first`;
 
   try {
     const itWasFile = checkFileAndOpen(dirPath);
