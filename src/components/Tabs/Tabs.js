@@ -72,12 +72,7 @@ const Tabs = () => {
     // delete movable
     reorderedTabs.splice(draggedItem, 1);
     // paste movable after overItem
-    if (dragOverItem <= draggedItem - 1) {
-      // move bofore that tab
-      reorderedTabs.splice(dragOverItem, 0, movedTab);
-    } else {
-      reorderedTabs.splice(dragOverItem + 1, 0, movedTab);
-    }
+    reorderedTabs.splice(dragOverItem, 0, movedTab);
 
     dispatch(setTabs(reorderedTabs));
     setDragOverItem(null);
