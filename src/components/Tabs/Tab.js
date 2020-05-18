@@ -57,7 +57,7 @@ const StyledTabIcon = styled(Icon)`
   margin-left: 10px;
 `;
 
-const Tab = ({ id, name }) => {
+const Tab = ({ id, name, handleDragStart, handleDragEnd, handleDragOver }) => {
   const activeTab = useSelector((state) => state.activeTab);
   const tabs = useSelector((state) => state.tabs);
   const dispatch = useDispatch();
@@ -111,6 +111,10 @@ const Tab = ({ id, name }) => {
       <ContextMenuTrigger id={id}>
         {' '}
         <StyledTab
+          draggable={isLocked ? false : true}
+          onDragStart={(e) => handleDragStart(e, id)}
+          onDragEnd={(e) => handleDragEnd(e, id)}
+          onDragOver={(e) => handleDragOver(e, id)}
           activeTab={id === activeTab ? true : false}
           onClick={setActive}
         >

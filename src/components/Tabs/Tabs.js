@@ -4,6 +4,8 @@ import Tab from './Tab';
 import PlusTab from './PlusTab';
 import styled from 'styled-components';
 
+import { setTabs } from '../../actions/tabsActions';
+
 // TODO: set active tab on delete current tab !
 
 const TabsContainer = styled.div`
@@ -27,18 +29,57 @@ const TabsContainer = styled.div`
 
 const Tabs = () => {
   const tabs = useSelector((state) => state.tabs);
+  const dispatch = useDispatch();
   const tabsRef = useRef(null);
   const [plusClicked, setPlusClicked] = useState(false);
+  const [draggedItem, setDraggedItem] = useState(null);
+  const [dragOverItem, setDragOverItem] = useState(null);
 
   const renderTabs = () => {
     if (tabs.length === 0) return;
 
-    return tabs.map((item, i) => <Tab key={item.id} {...item} />);
+    return tabs.map((item, i) => (
+      <Tab
+        key={item.id}
+        {...item}
+        handleDragStart={handleDragStart}
+        handleDragEnd={handleDragEnd}
+        handleDragOver={handleDragOver}
+      />
+    ));
   };
 
   const handleScrollTabs = (e) => {
     e.stopPropagation();
     tabsRef.current.scrollLeft += e.deltaY;
+  };
+
+  const handleDragStart = (e, id) => {
+    const draggedIndex = tabs.findIndex((item) => item.id === id);
+    setDraggedItem(draggedIndex);
+  };
+
+  const handleDragEnd = (e, id) => {
+    if (draggedItem === dragOverItem) return;
+    const reorderedTabs = [...tabs];
+    // copy movable
+    const movedTab = reorderedTabs[draggedItem];
+    // delete movable
+    reorderedTabs.splice(draggedItem, 1);
+    // paste movable after overItem
+    if (dragOverItem === draggedItem - 1) {
+      // move bofore that tab
+      reorderedTabs.splice(dragOverItem, 0, movedTab);
+    } else {
+      reorderedTabs.splice(dragOverItem + 1, 0, movedTab);
+    }
+
+    dispatch(setTabs(reorderedTabs));
+  };
+
+  const handleDragOver = (e, id) => {
+    const overIndex = tabs.findIndex((item) => item.id === id);
+    setDragOverItem(overIndex);
   };
 
   useEffect(() => {
