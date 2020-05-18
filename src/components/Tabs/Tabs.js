@@ -61,7 +61,7 @@ const Tabs = () => {
   };
 
   const handleDragEnd = (e, id) => {
-    if (draggedItem === dragOverItem) {
+    if (draggedItem === dragOverItem || tabs[dragOverItem].isLocked) {
       setDragOverItem(null);
       setDraggedItem(null);
       return;
