@@ -20,6 +20,8 @@ const StyledTab = styled.div`
   padding: 0.5rem 1rem;
   user-select: none;
   white-space: nowrap;
+  border: ${({ theme, overThis }) =>
+    overThis ? `2px solid ${theme.bg.selectedBg}` : '2px solid transparent'};
   background-color: ${({ theme, activeTab }) =>
     activeTab ? theme.bg.activeTabBg : theme.bg.tabBg};
   &:not(:last-child) {
@@ -57,7 +59,14 @@ const StyledTabIcon = styled(Icon)`
   margin-left: 10px;
 `;
 
-const Tab = ({ id, name, handleDragStart, handleDragEnd, handleDragOver }) => {
+const Tab = ({
+  id,
+  name,
+  handleDragStart,
+  handleDragEnd,
+  handleDragOver,
+  dragOverIndex,
+}) => {
   const activeTab = useSelector((state) => state.activeTab);
   const tabs = useSelector((state) => state.tabs);
   const dispatch = useDispatch();
@@ -103,20 +112,25 @@ const Tab = ({ id, name, handleDragStart, handleDragEnd, handleDragOver }) => {
     }
   };
 
+  const handleThisDragOver = (e) => {
+    handleDragOver(e, id);
+  };
+
   // TODO: Replace icons in context menu with shortcuts
   // Add shortcuts ctrl+w ctrl+t to create and close tabs
 
   return (
     <React.Fragment>
-      <ContextMenuTrigger id={id}>
+      <ContextMenuTrigger id={id} holdToDisplay={-1}>
         {' '}
         <StyledTab
           draggable={isLocked ? false : true}
           onDragStart={(e) => handleDragStart(e, id)}
           onDragEnd={(e) => handleDragEnd(e, id)}
-          onDragOver={(e) => handleDragOver(e, id)}
+          onDragOver={handleThisDragOver}
           activeTab={id === activeTab ? true : false}
           onClick={setActive}
+          overThis={tabs.findIndex((item) => item.id === id) === dragOverIndex}
         >
           <span>{name}</span>
           {isLocked ? (

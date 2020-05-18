@@ -45,6 +45,7 @@ const Tabs = () => {
         handleDragStart={handleDragStart}
         handleDragEnd={handleDragEnd}
         handleDragOver={handleDragOver}
+        dragOverIndex={dragOverItem}
       />
     ));
   };
@@ -60,14 +61,18 @@ const Tabs = () => {
   };
 
   const handleDragEnd = (e, id) => {
-    if (draggedItem === dragOverItem) return;
+    if (draggedItem === dragOverItem) {
+      setDragOverItem(null);
+      setDraggedItem(null);
+      return;
+    }
     const reorderedTabs = [...tabs];
     // copy movable
     const movedTab = reorderedTabs[draggedItem];
     // delete movable
     reorderedTabs.splice(draggedItem, 1);
     // paste movable after overItem
-    if (dragOverItem === draggedItem - 1) {
+    if (dragOverItem <= draggedItem - 1) {
       // move bofore that tab
       reorderedTabs.splice(dragOverItem, 0, movedTab);
     } else {
@@ -75,6 +80,8 @@ const Tabs = () => {
     }
 
     dispatch(setTabs(reorderedTabs));
+    setDragOverItem(null);
+    setDraggedItem(null);
   };
 
   const handleDragOver = (e, id) => {
