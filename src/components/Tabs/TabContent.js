@@ -147,6 +147,7 @@ const StyledPathItem = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  white-space: nowrap;
   cursor: pointer;
   padding: 0 0.2em;
   background-color: ${({ theme }) => theme.bg.pathBarBg};
