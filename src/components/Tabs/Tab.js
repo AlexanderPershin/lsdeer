@@ -116,6 +116,10 @@ const Tab = ({
     handleDragOver(e, id);
   };
 
+  const handleAddToFav = () => {
+    ipcRenderer.send('add-to-favorites', id);
+  };
+
   // TODO: Replace icons in context menu with shortcuts
   // Add shortcuts ctrl+w ctrl+t to create and close tabs
 
@@ -152,6 +156,12 @@ const Tab = ({
         </StyledMenuItem>
         <StyledMenuItem data={{ foo: 'bar' }} onClick={closeAll}>
           Close All <StyledTabIcon iconName='Broom' />
+        </StyledMenuItem>
+        <StyledMenuItem onClick={handleAddToFav}>
+          Add To Favorites <StyledTabIcon iconName='AddFavoriteFill' />
+        </StyledMenuItem>
+        <StyledMenuItem onClick={() => console.log('remove from favorites')}>
+          Remove From Favorites <StyledTabIcon iconName='Unfavorite' />
         </StyledMenuItem>
         <MenuItem divider />
       </StyledContextMenu>

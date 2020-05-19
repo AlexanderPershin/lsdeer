@@ -506,6 +506,10 @@ ipcMain.on('get-tabs', (event) => {
   });
 });
 
+ipcMain.on('add-to-favorites', (event, tabId) => {
+  mainWindow.webContents.send('added-to-favorites', { tabId });
+});
+
 process.on('uncaughtException', function (error) {
   // console.log('Uncought Exception on the main process', error);
 });

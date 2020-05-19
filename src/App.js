@@ -16,6 +16,7 @@ import {
   clearSelectedFiles,
 } from './actions/selectFilesActions';
 import { closeSearch, toggleSearch } from './actions/searchActions';
+import { addToFav, removeFromFav } from './actions/favoritesActions';
 import GlobalStyle from './themes/globalStyle';
 import { initializeFileTypeIcons } from '@uifabric/file-type-icons';
 import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
@@ -128,6 +129,15 @@ const template = [
           // TODO: add ipc main event and emit it here
           // in App component listen to response and close current tab
           ipcRenderer.send('close-current-tab');
+        },
+      },
+      {
+        label: 'Add to favorites',
+        accelerator: 'CmdOrCtrl+G',
+        click() {
+          console.log('Add to favorites');
+
+          ipcRenderer.send('add-to-favorites');
         },
       },
     ],
@@ -303,10 +313,13 @@ function App() {
       if (e.which === 87 && e.ctrlKey) {
         // ctrl+w = close current tab
       }
-
       if (e.which === 46 && e.shiftKey) {
         // shift+delete = delete permanently
         ipcRenderer.send('x-delete-selected');
+      }
+      if (e.which === 71 && e.ctrlKey) {
+        // ctrl+g
+        // add tab to favorites
       }
     });
   }, []);
@@ -414,6 +427,19 @@ function App() {
         ipcRenderer.send('start-watching-dir', item.path, item.id);
         ipcRenderer.send('open-directory', item.id, item.path);
       });
+    });
+
+    ipcRenderer.on('added-to-favorites', (event, data) => {
+      // TODO: save favorites to json file
+      const { tabId } = data;
+      let addedTab;
+      if (tabId) {
+        addedTab = tabs.find((item) => item.id === tabId);
+      } else {
+        addedTab = tabs.find((item) => item.id === activeTab);
+      }
+
+      dispatch(addToFav(addedTab));
     });
 
     return () => {
