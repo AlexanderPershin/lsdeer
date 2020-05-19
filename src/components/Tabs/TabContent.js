@@ -77,16 +77,16 @@ const StyledFiles = styled.div`
   overflow: hidden;
 `;
 
-// TODO: Add margin to grid or empty row on the top for the nav element
-
 const StyledNav = styled.div`
   width: 100%;
   height: ${({ theme }) => theme.sizes.navHeight};
   border-bottom: 3px solid ${({ theme }) => theme.bg.tabBg};
-  border-top: 3px solid ${({ theme }) => theme.bg.tabBg};
+  border-top: 3px solid ${({ theme }) => theme.bg.appBg};
   display: flex;
   justify-content: flex-start;
   align-items: stretch;
+  background-color: ${({ theme }) =>
+    hexToRgba(theme.bg.appBg + theme.opac.tabOpac).toString()};
   font-size: ${({ theme }) => theme.font.pathBarFontSize};
   z-index: 150;
   overflow: hidden;
@@ -104,7 +104,6 @@ const StyledUp = styled.button`
   flex-grow: 0;
   flex-shrink: 0;
   font-size: ${({ theme }) => theme.font.pathBarFontSize};
-  border: 1px solid ${({ theme }) => theme.colors.appColor};
   &:hover {
     background-color: ${({ theme }) => theme.bg.selectedBg};
   }
@@ -121,7 +120,6 @@ const StyledTabPath = styled.div`
   display: flex;
   justify-content: flex-start;
   align-items: stretch;
-  background-color: ${({ theme }) => theme.bg.pathBarBg};
   color: ${({ theme }) => theme.colors.appColor};
   border: none;
   padding: 0 1rem;
@@ -150,7 +148,7 @@ const StyledPathItem = styled.div`
   white-space: nowrap;
   cursor: pointer;
   padding: 0 0.2em;
-  background-color: ${({ theme }) => theme.bg.pathBarBg};
+  background-color: transparent;
   &:hover {
     background-color: ${({ theme }) => theme.bg.selectedBg};
   }

@@ -65,13 +65,6 @@ const template = [
     label: 'Edit',
     submenu: [
       {
-        label: 'Refresh Page',
-        accelerator: 'CmdOrCtrl+R',
-        click() {
-          mainWindow.reload();
-        },
-      },
-      {
         label: 'Select All',
         accelerator: 'CmdOrCtrl+A',
         role: 'selectAll',
@@ -140,6 +133,13 @@ const template = [
   {
     label: 'View',
     submenu: [
+      {
+        label: 'Refresh Page',
+        accelerator: 'CmdOrCtrl+R',
+        click() {
+          mainWindow.reload();
+        },
+      },
       {
         label: 'Open DevTools',
         accelerator: 'CmdOrCtrl+`',

@@ -5,7 +5,7 @@ const defaultTheme = {
   },
   bg: {
     appBg: '#404040',
-    appBarBg: '#707070',
+    appBarBg: '#8B8B8B',
     appBarActiveItemBg: '#404040',
     appBarXBtnHover: 'cc0000',
     tabBg: '#707070',
@@ -17,6 +17,7 @@ const defaultTheme = {
     selectedBg: '#003366',
     pathBarBg: '#404040',
     inputBg: '#707070',
+    secondaryBg: '#707070',
   },
   font: {
     appFontFamily: 'Roboto, sans-serif',
