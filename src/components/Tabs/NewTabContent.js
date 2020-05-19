@@ -78,7 +78,10 @@ const NewTabContent = () => {
   };
 
   const renderFavorites = () => {
-    return favorites.map((item) => <FavoriteItem key={item.id} {...item} />);
+    // Show folders first
+    return favorites
+      .sort((a, b) => (a.isFile && !b.isFile ? 1 : -1))
+      .map((item) => <FavoriteItem key={item.id} {...item} />);
   };
 
   useEffect(() => {

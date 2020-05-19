@@ -534,6 +534,10 @@ ipcMain.on('add-to-favorites', (event, tabId) => {
   mainWindow.webContents.send('added-to-favorites', { tabId });
 });
 
+ipcMain.on('add-files-to-favorites', (event) => {
+  mainWindow.webContents.send('selected-added-to-favs');
+});
+
 process.on('uncaughtException', function (error) {
   // console.log('Uncought Exception on the main process', error);
 });

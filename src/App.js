@@ -104,10 +104,12 @@ const template = [
         },
       },
       {
-        label: 'Find',
-        accelerator: 'CmdOrCtrl+F',
-        click(e) {
-          ipcRenderer.send('find');
+        label: 'Add to favorites',
+        accelerator: 'CmdOrCtrl+B',
+        click() {
+          console.log('Add file to favorites');
+
+          ipcRenderer.send('add-files-to-favorites');
         },
       },
     ],
@@ -135,8 +137,6 @@ const template = [
         label: 'Add to favorites',
         accelerator: 'CmdOrCtrl+G',
         click() {
-          console.log('Add to favorites');
-
           ipcRenderer.send('add-to-favorites');
         },
       },
@@ -145,6 +145,13 @@ const template = [
   {
     label: 'View',
     submenu: [
+      {
+        label: 'Find',
+        accelerator: 'CmdOrCtrl+F',
+        click(e) {
+          ipcRenderer.send('find');
+        },
+      },
       {
         label: 'Refresh Page',
         accelerator: 'CmdOrCtrl+R',
@@ -454,6 +461,30 @@ function App() {
       dispatch(addToFav(favoriteTab));
     });
 
+    ipcRenderer.on('selected-added-to-favs', (event) => {
+      if (selectedStore.length > 0) {
+        console.log('Add selected to favorites');
+        const activePath = tabPath;
+        const newFavs = selectedStore.map((item) => {
+          const contentObj = activeTabObect.content.find(
+            (itm) => itm.name === item
+          );
+
+          return {
+            id: nanoid(),
+            name: item,
+            path: `${activePath}${item}`,
+            isFile: contentObj.isFile,
+            ext: contentObj.ext,
+          };
+        });
+
+        dispatch(addToFav(newFavs));
+      } else {
+        return;
+      }
+    });
+
     return () => {
       ipcRenderer.removeAllListeners();
     };
@@ -469,7 +500,7 @@ function App() {
   };
 
   // Saving/Fetching tabs from tabs.json file from the root folder
-  // TODO: Save tabs every 5-10 minutes
+  // TODO: Tabs are lost after page refresh fix this bug
   useEffect(() => {
     window.addEventListener('beforeunload', (ev) => {
       // Something is wrong - listeners stack like if they weren't removed

@@ -136,7 +136,7 @@ const Tab = ({
           onClick={setActive}
           overThis={tabs.findIndex((item) => item.id === id) === dragOverIndex}
         >
-          <span>{name}</span>
+          <span>{name === '/' ? 'New' : name}</span>
           {isLocked ? (
             <StyledTabIcon iconName='LockSolid' />
           ) : (
@@ -146,15 +146,15 @@ const Tab = ({
       </ContextMenuTrigger>{' '}
       <StyledContextMenu id={id}>
         {!isLocked && (
-          <StyledMenuItem data={{ foo: 'bar' }} onClick={closeThisTab}>
+          <StyledMenuItem onClick={closeThisTab}>
             Close <StyledTabIcon iconName='Clear' />
           </StyledMenuItem>
         )}
-        <StyledMenuItem data={{ foo: 'bar' }} onClick={toggleLock}>
+        <StyledMenuItem onClick={toggleLock}>
           {isLocked ? 'Unlock' : 'Lock'}{' '}
           <StyledTabIcon iconName={isLocked ? 'UnlockSolid' : 'LockSolid'} />
         </StyledMenuItem>
-        <StyledMenuItem data={{ foo: 'bar' }} onClick={closeAll}>
+        <StyledMenuItem onClick={closeAll}>
           Close All <StyledTabIcon iconName='Broom' />
         </StyledMenuItem>
         <StyledMenuItem onClick={handleAddToFav}>
