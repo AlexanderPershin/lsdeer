@@ -1,13 +1,6 @@
-import React, {
-  useCallback,
-  useEffect,
-  useState,
-  useContext,
-  useRef,
-} from 'react';
+import React, { useCallback, useState, useContext, useRef } from 'react';
 import styled, { ThemeContext } from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
-import { openDir } from '../../actions/tabsActions';
 import { clearSelectedFiles } from '../../actions/selectFilesActions';
 import { hexToRgba } from 'hex-and-rgba';
 import imageExtensions from '../../image_ext.json';
@@ -16,7 +9,7 @@ import imageExtensions from '../../image_ext.json';
 import { Icon } from '@fluentui/react/lib/Icon';
 import { getFileTypeIconProps, FileIconType } from '@uifabric/file-type-icons';
 
-const { remote, ipcRenderer, shell } = window.require('electron');
+const { remote, ipcRenderer } = window.require('electron');
 // const mainProcess = remote.require('./index.js');
 
 const StyledItem = styled.button`
@@ -35,13 +28,6 @@ const StyledItem = styled.button`
   outline: none;
   color: inherit;
   font-size: inherit;
-  /* &:active,
-  &:focus {
-    background-color: ${({ theme }) => theme.bg.selectedBg};
-  } */
-  &:not(:focus) {
-    /* background-color: transparent; */
-  }
 `;
 
 const StyledName = styled.span`
@@ -138,6 +124,16 @@ const TabItem = ({
       </StyledName>
     </StyledItem>
   );
+};
+
+TabItem.defaultProps = {
+  name: 'Default',
+  path: '/',
+  isFile: false,
+  ext: null,
+  selected: false,
+  handleSelect: () => {},
+  handleSelectRightClick: () => {},
 };
 
 export default TabItem;

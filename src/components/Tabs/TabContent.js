@@ -34,6 +34,7 @@ import deerBg from '../../img/deer.svg';
 import addTabAndActivate from '../../helpers/addTabAndActivate';
 
 import FindBox from '../FindBox';
+import { addToFav } from '../../actions/favoritesActions';
 
 const { remote, ipcRenderer, shell } = window.require('electron');
 
@@ -364,6 +365,24 @@ const TabContent = ({
     ipcRenderer.send('delete-selected');
   };
 
+  const handleContextAddToFav = (e) => {
+    console.log('Add to favorites');
+    const activePath = tabs.filter((item) => item.id === activeTab)[0].path;
+    const newFavs = selectedStore.map((item) => {
+      const contentObj = content.find((itm) => itm.name === item);
+
+      return {
+        id: nanoid(),
+        name: item,
+        path: `${activePath}${item}`,
+        isFile: contentObj.isFile,
+        ext: contentObj.ext,
+      };
+    });
+
+    dispatch(addToFav(newFavs));
+  };
+
   useEffect(() => {
     dispatch(clearSelectedFiles());
   }, [activeTab, dispatch]);
@@ -485,6 +504,9 @@ const TabContent = ({
             </StyledMenuItem>
             <StyledMenuItem onClick={handleContextDelete}>
               Delete <StyledCtxShortcut>delete</StyledCtxShortcut>
+            </StyledMenuItem>
+            <StyledMenuItem onClick={handleContextAddToFav}>
+              Add to favorites
             </StyledMenuItem>
             <MenuItem divider />
           </StyledContextMenu>

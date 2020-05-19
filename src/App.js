@@ -267,6 +267,7 @@ function App() {
   const activeTab = useSelector((state) => state.activeTab);
   const selectedStore = useSelector((state) => state.selected);
   const drives = useSelector((state) => state.drives);
+  const favorites = useSelector((state) => state.favorites);
   const dispatch = useDispatch();
 
   const activeTabObect = tabs.filter((item) => item.id === activeTab)[0];
@@ -429,6 +430,11 @@ function App() {
       });
     });
 
+    ipcRenderer.on('previous-favorites', (event, data) => {
+      // Add loaded favs to redux store again
+      dispatch(addToFav(data.favorites));
+    });
+
     ipcRenderer.on('added-to-favorites', (event, data) => {
       // TODO: save favorites to json file
       const { tabId } = data;
@@ -439,7 +445,13 @@ function App() {
         addedTab = tabs.find((item) => item.id === activeTab);
       }
 
-      dispatch(addToFav(addedTab));
+      const favoriteTab = {
+        id: nanoid() + 'tab',
+        name: addedTab.name + '/',
+        path: addedTab.path,
+      };
+
+      dispatch(addToFav(favoriteTab));
     });
 
     return () => {
@@ -462,6 +474,7 @@ function App() {
     window.addEventListener('beforeunload', (ev) => {
       // Something is wrong - listeners stack like if they weren't removed
       ipcRenderer.send('save-tabs', tabs);
+      ipcRenderer.send('save-favs', favorites);
     });
 
     const MINUTES = appConfig.SAVE_TABS_DELAY || 5; // save tabs every 5 minutes
@@ -469,11 +482,13 @@ function App() {
 
     const saveInterval = setInterval(() => {
       ipcRenderer.send('save-tabs', tabs);
+      ipcRenderer.send('save-favs', favorites);
     }, intervDelay);
 
     return () => {
       window.removeEventListener('beforeunload', (ev) => {
         ipcRenderer.send('save-tabs', tabs);
+        ipcRenderer.send('save-favs', favorites);
       });
 
       clearInterval(saveInterval);
@@ -482,6 +497,7 @@ function App() {
 
   useEffect(() => {
     ipcRenderer.send('get-tabs');
+    ipcRenderer.send('get-favorites');
   }, []);
 
   const handleCloseTab = (id) => {

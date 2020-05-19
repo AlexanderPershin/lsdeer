@@ -13,7 +13,7 @@ const addTabAndActivate = (dispatch) => {
     createNew: true,
     path: '/',
   };
-  // dispatch(clearSelectedFiles());
+
   dispatch(closeSearch());
   dispatch(addTab(newTab));
   dispatch(setActiveTab(newTab.id));

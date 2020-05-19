@@ -496,6 +496,18 @@ ipcMain.on('save-tabs', (event, tabs) => {
   });
 });
 
+ipcMain.on('save-favs', (event, favorites) => {
+  const favsJson = JSON.stringify(favorites);
+  fs.writeFile('favorites.json', favsJson, 'utf8', function (err) {
+    if (err) {
+      console.log('Error saving favorites.json');
+      return console.log(err);
+    }
+
+    console.log('Favorites were saved into favorites.json');
+  });
+});
+
 ipcMain.on('get-tabs', (event) => {
   fs.readFile('tabs.json', (err, data) => {
     if (err) throw err;
@@ -503,6 +515,18 @@ ipcMain.on('get-tabs', (event) => {
     const tabsArray = JSON.parse(data);
 
     mainWindow.webContents.send('previous-tabs', { tabs: tabsArray });
+  });
+});
+
+ipcMain.on('get-favorites', (event) => {
+  fs.readFile('favorites.json', (err, data) => {
+    if (err) throw err;
+
+    const favoritesArray = JSON.parse(data);
+
+    mainWindow.webContents.send('previous-favorites', {
+      favorites: favoritesArray,
+    });
   });
 });
 
