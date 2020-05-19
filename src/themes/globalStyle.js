@@ -26,6 +26,7 @@ const GlobalStyle = createGlobalStyle`
   body {
     background-color: #fff;
     font-family: ${({ theme }) => theme.font.appFontFamily};
+    background-color: ${({ theme }) => theme.bg.appBg};
     overflow: hidden;
   }
   @font-face {

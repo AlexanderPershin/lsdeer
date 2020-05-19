@@ -40,6 +40,7 @@ const defaultTheme = {
   },
   shadows: {
     menuShadow: '1px 2px 2px 2px rgba(0, 0, 0, .5)',
+    navShadow: '0 2px 5px 2px rgba(0, 0, 0, .3)',
   },
 };
 

@@ -23,6 +23,8 @@ import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
 import Electronbar from 'electronbar';
 import 'electronbar/lib/electronbar.css';
 
+import deerBg from './img/deer.svg';
+
 import defaultTheme from './themes/default';
 
 import Tabs from './components/Tabs/Tabs';
@@ -168,7 +170,10 @@ if (process.platform === 'darwin') {
 }
 
 const StyledApp = styled.div`
-  background-color: ${({ theme }) => theme.bg.appBg};
+  background-image: url(${deerBg});
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center center;
   color: ${({ theme }) => theme.colors.appColor};
   height: 100vh;
   width: 100vw;

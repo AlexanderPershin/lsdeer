@@ -48,11 +48,9 @@ const StyledTabContent = styled.div`
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: ${({ theme }) => theme.sizes.navHeight} 1fr;
+  grid-auto-rows: 300px;
   overflow-y: auto;
-  background: url(${deerBg});
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center center;
+
   &::-webkit-scrollbar {
     width: 1rem;
     background-color: ${({ theme }) => theme.bg.activeTabBg};
@@ -81,13 +79,14 @@ const StyledNav = styled.div`
   width: 100%;
   height: ${({ theme }) => theme.sizes.navHeight};
   border-bottom: 3px solid ${({ theme }) => theme.bg.tabBg};
-  border-top: 3px solid ${({ theme }) => theme.bg.appBg};
+  border-top: 3px solid transparent;
   display: flex;
   justify-content: flex-start;
   align-items: stretch;
   background-color: ${({ theme }) =>
     hexToRgba(theme.bg.appBg + theme.opac.tabOpac).toString()};
   font-size: ${({ theme }) => theme.font.pathBarFontSize};
+  box-shadow: ${({ theme }) => theme.shadows.navShadow};
   z-index: 150;
   overflow: hidden;
 `;
@@ -429,71 +428,69 @@ const TabContent = ({
     return rowCount;
   };
 
-  return (
+  return createNew || path === '/' ? (
+    <NewTabContent />
+  ) : (
     <StyledTabContent
       ref={contentRef}
       active={id === activeTab}
       onScroll={handleLoadMoreOnScroll}
     >
-      {createNew || path === '/' ? (
-        <NewTabContent />
-      ) : (
-        <React.Fragment>
-          <StyledNav>
-            <StyledUp onClick={handleGoUp}>
-              <Icon iconName='SortUp' className='ms-IconExample' />
-            </StyledUp>
-            <StyledTabPath ref={pathRef} onWheel={handleScrollPath}>
-              {path && renderPathNav()}
-            </StyledTabPath>
-          </StyledNav>
-          <ContextMenuTrigger id={id + path}>
-            <StyledFiles>
-              <StyledAutoSizer>
-                {({ height, width }) => (
-                  <StyledRWGrid
-                    className='Grid'
-                    columnCount={calcColCount(width)}
-                    columnWidth={colWidth}
-                    height={height}
-                    rowCount={calcRowCount(width) + 1}
-                    rowHeight={rowHeight}
-                    width={width}
-                    itemData={calcColCount(width)}
-                  >
-                    {Cell}
-                  </StyledRWGrid>
-                )}
-              </StyledAutoSizer>
-            </StyledFiles>
-          </ContextMenuTrigger>
-          {selectedStore.length === 0 ? (
-            <StyledContextMenu id={id + path}>
-              <StyledMenuItem
-                data={{ foo: 'bar' }}
-                onClick={() => console.log('Hello!')}
-              >
-                Hello
-              </StyledMenuItem>
-              <MenuItem divider />
-            </StyledContextMenu>
-          ) : (
-            <StyledContextMenu id={id + path}>
-              <StyledMenuItem onClick={hanldeDeselectFiles}>
-                Deselect
-              </StyledMenuItem>
-              <StyledMenuItem onClick={handleOpenSelectedItem}>
-                Open
-              </StyledMenuItem>
-              <StyledMenuItem onClick={handleContextDelete}>
-                Delete <StyledCtxShortcut>delete</StyledCtxShortcut>
-              </StyledMenuItem>
-              <MenuItem divider />
-            </StyledContextMenu>
-          )}
-          {searching ? <FindBox /> : null}
-        </React.Fragment>
-      )}
+      <React.Fragment>
+        <StyledNav>
+          <StyledUp onClick={handleGoUp}>
+            <Icon iconName='SortUp' className='ms-IconExample' />
+          </StyledUp>
+          <StyledTabPath ref={pathRef} onWheel={handleScrollPath}>
+            {path && renderPathNav()}
+          </StyledTabPath>
+        </StyledNav>
+        <ContextMenuTrigger id={id + path}>
+          <StyledFiles>
+            <StyledAutoSizer>
+              {({ height, width }) => (
+                <StyledRWGrid
+                  className='Grid'
+                  columnCount={calcColCount(width)}
+                  columnWidth={colWidth}
+                  height={height}
+                  rowCount={calcRowCount(width) + 1}
+                  rowHeight={rowHeight}
+                  width={width}
+                  itemData={calcColCount(width)}
+                >
+                  {Cell}
+                </StyledRWGrid>
+              )}
+            </StyledAutoSizer>
+          </StyledFiles>
+        </ContextMenuTrigger>
+        {selectedStore.length === 0 ? (
+          <StyledContextMenu id={id + path}>
+            <StyledMenuItem
+              data={{ foo: 'bar' }}
+              onClick={() => console.log('Hello!')}
+            >
+              Hello
+            </StyledMenuItem>
+            <MenuItem divider />
+          </StyledContextMenu>
+        ) : (
+          <StyledContextMenu id={id + path}>
+            <StyledMenuItem onClick={hanldeDeselectFiles}>
+              Deselect
+            </StyledMenuItem>
+            <StyledMenuItem onClick={handleOpenSelectedItem}>
+              Open
+            </StyledMenuItem>
+            <StyledMenuItem onClick={handleContextDelete}>
+              Delete <StyledCtxShortcut>delete</StyledCtxShortcut>
+            </StyledMenuItem>
+            <MenuItem divider />
+          </StyledContextMenu>
+        )}
+        {searching ? <FindBox /> : null}
+      </React.Fragment>
     </StyledTabContent>
   );
 };

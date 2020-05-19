@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import HardDrive from '../HardDrive';
 import styled from 'styled-components';
 import { hexToRgba } from 'hex-and-rgba';
+import deerBg from '../../img/deer.svg';
 
 const { remote, ipcRenderer, shell } = window.require('electron');
 const mainProcess = remote.require('./index.js');
@@ -10,13 +11,28 @@ const mainProcess = remote.require('./index.js');
 const StyledContent = styled.div`
   background-color: ${({ theme }) =>
     hexToRgba(theme.bg.appBg + 'cc').toString()};
+  overflow-y: auto;
   min-height: 100%;
-  grid-row: 1 / 3;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
 `;
 
 const StyledDrivesWrapper = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  grid-gap: 1rem;
+  justify-content: center;
+  align-content: start;
+  justify-items: center;
+  align-items: center;
+`;
+
+const StyledFavWrapper = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(5rem, 1fr));
   grid-gap: 1rem;
   justify-content: center;
   align-content: start;
@@ -62,6 +78,13 @@ const NewTabContent = () => {
         ))}
       </StyledDrivesWrapper>
       <StyledHeading>Favorites</StyledHeading>
+      <StyledFavWrapper>
+        <div>Fav 1</div>
+        <div>Fav 2</div>
+        <div>Fav 3</div>
+        <div>Fav 4</div>
+        <div>Fav 5</div>
+      </StyledFavWrapper>
     </StyledContent>
   );
 };

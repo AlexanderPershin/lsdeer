@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Tab from './Tab';
 import PlusTab from './PlusTab';
 import styled from 'styled-components';
+import { hexToRgba } from 'hex-and-rgba';
 
 import { setTabs } from '../../actions/tabsActions';
 
@@ -13,7 +14,8 @@ const TabsContainer = styled.div`
   justify-content: stretch;
   align-items: stretch;
   overflow-x: auto;
-
+  background-color: ${({ theme }) =>
+    hexToRgba(theme.bg.appBg + theme.opac.tabOpac).toString()};
   &::-webkit-scrollbar {
     height: 0.5rem;
     background-color: ${({ theme }) => theme.bg.activeTabBg};
