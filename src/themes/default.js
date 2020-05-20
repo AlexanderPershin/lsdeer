@@ -37,6 +37,7 @@ const defaultTheme = {
     rowHeight: 150,
     colWidth: 150,
     fileIconSize: 96,
+    favPageSize: 50,
   },
   shadows: {
     menuShadow: '1px 2px 2px 2px rgba(0, 0, 0, .5)',

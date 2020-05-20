@@ -20,6 +20,7 @@ const StyledFavorite = styled.button`
   cursor: pointer;
   background-color: transparent;
   border: none;
+  padding: 5px;
   font-size: inherit;
   color: inherit;
   outline: none;

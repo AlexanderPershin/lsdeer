@@ -508,6 +508,11 @@ function App() {
       ipcRenderer.send('save-favs', favorites);
     });
 
+    window.addEventListener('load', (ev) => {
+      ipcRenderer.send('get-tabs');
+      ipcRenderer.send('get-favorites');
+    });
+
     const MINUTES = appConfig.SAVE_TABS_DELAY || 5; // save tabs every 5 minutes
     const intervDelay = MINUTES * 60 * 1000;
 
@@ -522,14 +527,14 @@ function App() {
         ipcRenderer.send('save-favs', favorites);
       });
 
+      window.removeEventListener('load', (ev) => {
+        ipcRenderer.send('get-tabs');
+        ipcRenderer.send('get-favorites');
+      });
+
       clearInterval(saveInterval);
     };
-  }, [tabs]);
-
-  useEffect(() => {
-    ipcRenderer.send('get-tabs');
-    ipcRenderer.send('get-favorites');
-  }, []);
+  }, [favorites, tabs]);
 
   const handleCloseTab = (id) => {
     dispatch(closeTab(id));

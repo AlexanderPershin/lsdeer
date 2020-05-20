@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import HardDrive from '../HardDrive';
-import styled from 'styled-components';
+import styled, { ThemeContext } from 'styled-components';
 import { hexToRgba } from 'hex-and-rgba';
 import { Icon } from '@fluentui/react/lib/Icon';
 import FavoriteItem from './FavoriteItem';
@@ -19,7 +19,7 @@ const StyledContent = styled.div`
     auto-fit,
     minmax(${({ theme }) => theme.sizes.colWidth}px, 1fr)
   );
-  grid-auto-rows: ${({ theme }) => theme.sizes.rowHeight}px;
+  grid-auto-rows: minmax(auto, ${({ theme }) => theme.sizes.rowHeight}px);
   grid-gap: 1rem;
   justify-content: start;
   align-content: start;
@@ -61,8 +61,18 @@ const StyledPagination = styled.div`
 const StyledPageButton = styled.button`
   flex: 0 1 50px;
   color: ${({ theme }) => theme.colors.appColor};
-  background-color: ${({ theme }) => theme.bg.secondaryBg};
+  background-color: ${({ theme, selected }) =>
+    selected ? theme.bg.selectedBg : theme.bg.secondaryBg};
   padding: 10px;
+  border: none;
+  cursor: pointer;
+  & + & {
+    margin-left: 5px;
+  }
+
+  &:focus {
+    outline: 2px solid ${({ theme }) => theme.bg.selectedBg};
+  }
 `;
 
 const StyledClearfix = styled.div`
@@ -86,8 +96,11 @@ const NewTabContent = () => {
   const favorites = useSelector((state) => state.favorites);
   const dispatch = useDispatch();
 
-  const pageSize = 10;
+  const themeContext = useContext(ThemeContext);
+
+  const pageSize = themeContext.sizes.favPageSize || 10;
   const [favPage, setFavPage] = useState([0, pageSize]);
+  const [pageNum, setPageNum] = useState(0);
 
   const contentRef = useRef(null);
 
@@ -101,6 +114,7 @@ const NewTabContent = () => {
 
   const handleSetFavPage = (num) => {
     const skippedCount = num * pageSize;
+    setPageNum(num);
     setFavPage([skippedCount, skippedCount + pageSize]);
   };
 
@@ -121,7 +135,11 @@ const NewTabContent = () => {
     return Array(countOfPages)
       .fill('')
       .map((item, idx) => (
-        <StyledPageButton key={idx} onClick={() => handleSetFavPage(idx)}>
+        <StyledPageButton
+          selected={pageNum === idx}
+          key={idx}
+          onClick={() => handleSetFavPage(idx)}
+        >
           {idx + 1}
         </StyledPageButton>
       ));
@@ -131,10 +149,8 @@ const NewTabContent = () => {
     ipcRenderer.send('get-drives');
   }, []);
 
-  // TODO: favorites don't display on page correctly, change css
-  // Add function to remove from favorites
+  // TODO: Add function to remove from favorites
   // Add function to set icon to fav dir
-  // Add fucntion to save/load favorites from json file
 
   return (
     <StyledContent ref={contentRef}>
@@ -150,6 +166,10 @@ const NewTabContent = () => {
         />
       ))}
       <StyledHeading>Favorites</StyledHeading>
+
+      {favorites.length > pageSize ? (
+        <StyledPagination>{renderPagination()}</StyledPagination>
+      ) : null}
 
       {favorites.length > 0 ? (
         renderFavorites()
