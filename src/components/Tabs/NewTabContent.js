@@ -15,12 +15,15 @@ const StyledContent = styled.div`
   min-height: 100%;
   width: 100%;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
-  grid-auto-rows: 10rem;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(${({ theme }) => theme.sizes.colWidth}px, 1fr)
+  );
+  grid-auto-rows: ${({ theme }) => theme.sizes.rowHeight}px;
   grid-gap: 1rem;
-  justify-content: center;
+  justify-content: start;
   align-content: start;
-  justify-items: center;
+  justify-items: start;
   align-items: start;
   &::-webkit-scrollbar {
     width: 1rem;
@@ -46,6 +49,22 @@ const StyledHeading = styled.h1`
   font-weight: 100;
 `;
 
+const StyledPagination = styled.div`
+  grid-column: 1 / -1;
+  height: 50px;
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: stretch;
+`;
+
+const StyledPageButton = styled.button`
+  flex: 0 1 50px;
+  color: ${({ theme }) => theme.colors.appColor};
+  background-color: ${({ theme }) => theme.bg.secondaryBg};
+  padding: 10px;
+`;
+
 const StyledClearfix = styled.div`
   grid-column: 1 / -1;
   height: 100px;
@@ -67,6 +86,9 @@ const NewTabContent = () => {
   const favorites = useSelector((state) => state.favorites);
   const dispatch = useDispatch();
 
+  const pageSize = 10;
+  const [favPage, setFavPage] = useState([0, pageSize]);
+
   const contentRef = useRef(null);
 
   const handleOpenDirectory = (newPath, name) => {
@@ -77,11 +99,32 @@ const NewTabContent = () => {
     contentRef.current.scrollTop = 0;
   };
 
+  const handleSetFavPage = (num) => {
+    const skippedCount = num * pageSize;
+    setFavPage([skippedCount, skippedCount + pageSize]);
+  };
+
   const renderFavorites = () => {
     // Show folders first
-    return favorites
-      .sort((a, b) => (a.isFile && !b.isFile ? 1 : -1))
-      .map((item) => <FavoriteItem key={item.id} {...item} />);
+    const sortedFav = favorites.sort((a, b) =>
+      a.isFile && !b.isFile ? 1 : -1
+    );
+
+    const pageFav = sortedFav.slice(favPage[0], favPage[1]);
+
+    return pageFav.map((item) => <FavoriteItem key={item.id} {...item} />);
+  };
+
+  const renderPagination = () => {
+    const countOfPages = Math.ceil(favorites.length / pageSize);
+
+    return Array(countOfPages)
+      .fill('')
+      .map((item, idx) => (
+        <StyledPageButton key={idx} onClick={() => handleSetFavPage(idx)}>
+          {idx + 1}
+        </StyledPageButton>
+      ));
   };
 
   useEffect(() => {
@@ -113,6 +156,11 @@ const NewTabContent = () => {
       ) : (
         <h2>You have not added favorites yet...</h2>
       )}
+
+      {favorites.length > pageSize ? (
+        <StyledPagination>{renderPagination()}</StyledPagination>
+      ) : null}
+
       <StyledClearfix onClick={handleScrollTop}>
         <Icon iconName='ChevronUpMed' ariaLabel='go up' />
       </StyledClearfix>

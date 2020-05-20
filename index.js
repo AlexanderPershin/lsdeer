@@ -1,5 +1,6 @@
 const electron = require('electron');
 const { exec } = require('child_process');
+const path = require('path');
 const os = require('os');
 const fs = require('fs');
 const http = require('http');
