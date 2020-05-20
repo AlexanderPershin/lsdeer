@@ -63,11 +63,16 @@ const Tabs = () => {
   };
 
   const handleDragEnd = (e, id) => {
-    if (draggedItem === dragOverItem || tabs[dragOverItem].isLocked) {
-      setDragOverItem(null);
-      setDraggedItem(null);
-      return;
+    try {
+      if (draggedItem === dragOverItem || tabs[dragOverItem].isLocked) {
+        setDragOverItem(null);
+        setDraggedItem(null);
+        return;
+      }
+    } catch (err) {
+      // error
     }
+
     const reorderedTabs = [...tabs];
     // copy movable
     const movedTab = reorderedTabs[draggedItem];

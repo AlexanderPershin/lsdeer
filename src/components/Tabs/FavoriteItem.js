@@ -6,9 +6,12 @@ import { nanoid } from 'nanoid';
 import styled, { ThemeContext } from 'styled-components';
 import { hexToRgba } from 'hex-and-rgba';
 
+import { ContextMenu, MenuItem, ContextMenuTrigger } from 'react-contextmenu';
+
 import { addTab } from '../../actions/tabsActions';
 import { setActiveTab } from '../../actions/activeTabActions';
 import { closeSearch } from '../../actions/searchActions';
+import { removeFromFav } from '../../actions/favoritesActions';
 
 const { ipcRenderer } = window.require('electron');
 
@@ -41,6 +44,27 @@ const StyledName = styled.span`
   word-wrap: break-word;
   text-align: center;
   z-index: ${({ sel }) => (sel ? 100 : 'initial')};
+`;
+
+const StyledContextMenu = styled(ContextMenu)`
+  background-color: ${({ theme }) => theme.bg.appBg};
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: stretch;
+  z-index: 1000;
+  box-shadow: ${({ theme }) => theme.shadows.menuShadow};
+`;
+
+const StyledMenuItem = styled(MenuItem)`
+  padding: 2px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  &:hover {
+    background-color: ${({ theme }) => theme.bg.selectedBg};
+  }
 `;
 
 const FavoriteItem = ({ id, name, path, isFile, ext, selected }) => {
@@ -77,33 +101,44 @@ const FavoriteItem = ({ id, name, path, isFile, ext, selected }) => {
     } else {
       ipcRenderer.send('open-directory', 'placeholderid', path, isFile);
     }
+  };
 
-    console.log('Open ', path);
+  const handleRemoveFromFav = () => {
+    dispatch(removeFromFav(id));
   };
 
   return (
-    <StyledFavorite
-      onFocus={() => setIsSelected(true)}
-      onBlur={() => setIsSelected(false)}
-      onDoubleClick={handleOpenDirectory}
-    >
-      <Icon
-        {...getFileTypeIconProps({
-          type: isFile && ext ? '' : FileIconType.folder,
-          extension: isFile && ext ? ext : '',
-          size: fileIconSize,
-          imageFileType: 'svg',
-        })}
-        className='TabItem'
-      />
-      <StyledName title={name} sel={isSelected} className='TabItem'>
-        {name && isSelected
-          ? !isFile
-            ? name.slice(0, -1)
-            : name
-          : truncate(!isFile ? name.slice(0, -1) : name, 20)}
-      </StyledName>
-    </StyledFavorite>
+    <React.Fragment>
+      <ContextMenuTrigger id={id} holdToDisplay={-1}>
+        <StyledFavorite
+          onFocus={() => setIsSelected(true)}
+          onBlur={() => setIsSelected(false)}
+          onDoubleClick={handleOpenDirectory}
+        >
+          <Icon
+            {...getFileTypeIconProps({
+              type: isFile && ext ? '' : FileIconType.folder,
+              extension: isFile && ext ? ext : '',
+              size: fileIconSize,
+              imageFileType: 'svg',
+            })}
+            className='TabItem'
+          />
+          <StyledName title={name} sel={isSelected} className='TabItem'>
+            {name && isSelected
+              ? !isFile
+                ? name.slice(0, -1)
+                : name
+              : truncate(!isFile ? name.slice(0, -1) : name, 20)}
+          </StyledName>
+        </StyledFavorite>
+      </ContextMenuTrigger>
+      <StyledContextMenu id={id}>
+        <StyledMenuItem onClick={handleRemoveFromFav}>Remove</StyledMenuItem>
+
+        <MenuItem divider />
+      </StyledContextMenu>
+    </React.Fragment>
   );
 };
 

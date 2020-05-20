@@ -7,6 +7,7 @@ import {
   unlockTab,
 } from '../../actions/tabsActions';
 import { setActiveTab } from '../../actions/activeTabActions';
+import { removeFromFav } from '../../actions/favoritesActions';
 import { ContextMenu, MenuItem, ContextMenuTrigger } from 'react-contextmenu';
 import { Icon } from '@fluentui/react/lib/Icon';
 import styled from 'styled-components';
@@ -62,6 +63,7 @@ const StyledTabIcon = styled(Icon)`
 const Tab = ({
   id,
   name,
+  path,
   handleDragStart,
   handleDragEnd,
   handleDragOver,
@@ -69,6 +71,7 @@ const Tab = ({
 }) => {
   const activeTab = useSelector((state) => state.activeTab);
   const tabs = useSelector((state) => state.tabs);
+  const favorites = useSelector((state) => state.favorites);
   const dispatch = useDispatch();
 
   const currentTab = tabs.find((item) => item.id === id);
@@ -120,8 +123,12 @@ const Tab = ({
     ipcRenderer.send('add-to-favorites', id);
   };
 
+  const handleRemoveFromFav = () => {
+    const removeId = favorites.find((item) => item.path === path).id;
+    dispatch(removeFromFav(removeId));
+  };
+
   // TODO: Replace icons in context menu with shortcuts
-  // Add shortcuts ctrl+w ctrl+t to create and close tabs
 
   return (
     <React.Fragment>
@@ -160,7 +167,7 @@ const Tab = ({
         <StyledMenuItem onClick={handleAddToFav}>
           Add To Favorites <StyledTabIcon iconName='AddFavoriteFill' />
         </StyledMenuItem>
-        <StyledMenuItem onClick={() => console.log('remove from favorites')}>
+        <StyledMenuItem onClick={handleRemoveFromFav}>
           Remove From Favorites <StyledTabIcon iconName='Unfavorite' />
         </StyledMenuItem>
         <MenuItem divider />
