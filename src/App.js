@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import styled, { ThemeProvider } from 'styled-components';
+import styled, { ThemeProvider, ThemeContext } from 'styled-components';
 import { nanoid } from 'nanoid';
 import {
   addTab,
@@ -17,12 +17,15 @@ import {
 } from './actions/selectFilesActions';
 import { closeSearch, toggleSearch } from './actions/searchActions';
 import { addToFav, removeFromFav } from './actions/favoritesActions';
+import { setSettings, clearSettings } from './actions/settingsActions';
 import GlobalStyle from './themes/globalStyle';
 import { initializeFileTypeIcons } from '@uifabric/file-type-icons';
 import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
 
 import Electronbar from 'electronbar';
 import 'electronbar/lib/electronbar.css';
+
+import Settings from './components/Settings';
 
 import deerBg from './img/deer.svg';
 
@@ -54,6 +57,13 @@ const template = [
   {
     label: 'File',
     submenu: [
+      {
+        label: 'Settings',
+        accelerator: 'CmdOrCtrl+,',
+        click() {
+          ipcRenderer.send('open-settings');
+        },
+      },
       {
         label: 'Quit',
         role: 'quit',
@@ -275,7 +285,12 @@ function App() {
   const selectedStore = useSelector((state) => state.selected);
   const drives = useSelector((state) => state.drives);
   const favorites = useSelector((state) => state.favorites);
+  const settings = useSelector((state) => state.settings);
   const dispatch = useDispatch();
+
+  const currentTheme = { ...defaultTheme, ...settings };
+
+  const [settingsOpened, setSetSettingsOpened] = useState(false);
 
   const activeTabObect = tabs.filter((item) => item.id === activeTab)[0];
 
@@ -485,6 +500,14 @@ function App() {
       }
     });
 
+    ipcRenderer.on('settings-opened', () => {
+      setSetSettingsOpened((prev) => !prev);
+    });
+
+    ipcRenderer.on('settings-dropped', () => {
+      dispatch(setSettings(defaultTheme));
+    });
+
     return () => {
       ipcRenderer.removeAllListeners();
     };
@@ -536,16 +559,25 @@ function App() {
     };
   }, [favorites, tabs]);
 
+  useEffect(() => {
+    dispatch(setSettings(defaultTheme));
+  }, []);
+
   const handleCloseTab = (id) => {
     dispatch(closeTab(id));
   };
 
   return (
-    <ThemeProvider theme={defaultTheme}>
+    <ThemeProvider theme={currentTheme || defaultTheme}>
       <StyledElectronBar>
         <div ref={electronbarMount} />
       </StyledElectronBar>
       <GlobalStyle />
+
+      {settingsOpened ? (
+        <Settings onClose={() => setSetSettingsOpened(false)} />
+      ) : null}
+
       <StyledApp className='app'>
         <Tabs list={tabs} addNewTab={addNewTab} closeTab={handleCloseTab} />
         <TabContentContainer />

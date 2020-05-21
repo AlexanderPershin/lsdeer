@@ -7,7 +7,7 @@ const defaultTheme = {
     appBg: '#404040',
     appBarBg: '#8B8B8B',
     appBarActiveItemBg: '#404040',
-    appBarXBtnHover: 'cc0000',
+    appBarXBtnHover: '#cc0000',
     tabBg: '#707070',
     activeTabBg: '#404040',
     scrollbarBg: '#808080',

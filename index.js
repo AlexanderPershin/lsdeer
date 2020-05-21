@@ -539,6 +539,14 @@ ipcMain.on('add-files-to-favorites', (event) => {
   mainWindow.webContents.send('selected-added-to-favs');
 });
 
+ipcMain.on('open-settings', (event) => {
+  mainWindow.webContents.send('settings-opened');
+});
+
+ipcMain.on('reset-settings-to-default', (event) => {
+  mainWindow.webContents.send('settings-dropped');
+});
+
 process.on('uncaughtException', function (error) {
   // console.log('Uncought Exception on the main process', error);
 });
