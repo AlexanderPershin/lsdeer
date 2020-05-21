@@ -19,6 +19,7 @@ const StyledDiskWrapper = styled.button`
   border-radius: 1000rem;
   border: ${({ theme }) => theme.sizes.focusOutlineWidth} solid transparent;
   outline: none;
+  margin-left: 5px;
   &:focus {
     border: ${({ theme }) => theme.sizes.focusOutlineWidth} solid
       ${({ theme }) => theme.bg.selectedBg};
