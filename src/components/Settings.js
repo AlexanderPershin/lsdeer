@@ -23,6 +23,10 @@ const StyledSettings = styled.div`
   z-index: 900;
   overflow-y: auto;
   opacity: ${({ settingsOpacity }) => settingsOpacity};
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
   &::-webkit-scrollbar {
     width: 1rem;
     background-color: ${({ theme }) => theme.bg.activeTabBg};
@@ -73,6 +77,15 @@ const StyledCloseBtn = styled.button`
   &:hover {
     color: ${({ theme }) => theme.bg.appBarXBtnHover};
   }
+`;
+
+const StyledInputsWrapper = styled.div`
+  border: 1px solid red;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-rows: 35px;
+  grid-gap: 20px;
+  align-items: center;
 `;
 
 const StyledRange = styled.input`
@@ -130,14 +143,6 @@ const StyledRange = styled.input`
   }
 `;
 
-const StyledSettingsList = styled.div`
-  padding: 5px;
-`;
-
-const StyledSubsettingsList = styled.div`
-  padding: 5px;
-`;
-
 const Settings = ({ onClose }) => {
   const themeContext = useContext(ThemeContext);
   const settings = useSelector((state) => state.settings);
@@ -145,35 +150,14 @@ const Settings = ({ onClose }) => {
 
   const [settingsOpacity, setSettingsOpacity] = useState(1);
 
-  const handleSetInputVal = (e, primaryKey, itemKey) => {
+  const handleSetProp = (e, settingGroupKey, settingKey) => {
     const settingObj = {
-      [primaryKey]: {
-        [itemKey]: e.target.value,
+      [settingGroupKey]: {
+        [settingKey]: e.target.value,
       },
     };
 
     dispatch(changeSetting(settingObj));
-  };
-
-  const renderSubSetting = (primaryKey, subSetting) => {
-    return Object.entries(subSetting).map((item) => (
-      <StyledSubsettingsList key={item[0]}>
-        {item[0]}:{' '}
-        <input
-          type='text'
-          value={settings[primaryKey][item[0]]}
-          onChange={(e) => handleSetInputVal(e, primaryKey, item[0])}
-        />
-      </StyledSubsettingsList>
-    ));
-  };
-
-  const renderSettingsList = () => {
-    return Object.entries(themeContext).map((item) => (
-      <StyledSettingsList key={item[0]}>
-        {item[0]}: {renderSubSetting(item[0], item[1])}
-      </StyledSettingsList>
-    ));
   };
 
   const handleResetToDefaults = () => {
@@ -181,7 +165,7 @@ const Settings = ({ onClose }) => {
   };
 
   return (
-    <StyledSettings settingsOpacity={settingsOpacity}>
+    <React.Fragment>
       <StyledNav>
         <StyledRange
           type='range'
@@ -192,16 +176,39 @@ const Settings = ({ onClose }) => {
           step='0.01'
           value={settingsOpacity}
           onChange={(e) => setSettingsOpacity(e.target.value)}
-        />{' '}
+        />
         <StyledCloseBtn onClick={onClose}>
           <Icon iconName='ChromeClose' />
         </StyledCloseBtn>
       </StyledNav>
+      <StyledSettings settingsOpacity={settingsOpacity}>
+        <StyledHeading>Settings</StyledHeading>
 
-      <StyledHeading>Settings</StyledHeading>
-      {renderSettingsList()}
-      <button onClick={handleResetToDefaults}>Reset to defaults</button>
-    </StyledSettings>
+        <StyledInputsWrapper>
+          <span>App font color</span>
+          <input
+            type='color'
+            value={themeContext.colors.appColor}
+            onChange={(e) => handleSetProp(e, 'colors', 'appColor')}
+          />
+
+          <span>App background color</span>
+          <input
+            type='color'
+            value={themeContext.bg.appBg}
+            onChange={(e) => handleSetProp(e, 'bg', 'appBg')}
+          />
+
+          <span>App bar background</span>
+          <input
+            type='color'
+            value={themeContext.bg.appBarBg}
+            onChange={(e) => handleSetProp(e, 'bg', 'appBarBg')}
+          />
+        </StyledInputsWrapper>
+        <button onClick={handleResetToDefaults}>Reset to defaults</button>
+      </StyledSettings>
+    </React.Fragment>
   );
 };
 
