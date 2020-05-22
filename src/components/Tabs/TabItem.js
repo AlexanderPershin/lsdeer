@@ -28,6 +28,7 @@ const StyledItem = styled.button`
   outline: none;
   color: inherit;
   font-size: inherit;
+  font-family: inherit;
 `;
 
 const StyledName = styled.span`

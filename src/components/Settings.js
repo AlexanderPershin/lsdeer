@@ -245,6 +245,18 @@ const Settings = ({ onClose }) => {
           <span>Font size</span>
           <NumInp handleSetProp={handleSetProp} />
 
+          <span>Font-Family</span>
+          <select
+            name='font-family'
+            id='font-family'
+            value={themeContext.font.appFontFamily}
+            onChange={(e) => handleSetProp(e, 'font', 'appFontFamily')}
+          >
+            <option value='Roboto, sans-serif'>Roboto</option>
+            <option value='Lato, sans-serif'>Lato</option>
+            <option value='Raleway, sans-serif'>Raleway</option>
+          </select>
+
           <span>Background color</span>
           <StyledColorInp
             type='color'
@@ -292,13 +304,6 @@ const Settings = ({ onClose }) => {
             type='color'
             value={themeContext.bg.accentBg}
             onChange={(e) => handleSetProp(e, 'bg', 'accentBg')}
-          />
-
-          <span>Input background color</span>
-          <StyledColorInp
-            type='color'
-            value={themeContext.bg.inputBg}
-            onChange={(e) => handleSetProp(e, 'bg', 'inputBg')}
           />
 
           <span>Secondary background color</span>

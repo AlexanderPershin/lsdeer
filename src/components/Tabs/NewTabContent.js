@@ -80,7 +80,7 @@ const StyledClearfix = styled.div`
   grid-column: 1 / -1;
   height: 100px;
   width: 100%;
-  background-color: ${({ theme }) => theme.bg.appBarBg};
+  background-color: ${({ theme }) => theme.bg.secondaryBg};
   cursor: pointer;
   display: flex;
   justify-content: center;

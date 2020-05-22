@@ -25,6 +25,7 @@ const StyledFavorite = styled.button`
   border: none;
   padding: 5px;
   font-size: inherit;
+  font-family: inherit;
   color: inherit;
   outline: none;
   position: relative;

@@ -14,7 +14,6 @@ const defaultTheme = {
     accentBg: '#3e98c7',
     elementsBg: '#ffffff',
     selectedBg: '#003366',
-    inputBg: '#707070',
     secondaryBg: '#707070',
   },
   font: {

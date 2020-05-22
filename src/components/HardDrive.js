@@ -20,6 +20,7 @@ const StyledDiskWrapper = styled.button`
   border: ${({ theme }) => theme.sizes.focusOutlineWidth} solid transparent;
   outline: none;
   margin-left: 5px;
+  font-family: inherit;
   &:focus {
     border: ${({ theme }) => theme.sizes.focusOutlineWidth} solid
       ${({ theme }) => theme.bg.selectedBg};
@@ -31,6 +32,7 @@ const StyledDiskWrapper = styled.button`
 
 const StyledDiskContent = styled.div`
   font-size: 1.2rem;
+  font-family: inherit;
   margin: 1rem;
   display: flex;
   flex-direction: column;
@@ -65,6 +67,7 @@ const HardDrive = ({
           backgroundColor: themeContext.bg.accentBg,
           pathColor: themeContext.bg.elementsBg,
           trailColor: themeContext.bg.appBg,
+          fontFamily: themeContext.font.appFontFamily,
         })}
       >
         <StyledDiskContent>
