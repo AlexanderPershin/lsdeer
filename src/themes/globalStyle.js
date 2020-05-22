@@ -26,6 +26,7 @@ const GlobalStyle = createGlobalStyle`
   body {
     background-color: #fff;
     font-family: ${({ theme }) => theme.font.appFontFamily};
+    font-size: ${({ theme }) => theme.font.appFontSize}px;
     background-color: ${({ theme }) => theme.bg.appBg};
     overflow: hidden;
   }

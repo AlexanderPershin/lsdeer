@@ -1,7 +1,7 @@
 const defaultTheme = {
   colors: {
     appColor: '#FFFFFF',
-    iconColor: '#eae4e4',
+    appTitleColor: '#FFFFFF',
   },
   bg: {
     appBg: '#404040',
@@ -13,13 +13,12 @@ const defaultTheme = {
     scrollbarBg: '#808080',
     accentBg: '#3e98c7',
     elementsBg: '#ffffff',
-    folderBg: '#787586',
     selectedBg: '#003366',
-    pathBarBg: '#404040',
     inputBg: '#707070',
     secondaryBg: '#707070',
   },
   font: {
+    appFontSize: 16,
     appFontFamily: 'Roboto, sans-serif',
     pathBarFontSize: '1.2rem',
     appBarFontSize: '1rem',

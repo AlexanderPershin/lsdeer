@@ -217,6 +217,9 @@ const StyledElectronBar = styled.div`
     background-color: ${({ theme }) => theme.bg.appBarBg};
     font-size: ${({ theme }) => theme.font.appBarFontSize};
   }
+  .electronbar-favicon {
+    background-color: transparent;
+  }
   .electronbar::before {
     content: '';
     -webkit-app-region: no-drag;
@@ -226,12 +229,18 @@ const StyledElectronBar = styled.div`
     height: 20%;
   }
   .electronbar-title {
-    color: white;
+    color: ${({ theme }) => theme.colors.appTitleColor};
     text-align: center;
+  }
+  .electronbar-top-menu-item {
+    color: ${({ theme }) => theme.colors.appColor};
+  }
+  .electronbar-menu-item {
+    color: ${({ theme }) => theme.colors.appColor};
   }
   .electronbar-top-menu-item-children {
     padding: 0;
-    background-color: ${({ theme }) => theme.bg.activeTabBg};
+    background-color: ${({ theme }) => theme.bg.appBg};
   }
   .electronbar-top-menu-item-children,
   .electronbar-menu-item-children {
