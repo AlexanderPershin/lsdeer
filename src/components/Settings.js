@@ -75,6 +75,7 @@ const StyledCloseBtn = styled.button`
   border: none;
   color: ${({ theme }) => theme.colors.appColor};
   cursor: pointer;
+  outline: none;
   &:hover {
     color: ${({ theme }) => theme.bg.appBarXBtnHover};
   }
@@ -82,6 +83,19 @@ const StyledCloseBtn = styled.button`
 
 const StyledColorInp = styled.input`
   cursor: pointer;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  width: 4.5rem;
+  &::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+  &:focus,
+  &:hover,
+  &:active {
+    outline: ${({ theme }) =>
+      `${theme.sizes.focusOutlineWidth} solid ${theme.bg.selectedBg}`};
+  }
 `;
 
 const StyledControls = styled.div`
@@ -246,6 +260,10 @@ const Settings = ({ onClose }) => {
 
           <span>Font size</span>
           <NumInp
+            min={10}
+            max={50}
+            step={0.5}
+            disabled={false}
             handleSetProp={(newVal) =>
               handleSetProp(false, 'font', 'appFontSize', newVal)
             }

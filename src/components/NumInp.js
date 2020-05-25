@@ -128,7 +128,7 @@ const StyledHandleIcon = styled(Icon)`
   font-size: 8px;
 `;
 
-const NumInp = ({ handleSetProp }) => {
+const NumInp = ({ min, max, step, disabled, handleSetProp }) => {
   const themeContext = useContext(ThemeContext);
 
   const handleChange = (newVal) => {
@@ -138,15 +138,15 @@ const NumInp = ({ handleSetProp }) => {
   return (
     <StyledNumInput
       aria-label='Numeric input'
-      min={10}
-      max={50}
-      step={0.5}
+      min={min}
+      max={max}
+      step={step}
+      disabled={disabled}
       value={themeContext.font.appFontSize}
       readOnly={false}
       onChange={handleChange}
       upHandler={<StyledHandleIcon iconName='Add' />}
       downHandler={<StyledHandleIcon iconName='Remove' />}
-      disabled={false}
     />
   );
 };
