@@ -98,6 +98,27 @@ const StyledColorInp = styled.input`
   }
 `;
 
+const StyledSelect = styled.select`
+  width: 6.5rem;
+  background-color: ${({ theme }) => theme.bg.secondaryBg};
+  color: ${({ theme }) => theme.colors.appColor};
+  font-size: ${({ theme }) => theme.font.appFontSize}px;
+  font-family: inherit;
+  &:focus,
+  &:hover,
+  &:active {
+    outline: ${({ theme }) =>
+      `${theme.sizes.focusOutlineWidth} solid ${theme.bg.selectedBg}`};
+  }
+`;
+
+const StyledOption = styled.option`
+  background-color: ${({ theme }) => theme.bg.secondaryBg};
+  &:hover {
+    background-color: ${({ theme }) => theme.bg.selectedBg};
+  }
+`;
+
 const StyledControls = styled.div`
   display: flex;
   justify-content: flex-start;
@@ -227,8 +248,6 @@ const Settings = ({ onClose }) => {
     ipcRenderer.send('reset-settings-to-default');
   };
 
-  // TODO: Restyle react-input by deleting import of css file and adding styled-component
-
   return (
     <React.Fragment>
       <StyledNav>
@@ -270,16 +289,16 @@ const Settings = ({ onClose }) => {
           />
 
           <span>Font-Family</span>
-          <select
+          <StyledSelect
             name='font-family'
             id='font-family'
             value={themeContext.font.appFontFamily}
             onChange={(e) => handleSetProp(e, 'font', 'appFontFamily')}
           >
-            <option value='Roboto, sans-serif'>Roboto</option>
-            <option value='Lato, sans-serif'>Lato</option>
-            <option value='Raleway, sans-serif'>Raleway</option>
-          </select>
+            <StyledOption value='Roboto, sans-serif'>Roboto</StyledOption>
+            <StyledOption value='Lato, sans-serif'>Lato</StyledOption>
+            <StyledOption value='Raleway, sans-serif'>Raleway</StyledOption>
+          </StyledSelect>
           <span>Background color</span>
           <StyledColorInp
             type='color'
