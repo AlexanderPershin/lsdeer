@@ -213,6 +213,8 @@ const Settings = ({ onClose }) => {
     ipcRenderer.send('reset-settings-to-default');
   };
 
+  // TODO: Restyle react-input by deleting import of css file and adding styled-component
+
   return (
     <React.Fragment>
       <StyledNav>
@@ -243,7 +245,11 @@ const Settings = ({ onClose }) => {
           />
 
           <span>Font size</span>
-          <NumInp handleSetProp={handleSetProp} />
+          <NumInp
+            handleSetProp={(newVal) =>
+              handleSetProp(false, 'font', 'appFontSize', newVal)
+            }
+          />
 
           <span>Font-Family</span>
           <select
@@ -256,56 +262,48 @@ const Settings = ({ onClose }) => {
             <option value='Lato, sans-serif'>Lato</option>
             <option value='Raleway, sans-serif'>Raleway</option>
           </select>
-
           <span>Background color</span>
           <StyledColorInp
             type='color'
             value={themeContext.bg.appBg}
             onChange={(e) => handleSetProp(e, 'bg', 'appBg')}
           />
-
           <span>Selection background color</span>
           <StyledColorInp
             type='color'
             value={themeContext.bg.selectedBg}
             onChange={(e) => handleSetProp(e, 'bg', 'selectedBg')}
           />
-
           <span>Ui elements background color</span>
           <StyledColorInp
             type='color'
             value={themeContext.bg.tabBg}
             onChange={(e) => handleSetProp(e, 'bg', 'tabBg')}
           />
-
           <span>Secondary ui elements background color</span>
           <StyledColorInp
             type='color'
             value={themeContext.bg.elementsBg}
             onChange={(e) => handleSetProp(e, 'bg', 'elementsBg')}
           />
-
           <span>Active ui element background color</span>
           <StyledColorInp
             type='color'
             value={themeContext.bg.activeTabBg}
             onChange={(e) => handleSetProp(e, 'bg', 'activeTabBg')}
           />
-
           <span>Scrollbar hover background color</span>
           <StyledColorInp
             type='color'
             value={themeContext.bg.scrollbarBg}
             onChange={(e) => handleSetProp(e, 'bg', 'scrollbarBg')}
           />
-
           <span>Accent background color</span>
           <StyledColorInp
             type='color'
             value={themeContext.bg.accentBg}
             onChange={(e) => handleSetProp(e, 'bg', 'accentBg')}
           />
-
           <span>Secondary background color</span>
           <StyledColorInp
             type='color'
@@ -313,35 +311,30 @@ const Settings = ({ onClose }) => {
             onChange={(e) => handleSetProp(e, 'bg', 'secondaryBg')}
           />
           <StyledSettingsGroupHeding>App bar styles</StyledSettingsGroupHeding>
-
           <span>Background</span>
           <StyledColorInp
             type='color'
             value={themeContext.bg.appBarBg}
             onChange={(e) => handleSetProp(e, 'bg', 'appBarBg')}
           />
-
           <span>Title color</span>
           <StyledColorInp
             type='color'
             value={themeContext.colors.appTitleColor}
             onChange={(e) => handleSetProp(e, 'colors', 'appTitleColor')}
           />
-
           <span>Active item background</span>
           <StyledColorInp
             type='color'
             value={themeContext.bg.appBarActiveItemBg}
             onChange={(e) => handleSetProp(e, 'bg', 'appBarActiveItemBg')}
           />
-
           <span>Close button background</span>
           <StyledColorInp
             type='color'
             value={themeContext.bg.appBarXBtnHover}
             onChange={(e) => handleSetProp(e, 'bg', 'appBarXBtnHover')}
           />
-
           <StyledControls>
             <StyledBtn onClick={() => alert('You sooo applied changes')}>
               Apply
