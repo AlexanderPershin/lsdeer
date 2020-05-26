@@ -25,6 +25,7 @@
     "rc-input-number": "^4.6.2",
     "react": "^16.13.1",
     "react-circular-progressbar": "^2.0.3",
+    "react-color": "^2.18.1",
     "react-contextmenu": "^2.13.0",
     "react-dom": "^16.13.1",
     "react-file-icon": "^0.2.0",

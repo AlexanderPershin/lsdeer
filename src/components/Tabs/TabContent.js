@@ -70,8 +70,7 @@ const StyledFiles = styled.div`
   width: 100%;
   height: 100%;
   display: block;
-  background-color: ${({ theme }) =>
-    hexToRgba(theme.bg.appBg + theme.opac.tabOpac).toString()};
+  background-color: ${({ theme }) => theme.bg.appBg};
   position: relative;
   overflow: hidden;
 `;
@@ -84,8 +83,7 @@ const StyledNav = styled.div`
   display: flex;
   justify-content: flex-start;
   align-items: stretch;
-  background-color: ${({ theme }) =>
-    hexToRgba(theme.bg.appBg + theme.opac.tabOpac).toString()};
+  background-color: ${({ theme }) => theme.bg.appBg};
   font-size: ${({ theme }) => theme.font.pathBarFontSize};
   box-shadow: ${({ theme }) => theme.shadows.navShadow};
   z-index: 150;

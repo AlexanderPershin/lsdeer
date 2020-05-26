@@ -1,6 +1,7 @@
 import React, { useContext, useEffect } from 'react';
 import styled, { ThemeContext } from 'styled-components';
 import { rgbaToHex, hexToRgba } from 'hex-and-rgba';
+import ColorInput from './ColorInput';
 
 const StyledInputsWrapper = styled.div`
   display: grid;
@@ -44,27 +45,6 @@ const StyledColorInp = styled.input`
 const ColorSchemeSettings = ({ handleSetProp }) => {
   const themeContext = useContext(ThemeContext);
 
-  const getShadowColorValue = (shadowKey) => {
-    // TODO: get previous shadow opacity from rgba value and save it when setting new one 0.5
-
-    const shadow = themeContext.shadows[shadowKey].split(' ').pop();
-    console.log('getShadowColorValue -> shadow', shadow);
-    const hexShColor = rgbaToHex(
-      ...shadow.replace('rgba(', '').replace(')', '').split(',')
-    );
-    console.log('getShadowColorValue -> hexShColor', hexShColor.slice(0, -2));
-    return hexShColor.slice(0, -2);
-  };
-
-  const setShadowColor = (shadowKey, newVal) => {
-    const prevShadow = themeContext.shadows[shadowKey];
-    const shArr = prevShadow.split(' ');
-    shArr[shArr.length - 1] = hexToRgba(newVal);
-    const newShadow = shArr.join(' ');
-
-    handleSetProp(false, 'shadows', shadowKey, newShadow);
-  };
-
   return (
     <StyledInputsWrapper>
       <StyledSettingsGroupHeding>Color Scheme</StyledSettingsGroupHeding>
@@ -76,11 +56,11 @@ const ColorSchemeSettings = ({ handleSetProp }) => {
       />
 
       <span>Background color</span>
-      <StyledColorInp
-        type='color'
+      <ColorInput
         value={themeContext.bg.appBg}
-        onChange={(e) => handleSetProp(e, 'bg', 'appBg')}
+        onChange={(newVal) => handleSetProp(false, 'bg', 'appBg', newVal)}
       />
+
       <span>Selection background color</span>
       <StyledColorInp
         type='color'
@@ -149,19 +129,7 @@ const ColorSchemeSettings = ({ handleSetProp }) => {
         onChange={(e) => handleSetProp(e, 'bg', 'appBarXBtnHover')}
       />
 
-      <span>Menu shadow</span>
-      <input
-        type='text'
-        value={themeContext.shadows.menuShadow}
-        onChange={(e) => handleSetProp(e, 'shadows', 'menuShadow')}
-      />
-
       <span>Menu shadow color</span>
-      <StyledColorInp
-        type='color'
-        value={getShadowColorValue('menuShadow')}
-        onChange={(e) => setShadowColor('menuShadow', e.target.value)}
-      />
     </StyledInputsWrapper>
   );
 };

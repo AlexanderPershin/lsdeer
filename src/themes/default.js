@@ -4,7 +4,7 @@ const defaultTheme = {
     appTitleColor: '#FFFFFF',
   },
   bg: {
-    appBg: '#404040',
+    appBg: 'rgba(64, 64, 64, 0.5)',
     appBarBg: '#8B8B8B',
     appBarActiveItemBg: '#404040',
     appBarXBtnHover: '#cc0000',
@@ -15,6 +15,7 @@ const defaultTheme = {
     elementsBg: '#ffffff',
     selectedBg: '#003366',
     secondaryBg: '#707070',
+    settingsBg: 'rgba(64, 64, 64, 1)',
   },
   font: {
     appFontSize: 16,
@@ -36,6 +37,15 @@ const defaultTheme = {
     favPageSize: 50,
   },
   shadows: {
+    shadowRgbaColor: [0, 0, 0, 0.5],
+    menuShadowOffsetX: 1,
+    menuShadowOffsetY: 2,
+    menuShadowBlur: 2,
+    menuShadowSpread: 2,
+    navShadowOffsetX: 0,
+    navShadowOffsetY: 2,
+    navShadowBlur: 5,
+    navShadowSpread: 2,
     menuShadow: '1px 2px 2px 2px rgba(0,0,0,0.5)',
     navShadow: '0 2px 5px 2px rgba(0,0,0,0.3)',
   },

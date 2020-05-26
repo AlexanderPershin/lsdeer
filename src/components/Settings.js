@@ -22,7 +22,7 @@ const StyledSettings = styled.div`
   left: 0;
   bottom: 0;
   right: 0;
-  background-color: ${({ theme }) => theme.bg.appBg};
+  background-color: ${({ theme }) => theme.bg.settingsBg};
   color: ${({ theme }) => theme.colors.appColor};
   padding: 5px;
   z-index: 900;
