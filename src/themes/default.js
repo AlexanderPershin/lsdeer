@@ -28,8 +28,6 @@ const defaultTheme = {
     tabOpac: 'cc',
   },
   sizes: {
-    iconWidth: '80px',
-    iconHeight: '80px',
     navHeight: '35px',
     focusOutlineWidth: '2px',
     rowHeight: 150,
@@ -38,8 +36,8 @@ const defaultTheme = {
     favPageSize: 50,
   },
   shadows: {
-    menuShadow: '1px 2px 2px 2px rgba(0, 0, 0, .5)',
-    navShadow: '0 2px 5px 2px rgba(0, 0, 0, .3)',
+    menuShadow: '1px 2px 2px 2px rgba(0,0,0,0.5)',
+    navShadow: '0 2px 5px 2px rgba(0,0,0,0.3)',
   },
 };
 

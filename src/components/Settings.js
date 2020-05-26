@@ -9,6 +9,10 @@ import {
 
 import { Icon } from '@fluentui/react/lib/Icon';
 import NumInp from './NumInp';
+import Select from './Select';
+import ColorSchemeSettings from './ColorSchemeSettings';
+import FontSettings from './FontSettings';
+import SizesSettings from './SizesSettings';
 
 const { ipcRenderer } = window.require('electron');
 
@@ -70,7 +74,7 @@ const StyledNav = styled.div`
 `;
 
 const StyledCloseBtn = styled.button`
-  font-size: 1.2rem;
+  font-size: 1rem;
   background-color: transparent;
   border: none;
   color: ${({ theme }) => theme.colors.appColor};
@@ -81,48 +85,12 @@ const StyledCloseBtn = styled.button`
   }
 `;
 
-const StyledColorInp = styled.input`
-  cursor: pointer;
-  background-color: transparent;
-  border: none;
-  outline: none;
-  width: 4.5rem;
-  &::-webkit-color-swatch-wrapper {
-    padding: 0;
-  }
-  &:focus,
-  &:hover,
-  &:active {
-    outline: ${({ theme }) =>
-      `${theme.sizes.focusOutlineWidth} solid ${theme.bg.selectedBg}`};
-  }
-`;
-
-const StyledSelect = styled.select`
-  width: 6.5rem;
-  background-color: ${({ theme }) => theme.bg.secondaryBg};
-  color: ${({ theme }) => theme.colors.appColor};
-  font-size: ${({ theme }) => theme.font.appFontSize}px;
-  font-family: inherit;
-  &:focus,
-  &:hover,
-  &:active {
-    outline: ${({ theme }) =>
-      `${theme.sizes.focusOutlineWidth} solid ${theme.bg.selectedBg}`};
-  }
-`;
-
-const StyledOption = styled.option`
-  background-color: ${({ theme }) => theme.bg.secondaryBg};
-  &:hover {
-    background-color: ${({ theme }) => theme.bg.selectedBg};
-  }
-`;
-
 const StyledControls = styled.div`
   display: flex;
+  flex-direction: column;
   justify-content: flex-start;
   align-items: stretch;
+  margin-top: 2rem;
 `;
 
 const StyledBtn = styled.button`
@@ -139,27 +107,8 @@ const StyledBtn = styled.button`
       `${theme.sizes.focusOutlineWidth} solid ${theme.bg.selectedBg}`};
   }
   & + & {
-    margin-left: 15px;
+    margin-top: 5px;
   }
-`;
-
-const StyledInputsWrapper = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-auto-rows: 35px;
-  grid-gap: 20px;
-  align-items: center;
-`;
-
-const StyledSettingsGroupHeding = styled.h2`
-  grid-column: 1 / -1;
-  display: flex;
-  justify-content: flex-start;
-  align-content: center;
-  margin: 1rem 0;
-  font-size: 2rem;
-  font-weight: 100;
-  padding-top: 15px;
 `;
 
 const StyledRange = styled.input`
@@ -217,12 +166,33 @@ const StyledRange = styled.input`
   }
 `;
 
+const StyledSettingsTabs = styled.div`
+  display: flex;
+  /* width: 100%; */
+  justify-content: center;
+  align-items: center;
+`;
+
+const StyledSettingsTab = styled.div`
+  flex: 1 1 0%;
+  padding: 5px 15px;
+  border: none;
+  background-color: ${({ theme, selected }) =>
+    selected ? theme.bg.selectedBg : theme.bg.tabBg};
+  white-space: nowrap;
+  cursor: pointer;
+  &:hover {
+    background-color: ${({ theme }) => theme.bg.selectedBg};
+  }
+`;
+
 const Settings = ({ onClose }) => {
   const themeContext = useContext(ThemeContext);
   const settings = useSelector((state) => state.settings);
   const dispatch = useDispatch();
 
   const [settingsOpacity, setSettingsOpacity] = useState(1);
+  const [settingsTab, setSettingsTab] = useState(1);
 
   const handleSetProp = (e, settingGroupKey, settingKey, newVal) => {
     let settingObj;
@@ -248,6 +218,19 @@ const Settings = ({ onClose }) => {
     ipcRenderer.send('reset-settings-to-default');
   };
 
+  const renderSettingsTab = () => {
+    switch (settingsTab) {
+      case 1:
+        return <ColorSchemeSettings handleSetProp={handleSetProp} />;
+      case 2:
+        return <FontSettings handleSetProp={handleSetProp} />;
+      case 3:
+        return <SizesSettings handleSetProp={handleSetProp} />;
+      default:
+        return <ColorSchemeSettings handleSetProp={handleSetProp} />;
+    }
+  };
+
   return (
     <React.Fragment>
       <StyledNav>
@@ -268,119 +251,40 @@ const Settings = ({ onClose }) => {
       <StyledSettings settingsOpacity={settingsOpacity}>
         <StyledHeading>Settings</StyledHeading>
 
-        <StyledInputsWrapper>
-          <StyledSettingsGroupHeding>App styles</StyledSettingsGroupHeding>
-          <span>Font color</span>
-          <StyledColorInp
-            type='color'
-            value={themeContext.colors.appColor}
-            onChange={(e) => handleSetProp(e, 'colors', 'appColor')}
-          />
-
-          <span>Font size</span>
-          <NumInp
-            min={10}
-            max={50}
-            step={0.5}
-            disabled={false}
-            handleSetProp={(newVal) =>
-              handleSetProp(false, 'font', 'appFontSize', newVal)
-            }
-          />
-
-          <span>Font-Family</span>
-          <StyledSelect
-            name='font-family'
-            id='font-family'
-            value={themeContext.font.appFontFamily}
-            onChange={(e) => handleSetProp(e, 'font', 'appFontFamily')}
+        <StyledSettingsTabs>
+          <StyledSettingsTab
+            selected={settingsTab === 1}
+            onClick={(e) => setSettingsTab(1)}
           >
-            <StyledOption value='Roboto, sans-serif'>Roboto</StyledOption>
-            <StyledOption value='Lato, sans-serif'>Lato</StyledOption>
-            <StyledOption value='Raleway, sans-serif'>Raleway</StyledOption>
-          </StyledSelect>
-          <span>Background color</span>
-          <StyledColorInp
-            type='color'
-            value={themeContext.bg.appBg}
-            onChange={(e) => handleSetProp(e, 'bg', 'appBg')}
-          />
-          <span>Selection background color</span>
-          <StyledColorInp
-            type='color'
-            value={themeContext.bg.selectedBg}
-            onChange={(e) => handleSetProp(e, 'bg', 'selectedBg')}
-          />
-          <span>Ui elements background color</span>
-          <StyledColorInp
-            type='color'
-            value={themeContext.bg.tabBg}
-            onChange={(e) => handleSetProp(e, 'bg', 'tabBg')}
-          />
-          <span>Secondary ui elements background color</span>
-          <StyledColorInp
-            type='color'
-            value={themeContext.bg.elementsBg}
-            onChange={(e) => handleSetProp(e, 'bg', 'elementsBg')}
-          />
-          <span>Active ui element background color</span>
-          <StyledColorInp
-            type='color'
-            value={themeContext.bg.activeTabBg}
-            onChange={(e) => handleSetProp(e, 'bg', 'activeTabBg')}
-          />
-          <span>Scrollbar hover background color</span>
-          <StyledColorInp
-            type='color'
-            value={themeContext.bg.scrollbarBg}
-            onChange={(e) => handleSetProp(e, 'bg', 'scrollbarBg')}
-          />
-          <span>Accent background color</span>
-          <StyledColorInp
-            type='color'
-            value={themeContext.bg.accentBg}
-            onChange={(e) => handleSetProp(e, 'bg', 'accentBg')}
-          />
-          <span>Secondary background color</span>
-          <StyledColorInp
-            type='color'
-            value={themeContext.bg.secondaryBg}
-            onChange={(e) => handleSetProp(e, 'bg', 'secondaryBg')}
-          />
-          <StyledSettingsGroupHeding>App bar styles</StyledSettingsGroupHeding>
-          <span>Background</span>
-          <StyledColorInp
-            type='color'
-            value={themeContext.bg.appBarBg}
-            onChange={(e) => handleSetProp(e, 'bg', 'appBarBg')}
-          />
-          <span>Title color</span>
-          <StyledColorInp
-            type='color'
-            value={themeContext.colors.appTitleColor}
-            onChange={(e) => handleSetProp(e, 'colors', 'appTitleColor')}
-          />
-          <span>Active item background</span>
-          <StyledColorInp
-            type='color'
-            value={themeContext.bg.appBarActiveItemBg}
-            onChange={(e) => handleSetProp(e, 'bg', 'appBarActiveItemBg')}
-          />
-          <span>Close button background</span>
-          <StyledColorInp
-            type='color'
-            value={themeContext.bg.appBarXBtnHover}
-            onChange={(e) => handleSetProp(e, 'bg', 'appBarXBtnHover')}
-          />
-          <StyledControls>
-            <StyledBtn onClick={() => alert('You sooo applied changes')}>
-              Apply
-            </StyledBtn>
-            <StyledBtn onClick={handleResetToDefaults}>
-              Reset to defaults
-            </StyledBtn>
-          </StyledControls>
-        </StyledInputsWrapper>
+            Color Scheme
+          </StyledSettingsTab>
+          <StyledSettingsTab
+            selected={settingsTab === 2}
+            onClick={(e) => setSettingsTab(2)}
+          >
+            Font
+          </StyledSettingsTab>
+          <StyledSettingsTab
+            selected={settingsTab === 3}
+            onClick={(e) => setSettingsTab(3)}
+          >
+            Sizes
+          </StyledSettingsTab>
+        </StyledSettingsTabs>
+
+        {renderSettingsTab()}
+
+        <StyledControls>
+          <StyledBtn onClick={() => alert('You sooo applied changes')}>
+            Apply
+          </StyledBtn>
+          <StyledBtn
+            onClick={handleResetToDefaults}
+            title='This button resets ALL settings to defaults, not only current tab!'
+          >
+            Reset All to defaults
+          </StyledBtn>
+        </StyledControls>
       </StyledSettings>
     </React.Fragment>
   );

@@ -14,14 +14,14 @@ const StyledNumInput = styled(InputNumber)`
   flex-direction: row-reverse;
   justify-content: space-between;
   align-items: stretch;
-  border: ${({ theme }) =>
+  outline: ${({ theme }) =>
     `${theme.sizes.focusOutlineWidth} solid ${theme.colors.appColor}`};
   border-radius: 0px;
   transition: all 0.3s;
 
   &.rc-input-number-focused {
     box-shadow: none;
-    border: ${({ theme }) =>
+    outline: ${({ theme }) =>
       `${theme.sizes.focusOutlineWidth} solid ${theme.bg.selectedBg}`};
   }
   .rc-input-number-handler {
@@ -75,22 +75,28 @@ const StyledNumInput = styled(InputNumber)`
   }
   .rc-input-number-handler-wrap {
     float: right;
-    border-left: 1px solid ${({ theme }) => theme.colors.appColor};
-    width: 20px;
+    width: auto;
     height: 100%;
     transition: all 0.3s;
     overflow: hidden;
+    display: flex;
   }
   .rc-input-number-handler {
     background-color: ${({ theme }) => theme.bg.secondaryBg};
+    height: 100%;
+    width: 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     &:hover {
       background-color: ${({ theme }) => theme.bg.selectedBg};
     }
   }
   .rc-input-number-handler-up {
-    border-bottom: 1px solid #d9d9d9;
     padding-top: 1px;
     transition: all 0.3s;
+    border-left: 1px solid ${({ theme }) => theme.colors.appColor};
+    order: 2;
   }
   .rc-input-number-handler-up-inner:after {
     content: '+';
@@ -128,7 +134,7 @@ const StyledHandleIcon = styled(Icon)`
   font-size: 8px;
 `;
 
-const NumInp = ({ min, max, step, disabled, handleSetProp }) => {
+const NumInp = ({ min, max, step, disabled, value, handleSetProp }) => {
   const themeContext = useContext(ThemeContext);
 
   const handleChange = (newVal) => {
@@ -142,7 +148,7 @@ const NumInp = ({ min, max, step, disabled, handleSetProp }) => {
       max={max}
       step={step}
       disabled={disabled}
-      value={themeContext.font.appFontSize}
+      value={value}
       readOnly={false}
       onChange={handleChange}
       upHandler={<StyledHandleIcon iconName='Add' />}
