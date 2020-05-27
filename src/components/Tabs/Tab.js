@@ -8,6 +8,7 @@ import {
 } from '../../actions/tabsActions';
 import { setActiveTab } from '../../actions/activeTabActions';
 import { removeFromFav } from '../../actions/favoritesActions';
+import { setTabs } from '../../actions/tabsActions';
 import { MenuItem, ContextMenuTrigger } from 'react-contextmenu';
 import ContextMenu from '../ContextMenu';
 import { Icon } from '@fluentui/react/lib/Icon';
@@ -27,6 +28,7 @@ const StyledTab = styled.div`
     overThis ? `2px solid ${theme.bg.selectedBg}` : '2px solid transparent'};
   background-color: ${({ theme, activeTab }) =>
     activeTab ? theme.bg.activeTabBg : theme.bg.tabBg};
+  position: relative;
   &:not(:last-child) {
     border-right: 2px solid ${({ theme }) => theme.bg.appBg};
   }
@@ -93,6 +95,20 @@ const Tab = ({
     dispatch(closeAllTabs());
   };
 
+  const closeRight = () => {
+    let newTabs = [...tabs];
+    const thisTabIndex = tabs.findIndex((item) => item.id === id);
+    newTabs = newTabs.splice(0, thisTabIndex + 1);
+
+    dispatch(setTabs(newTabs));
+  };
+
+  const closeOthers = () => {
+    const thisTab = tabs.find((item) => item.id === id);
+
+    dispatch(setTabs([thisTab]));
+  };
+
   const setActive = () => {
     dispatch(setActiveTab(id));
   };
@@ -150,6 +166,12 @@ const Tab = ({
         <StyledMenuItem onClick={toggleLock}>
           {isLocked ? 'Unlock' : 'Lock'}{' '}
           <StyledTabIcon iconName={isLocked ? 'UnlockSolid' : 'LockSolid'} />
+        </StyledMenuItem>
+        <StyledMenuItem onClick={closeRight}>
+          Close to the Right <StyledTabIcon iconName='Broom' />
+        </StyledMenuItem>
+        <StyledMenuItem onClick={closeOthers}>
+          Close Others <StyledTabIcon iconName='Broom' />
         </StyledMenuItem>
         <StyledMenuItem onClick={closeAll}>
           Close All <StyledTabIcon iconName='Broom' />
