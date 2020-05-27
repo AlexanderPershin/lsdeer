@@ -240,11 +240,12 @@ const StyledElectronBar = styled.div`
   }
   .electronbar-top-menu-item-children {
     padding: 0;
-    background-color: ${({ theme }) => theme.bg.appBg};
+    background-color: ${({ theme }) => theme.bg.contextMenuBg};
   }
   .electronbar-top-menu-item-children,
   .electronbar-menu-item-children {
-    box-shadow: ${({ theme }) => theme.shadows.menuShadow};
+    box-shadow: ${({ theme }) =>
+      `${theme.shadows.menuShadowOffsetX}px ${theme.shadows.menuShadowOffsetY}px ${theme.shadows.menuShadowBlur}px ${theme.shadows.menuShadowSpread}px ${theme.shadows.menuShadowColor}`} !important;
   }
   .electronbar-menu-item-label {
     padding: 0 15px;

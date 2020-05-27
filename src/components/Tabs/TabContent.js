@@ -6,7 +6,7 @@ import React, {
   useContext,
 } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { openDir, addTab, closeTab } from '../../actions/tabsActions';
+import { addTab, closeTab } from '../../actions/tabsActions';
 import {
   setSearch,
   toggleSearch,
@@ -18,18 +18,17 @@ import {
   clearSelectedFiles,
 } from '../../actions/selectFilesActions';
 import styled, { ThemeContext } from 'styled-components';
-import { hexToRgba } from 'hex-and-rgba';
 import { nanoid } from 'nanoid';
 import { Icon } from '@fluentui/react/lib/Icon';
 
 import { FixedSizeGrid as Grid } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
-import { ContextMenu, MenuItem, ContextMenuTrigger } from 'react-contextmenu';
+import { MenuItem, ContextMenuTrigger } from 'react-contextmenu';
+import ContextMenu from '../ContextMenu';
 
 import NewTabContent from './NewTabContent';
 import TabItem from './TabItem';
-import deerBg from '../../img/deer.svg';
 
 import addTabAndActivate from '../../helpers/addTabAndActivate';
 
@@ -85,7 +84,8 @@ const StyledNav = styled.div`
   align-items: stretch;
   background-color: ${({ theme }) => theme.bg.appBg};
   font-size: ${({ theme }) => theme.font.pathBarFontSize};
-  box-shadow: ${({ theme }) => theme.shadows.navShadow};
+  box-shadow: ${({ theme }) =>
+    `${theme.shadows.navShadowOffsetX}px ${theme.shadows.navShadowOffsetY}px ${theme.shadows.navShadowBlur}px ${theme.shadows.navShadowSpread}px ${theme.shadows.navShadowColor}`};
   z-index: 150;
   overflow: hidden;
 `;
@@ -182,16 +182,6 @@ const StyledCell = styled.div`
   display: flex;
   justify-content: center;
   align-items: flex-start;
-`;
-
-const StyledContextMenu = styled(ContextMenu)`
-  background-color: ${({ theme }) => theme.bg.appBg};
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: stretch;
-  z-index: 1000;
-  box-shadow: ${({ theme }) => theme.shadows.menuShadow};
 `;
 
 const StyledCtxShortcut = styled.span`
@@ -483,7 +473,7 @@ const TabContent = ({
           </StyledFiles>
         </ContextMenuTrigger>
         {selectedStore.length === 0 ? (
-          <StyledContextMenu id={id + path}>
+          <ContextMenu id={id + path}>
             <StyledMenuItem
               data={{ foo: 'bar' }}
               onClick={() => console.log('Hello!')}
@@ -491,9 +481,9 @@ const TabContent = ({
               Hello
             </StyledMenuItem>
             <MenuItem divider />
-          </StyledContextMenu>
+          </ContextMenu>
         ) : (
-          <StyledContextMenu id={id + path}>
+          <ContextMenu id={id + path}>
             <StyledMenuItem onClick={hanldeDeselectFiles}>
               Deselect
             </StyledMenuItem>
@@ -507,7 +497,7 @@ const TabContent = ({
               Add to favorites
             </StyledMenuItem>
             <MenuItem divider />
-          </StyledContextMenu>
+          </ContextMenu>
         )}
         {searching ? <FindBox /> : null}
       </React.Fragment>

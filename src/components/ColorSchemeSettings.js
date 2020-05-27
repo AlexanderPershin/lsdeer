@@ -1,7 +1,8 @@
 import React, { useContext, useEffect } from 'react';
 import styled, { ThemeContext } from 'styled-components';
 import { rgbaToHex, hexToRgba } from 'hex-and-rgba';
-import ColorInput from './ColorInput';
+import ColorInput from './Inputs/ColorInput';
+import NumInp from './Inputs/NumInp';
 
 const StyledInputsWrapper = styled.div`
   display: grid;
@@ -49,10 +50,11 @@ const ColorSchemeSettings = ({ handleSetProp }) => {
     <StyledInputsWrapper>
       <StyledSettingsGroupHeding>Color Scheme</StyledSettingsGroupHeding>
       <span>Font color</span>
-      <StyledColorInp
-        type='color'
+      <ColorInput
         value={themeContext.colors.appColor}
-        onChange={(e) => handleSetProp(e, 'colors', 'appColor')}
+        onChange={(newVal) =>
+          handleSetProp(false, 'colors', 'appColor', newVal)
+        }
       />
 
       <span>Background color</span>
@@ -62,74 +64,181 @@ const ColorSchemeSettings = ({ handleSetProp }) => {
       />
 
       <span>Selection background color</span>
-      <StyledColorInp
-        type='color'
+      <ColorInput
         value={themeContext.bg.selectedBg}
-        onChange={(e) => handleSetProp(e, 'bg', 'selectedBg')}
+        onChange={(newVal) => handleSetProp(false, 'bg', 'selectedBg', newVal)}
       />
       <span>Ui elements background color</span>
-      <StyledColorInp
-        type='color'
+      <ColorInput
         value={themeContext.bg.tabBg}
-        onChange={(e) => handleSetProp(e, 'bg', 'tabBg')}
+        onChange={(newVal) => handleSetProp(false, 'bg', 'tabBg', newVal)}
       />
       <span>Secondary ui elements background color</span>
-      <StyledColorInp
-        type='color'
+      <ColorInput
         value={themeContext.bg.elementsBg}
-        onChange={(e) => handleSetProp(e, 'bg', 'elementsBg')}
+        onChange={(newVal) => handleSetProp(false, 'bg', 'elementsBg', newVal)}
       />
       <span>Active ui element background color</span>
-      <StyledColorInp
-        type='color'
+      <ColorInput
         value={themeContext.bg.activeTabBg}
-        onChange={(e) => handleSetProp(e, 'bg', 'activeTabBg')}
+        onChange={(newVal) => handleSetProp(false, 'bg', 'activeTabBg', newVal)}
       />
       <span>Scrollbar hover background color</span>
-      <StyledColorInp
-        type='color'
+      <ColorInput
         value={themeContext.bg.scrollbarBg}
-        onChange={(e) => handleSetProp(e, 'bg', 'scrollbarBg')}
+        onChange={(newVal) => handleSetProp(false, 'bg', 'scrollbarBg', newVal)}
       />
       <span>Accent background color</span>
-      <StyledColorInp
-        type='color'
+      <ColorInput
         value={themeContext.bg.accentBg}
-        onChange={(e) => handleSetProp(e, 'bg', 'accentBg')}
+        onChange={(newVal) => handleSetProp(false, 'bg', 'accentBg', newVal)}
       />
       <span>Secondary background color</span>
-      <StyledColorInp
-        type='color'
+      <ColorInput
         value={themeContext.bg.secondaryBg}
-        onChange={(e) => handleSetProp(e, 'bg', 'secondaryBg')}
-      />
-      <StyledSettingsGroupHeding>App bar styles</StyledSettingsGroupHeding>
-      <span>Background</span>
-      <StyledColorInp
-        type='color'
-        value={themeContext.bg.appBarBg}
-        onChange={(e) => handleSetProp(e, 'bg', 'appBarBg')}
-      />
-      <span>Title color</span>
-      <StyledColorInp
-        type='color'
-        value={themeContext.colors.appTitleColor}
-        onChange={(e) => handleSetProp(e, 'colors', 'appTitleColor')}
-      />
-      <span>Active item background</span>
-      <StyledColorInp
-        type='color'
-        value={themeContext.bg.appBarActiveItemBg}
-        onChange={(e) => handleSetProp(e, 'bg', 'appBarActiveItemBg')}
-      />
-      <span>Close button background</span>
-      <StyledColorInp
-        type='color'
-        value={themeContext.bg.appBarXBtnHover}
-        onChange={(e) => handleSetProp(e, 'bg', 'appBarXBtnHover')}
+        onChange={(newVal) => handleSetProp(false, 'bg', 'secondaryBg', newVal)}
       />
 
+      <StyledSettingsGroupHeding>App bar styles</StyledSettingsGroupHeding>
+      <span>Background</span>
+      <ColorInput
+        value={themeContext.bg.appBarBg}
+        onChange={(newVal) => handleSetProp(false, 'bg', 'appBarBg', newVal)}
+      />
+      <span>Title color</span>
+      <ColorInput
+        value={themeContext.colors.appTitleColor}
+        onChange={(newVal) =>
+          handleSetProp(false, 'colors', 'appTitleColor', newVal)
+        }
+      />
+      <span>Active item background</span>
+      <ColorInput
+        value={themeContext.bg.appBarActiveItemBg}
+        onChange={(newVal) =>
+          handleSetProp(false, 'bg', 'appBarActiveItemBg', newVal)
+        }
+      />
+      <span>Close button background</span>
+      <ColorInput
+        value={themeContext.bg.appBarXBtnHover}
+        onChange={(newVal) =>
+          handleSetProp(false, 'bg', 'appBarXBtnHover', newVal)
+        }
+      />
+
+      <StyledSettingsGroupHeding>Shadows</StyledSettingsGroupHeding>
       <span>Menu shadow color</span>
+      <ColorInput
+        value={themeContext.shadows.menuShadowColor}
+        onChange={(newVal) =>
+          handleSetProp(false, 'shadows', 'menuShadowColor', newVal)
+        }
+      />
+
+      <span>Menu shadow offset X</span>
+      <NumInp
+        min={-100}
+        max={100}
+        step={0.5}
+        disabled={false}
+        value={themeContext.shadows.menuShadowOffsetX}
+        handleSetProp={(newVal) =>
+          handleSetProp(false, 'shadows', 'menuShadowOffsetX', newVal)
+        }
+      />
+
+      <span>Menu shadow offset Y</span>
+      <NumInp
+        min={-100}
+        max={100}
+        step={0.5}
+        disabled={false}
+        value={themeContext.shadows.menuShadowOffsetY}
+        handleSetProp={(newVal) =>
+          handleSetProp(false, 'shadows', 'menuShadowOffsetY', newVal)
+        }
+      />
+
+      <span>Menu shadow blur</span>
+      <NumInp
+        min={0}
+        max={100}
+        step={0.5}
+        disabled={false}
+        value={themeContext.shadows.menuShadowBlur}
+        handleSetProp={(newVal) =>
+          handleSetProp(false, 'shadows', 'menuShadowBlur', newVal)
+        }
+      />
+
+      <span>Menu shadow spread</span>
+      <NumInp
+        min={0}
+        max={100}
+        step={0.5}
+        disabled={false}
+        value={themeContext.shadows.menuShadowSpread}
+        handleSetProp={(newVal) =>
+          handleSetProp(false, 'shadows', 'menuShadowSpread', newVal)
+        }
+      />
+
+      <span>NavBar shadow color</span>
+      <ColorInput
+        value={themeContext.shadows.navShadowColor}
+        onChange={(newVal) =>
+          handleSetProp(false, 'shadows', 'navShadowColor', newVal)
+        }
+      />
+
+      <span>Nav shadow offset X</span>
+      <NumInp
+        min={-100}
+        max={100}
+        step={0.5}
+        disabled={false}
+        value={themeContext.shadows.navShadowOffsetX}
+        handleSetProp={(newVal) =>
+          handleSetProp(false, 'shadows', 'navShadowOffsetX', newVal)
+        }
+      />
+
+      <span>Nav shadow offset Y</span>
+      <NumInp
+        min={-100}
+        max={100}
+        step={0.5}
+        disabled={false}
+        value={themeContext.shadows.navShadowOffsetY}
+        handleSetProp={(newVal) =>
+          handleSetProp(false, 'shadows', 'navShadowOffsetY', newVal)
+        }
+      />
+
+      <span>Nav shadow blur</span>
+      <NumInp
+        min={0}
+        max={100}
+        step={0.5}
+        disabled={false}
+        value={themeContext.shadows.navShadowBlur}
+        handleSetProp={(newVal) =>
+          handleSetProp(false, 'shadows', 'navShadowBlur', newVal)
+        }
+      />
+
+      <span>Nav shadow spread</span>
+      <NumInp
+        min={0}
+        max={100}
+        step={0.5}
+        disabled={false}
+        value={themeContext.shadows.navShadowSpread}
+        handleSetProp={(newVal) =>
+          handleSetProp(false, 'shadows', 'navShadowSpread', newVal)
+        }
+      />
     </StyledInputsWrapper>
   );
 };

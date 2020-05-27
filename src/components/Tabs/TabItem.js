@@ -18,7 +18,7 @@ const StyledItem = styled.button`
   align-items: center;
   justify-content: flex-start;
   background-color: ${({ theme, sel }) =>
-    sel ? hexToRgba(theme.bg.selectedBg + 'cc').toString() : 'transparent'};
+    sel ? theme.bg.selectedBg : 'transparent'};
   z-index: ${({ sel }) => (sel ? 10 : 5)};
   user-select: none;
   cursor: pointer;
@@ -39,8 +39,8 @@ const StyledName = styled.span`
 `;
 
 const StyledImg = styled.img`
-  width: 100%;
-  height: 100px;
+  width: ${({ theme, iconSize }) => (iconSize ? `${iconSize}px` : '100%')};
+  height: ${({ theme, iconSize }) => (iconSize ? `${iconSize}px` : '100px')};
   object-fit: contain;
 `;
 
@@ -104,6 +104,11 @@ const TabItem = ({
           src={`http://localhost:15032/file/${encodeURIComponent(path)}`}
           alt={name}
           onError={addDefaultSrc}
+          iconSize={
+            themeContext.sizes.fileIconSize < 96
+              ? themeContext.sizes.fileIconSize
+              : false
+          }
         />
       ) : (
         <Icon

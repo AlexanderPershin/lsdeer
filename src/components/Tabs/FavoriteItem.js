@@ -6,7 +6,8 @@ import { nanoid } from 'nanoid';
 import styled, { ThemeContext } from 'styled-components';
 import { hexToRgba } from 'hex-and-rgba';
 
-import { ContextMenu, MenuItem, ContextMenuTrigger } from 'react-contextmenu';
+import { MenuItem, ContextMenuTrigger } from 'react-contextmenu';
+import ContextMenu from '../ContextMenu';
 
 import { addTab } from '../../actions/tabsActions';
 import { setActiveTab } from '../../actions/activeTabActions';
@@ -45,16 +46,6 @@ const StyledName = styled.span`
   word-wrap: break-word;
   text-align: center;
   z-index: ${({ sel }) => (sel ? 100 : 'initial')};
-`;
-
-const StyledContextMenu = styled(ContextMenu)`
-  background-color: ${({ theme }) => theme.bg.appBg};
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: stretch;
-  z-index: 1000;
-  box-shadow: ${({ theme }) => theme.shadows.menuShadow};
 `;
 
 const StyledMenuItem = styled(MenuItem)`
@@ -134,11 +125,11 @@ const FavoriteItem = ({ id, name, path, isFile, ext, selected }) => {
           </StyledName>
         </StyledFavorite>
       </ContextMenuTrigger>
-      <StyledContextMenu id={id}>
+      <ContextMenu id={id}>
         <StyledMenuItem onClick={handleRemoveFromFav}>Remove</StyledMenuItem>
 
         <MenuItem divider />
-      </StyledContextMenu>
+      </ContextMenu>
     </React.Fragment>
   );
 };

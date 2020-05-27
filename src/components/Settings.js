@@ -8,8 +8,8 @@ import {
 } from '../actions/settingsActions';
 
 import { Icon } from '@fluentui/react/lib/Icon';
-import NumInp from './NumInp';
-import Select from './Select';
+import NumInp from './Inputs/NumInp';
+import Select from './Inputs/Select';
 import ColorSchemeSettings from './ColorSchemeSettings';
 import FontSettings from './FontSettings';
 import SizesSettings from './SizesSettings';
@@ -70,7 +70,8 @@ const StyledNav = styled.div`
   margin: 0;
   padding: 0 30px;
   z-index: 901;
-  box-shadow: ${({ theme }) => theme.shadows.navShadow};
+  box-shadow: ${({ theme }) =>
+    `${theme.shadows.navShadowOffsetX}px ${theme.shadows.navShadowOffsetY}px ${theme.shadows.navShadowBlur}px ${theme.shadows.navShadowSpread}px ${theme.shadows.navShadowColor}`};
 `;
 
 const StyledCloseBtn = styled.button`

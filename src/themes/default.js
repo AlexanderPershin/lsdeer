@@ -13,9 +13,10 @@ const defaultTheme = {
     scrollbarBg: '#808080',
     accentBg: '#3e98c7',
     elementsBg: '#ffffff',
-    selectedBg: '#003366',
+    selectedBg: 'rgba(0, 51, 102, 0.7)',
     secondaryBg: '#707070',
     settingsBg: 'rgba(64, 64, 64, 1)',
+    contextMenuBg: 'rgba(64, 64, 64, 1)',
   },
   font: {
     appFontSize: 16,
@@ -24,9 +25,6 @@ const defaultTheme = {
     appBarFontSize: '1rem',
     appBarMenuFontSize: '0.8rem',
     appSearchFontSize: '1.2rem',
-  },
-  opac: {
-    tabOpac: 'cc',
   },
   sizes: {
     navHeight: '35px',
@@ -37,7 +35,8 @@ const defaultTheme = {
     favPageSize: 50,
   },
   shadows: {
-    shadowRgbaColor: [0, 0, 0, 0.5],
+    menuShadowColor: 'rgba(0,0,0,0.5)',
+    navShadowColor: 'rgba(0,0,0,0.5)',
     menuShadowOffsetX: 1,
     menuShadowOffsetY: 2,
     menuShadowBlur: 2,
@@ -52,5 +51,3 @@ const defaultTheme = {
 };
 
 export default defaultTheme;
-
-// tabOpac: 'cc' for transparency

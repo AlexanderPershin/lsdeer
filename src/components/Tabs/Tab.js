@@ -8,9 +8,11 @@ import {
 } from '../../actions/tabsActions';
 import { setActiveTab } from '../../actions/activeTabActions';
 import { removeFromFav } from '../../actions/favoritesActions';
-import { ContextMenu, MenuItem, ContextMenuTrigger } from 'react-contextmenu';
+import { MenuItem, ContextMenuTrigger } from 'react-contextmenu';
+import ContextMenu from '../ContextMenu';
 import { Icon } from '@fluentui/react/lib/Icon';
 import styled from 'styled-components';
+
 const { ipcRenderer } = window.require('electron');
 
 const StyledTab = styled.div`
@@ -32,16 +34,6 @@ const StyledTab = styled.div`
     cursor: pointer;
     background-color: ${({ theme }) => theme.bg.selectedBg};
   }
-`;
-
-const StyledContextMenu = styled(ContextMenu)`
-  background-color: ${({ theme }) => theme.bg.appBg};
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: stretch;
-  z-index: 1000;
-  box-shadow: ${({ theme }) => theme.shadows.menuShadow};
 `;
 
 const StyledMenuItem = styled(MenuItem)`
@@ -76,8 +68,6 @@ const Tab = ({
 
   const currentTab = tabs.find((item) => item.id === id);
   const { isLocked } = currentTab;
-
-  // const [isLocked, setLocked] = useState(false);
 
   const closeThisTab = (e) => {
     e.stopPropagation();
@@ -151,7 +141,7 @@ const Tab = ({
           )}
         </StyledTab>
       </ContextMenuTrigger>{' '}
-      <StyledContextMenu id={id}>
+      <ContextMenu id={id}>
         {!isLocked && (
           <StyledMenuItem onClick={closeThisTab}>
             Close <StyledTabIcon iconName='Clear' />
@@ -171,7 +161,7 @@ const Tab = ({
           Remove From Favorites <StyledTabIcon iconName='Unfavorite' />
         </StyledMenuItem>
         <MenuItem divider />
-      </StyledContextMenu>
+      </ContextMenu>
     </React.Fragment>
   );
 };

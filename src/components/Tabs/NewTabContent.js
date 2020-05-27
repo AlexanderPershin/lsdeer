@@ -9,8 +9,7 @@ import FavoriteItem from './FavoriteItem';
 const { remote, ipcRenderer } = window.require('electron');
 
 const StyledContent = styled.div`
-  background-color: ${({ theme }) =>
-    hexToRgba(theme.bg.appBg + 'cc').toString()};
+  background-color: ${({ theme }) => theme.bg.appBg};
   overflow-y: auto;
   min-height: 100%;
   width: 100%;

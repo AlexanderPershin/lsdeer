@@ -22,11 +22,34 @@ const StyledInputButton = styled.button`
   }
 `;
 
-const StyledChromePicker = styled(ChromePicker)`
+const StyledPickerContainer = styled.div`
   position: absolute;
   top: 100%;
   left: 0;
+  transform: translateX(-50%);
   z-index: 300;
+  background-color: #fff;
+  box-shadow: ${({ theme }) => theme.shadows.menuShadow};
+`;
+
+const StyledBtn = styled.button`
+  color: inherit;
+  padding: 5px 15px;
+  border: none;
+  background-color: ${({ theme }) => theme.bg.appBarBg};
+  &:hover {
+    background-color: ${({ theme }) => theme.bg.selectedBg};
+    cursor: pointer;
+  }
+  &:focus {
+    outline: ${({ theme }) =>
+      `${theme.sizes.focusOutlineWidth} solid ${theme.bg.selectedBg}`};
+  }
+`;
+
+const StyledPicker = styled(ChromePicker)`
+  border-radius: 0 !important;
+  box-shadow: none !important;
 `;
 
 const ColorInput = ({ value, onChange }) => {
@@ -51,15 +74,31 @@ const ColorInput = ({ value, onChange }) => {
     setColor(newVal.rgb);
   };
 
+  const handleOk = () => {
+    if (isOpen && color !== undefined && isValidRgba(Object.values(color))) {
+      onChange(`rgba(${Object.values(color)})`);
+    }
+    setOpen(false);
+  };
+
+  const handleCancel = () => {
+    setColor(value);
+    setOpen(false);
+  };
+
   return (
     <StyledPickerWrapper>
       <StyledInputButton bg={value} onClick={toggleOpen} />
       {isOpen ? (
-        <StyledChromePicker
-          color={color}
-          onChange={handleChange}
-          onChangeComplete={handleComplete}
-        />
+        <StyledPickerContainer>
+          <StyledPicker
+            color={color}
+            onChange={handleChange}
+            onChangeComplete={handleComplete}
+          />
+          <StyledBtn onClick={handleOk}>Ok</StyledBtn>
+          <StyledBtn onClick={handleCancel}>Cancel</StyledBtn>
+        </StyledPickerContainer>
       ) : null}
     </StyledPickerWrapper>
   );

@@ -13,7 +13,8 @@ const StyledFindBox = styled.form`
   justify-content: space-between;
   align-items: stretch;
   border: 5px solid ${({ theme }) => theme.bg.appBg};
-  box-shadow: ${({ theme }) => theme.shadows.menuShadow};
+  box-shadow: ${({ theme }) =>
+    `${theme.shadows.menuShadowOffsetX}px ${theme.shadows.menuShadowOffsetY}px ${theme.shadows.menuShadowBlur}px ${theme.shadows.menuShadowSpread}px ${theme.shadows.menuShadowColor}`};
   background-color: ${({ theme }) => theme.bg.appBg};
   font-size: ${({ theme }) => theme.font.appSearchFontSize};
 `;
