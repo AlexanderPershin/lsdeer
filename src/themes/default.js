@@ -1,3 +1,6 @@
+// import deerBg from '../img/deer.svg';
+const deerBg = process.env.PUBLIC_URL + '/deer.svg';
+
 const defaultTheme = {
   colors: {
     appColor: '#FFFFFF',
@@ -17,6 +20,7 @@ const defaultTheme = {
     secondaryBg: '#707070',
     settingsBg: 'rgba(64, 64, 64, 1)',
     contextMenuBg: 'rgba(64, 64, 64, 1)',
+    appBgImage: deerBg,
   },
   font: {
     appFontSize: 16,

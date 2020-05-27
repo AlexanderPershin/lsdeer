@@ -13,6 +13,7 @@ import Select from './Inputs/Select';
 import ColorSchemeSettings from './ColorSchemeSettings';
 import FontSettings from './FontSettings';
 import SizesSettings from './SizesSettings';
+import AppImageSettings from './AppImageSettings';
 
 const { ipcRenderer } = window.require('electron');
 
@@ -231,6 +232,8 @@ const Settings = ({ onClose }) => {
         return <FontSettings handleSetProp={handleSetProp} />;
       case 3:
         return <SizesSettings handleSetProp={handleSetProp} />;
+      case 4:
+        return <AppImageSettings handleSetProp={handleSetProp} />;
       default:
         return <ColorSchemeSettings handleSetProp={handleSetProp} />;
     }
@@ -274,6 +277,12 @@ const Settings = ({ onClose }) => {
             onClick={(e) => setSettingsTab(3)}
           >
             Sizes
+          </StyledSettingsTab>
+          <StyledSettingsTab
+            selected={settingsTab === 4}
+            onClick={(e) => setSettingsTab(4)}
+          >
+            App Image
           </StyledSettingsTab>
         </StyledSettingsTabs>
 

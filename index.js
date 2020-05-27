@@ -346,6 +346,15 @@ router.get('/file/:fullpath', async function (req, res) {
   }
 });
 
+// Background image
+router.get('/bg/:fullpath', async function (req, res) {
+  // Send fullsize image
+  let filePath = req.params.fullpath;
+  console.log('filePath', filePath);
+
+  res.sendFile(filePath);
+});
+
 expressApp.use('/', router);
 
 http
