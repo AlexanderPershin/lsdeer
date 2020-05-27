@@ -21,6 +21,7 @@ const defaultTheme = {
     settingsBg: 'rgba(64, 64, 64, 1)',
     contextMenuBg: 'rgba(64, 64, 64, 1)',
     appBgImage: deerBg,
+    appBgSize: 'contain',
   },
   font: {
     appFontSize: 16,

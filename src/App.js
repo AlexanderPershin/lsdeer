@@ -198,7 +198,7 @@ if (process.platform === 'darwin') {
 
 const StyledApp = styled.div`
   background-image: url(${({ theme }) => theme.bg.appBgImage});
-  background-size: cover;
+  background-size: ${({ theme }) => theme.bg.appBgSize};
   background-repeat: no-repeat;
   background-position: center center;
   color: ${({ theme }) => theme.colors.appColor};
