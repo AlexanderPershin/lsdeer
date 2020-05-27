@@ -509,6 +509,22 @@ ipcMain.on('save-favs', (event, favorites) => {
   });
 });
 
+ipcMain.on('save-settings', (event, settings) => {
+  const settingsJson = JSON.stringify(settings);
+  fs.writeFile('settings.json', settingsJson, 'utf8', function (err) {
+    if (err) {
+      console.log('Error saving settings.json');
+      return console.log(err);
+    }
+
+    console.log('Settings were saved into settings.json');
+  });
+});
+
+ipcMain.on('apply-settings-event', (event) => {
+  mainWindow.webContents.send('apply-settings');
+});
+
 ipcMain.on('get-tabs', (event) => {
   fs.readFile('tabs.json', (err, data) => {
     if (err) throw err;
@@ -527,6 +543,18 @@ ipcMain.on('get-favorites', (event) => {
 
     mainWindow.webContents.send('previous-favorites', {
       favorites: favoritesArray,
+    });
+  });
+});
+
+ipcMain.on('get-settings', (event) => {
+  fs.readFile('settings.json', (err, data) => {
+    if (err) throw err;
+
+    const settingsArray = JSON.parse(data);
+
+    mainWindow.webContents.send('previous-settings', {
+      settings: settingsArray,
     });
   });
 });

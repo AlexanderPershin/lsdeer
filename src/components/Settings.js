@@ -219,6 +219,10 @@ const Settings = ({ onClose }) => {
     ipcRenderer.send('reset-settings-to-default');
   };
 
+  const handleApplySettings = () => {
+    ipcRenderer.send('apply-settings-event');
+  };
+
   const renderSettingsTab = () => {
     switch (settingsTab) {
       case 1:
@@ -246,7 +250,7 @@ const Settings = ({ onClose }) => {
           onChange={(e) => setSettingsOpacity(e.target.value)}
         />
         <StyledCloseBtn onClick={onClose}>
-          <Icon iconName='ChromeClose' />
+          <Icon title='Settings will not be saved!' iconName='ChromeClose' />
         </StyledCloseBtn>
       </StyledNav>
       <StyledSettings settingsOpacity={settingsOpacity}>
@@ -276,9 +280,7 @@ const Settings = ({ onClose }) => {
         {renderSettingsTab()}
 
         <StyledControls>
-          <StyledBtn onClick={() => alert('You sooo applied changes')}>
-            Apply
-          </StyledBtn>
+          <StyledBtn onClick={handleApplySettings}>Apply</StyledBtn>
           <StyledBtn
             onClick={handleResetToDefaults}
             title='This button resets ALL settings to defaults, not only current tab!'

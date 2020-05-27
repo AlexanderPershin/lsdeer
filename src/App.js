@@ -467,6 +467,11 @@ function App() {
       dispatch(addToFav(data.favorites));
     });
 
+    ipcRenderer.on('previous-settings', (event, data) => {
+      // Add loaded favs to redux store again
+      dispatch(setSettings(data.settings));
+    });
+
     ipcRenderer.on('added-to-favorites', (event, data) => {
       // TODO: save favorites to json file
       const { tabId } = data;
@@ -516,12 +521,25 @@ function App() {
 
     ipcRenderer.on('settings-dropped', () => {
       dispatch(setSettings(defaultTheme));
+      ipcRenderer.send('apply-settings-event');
+    });
+
+    ipcRenderer.on('apply-settings', () => {
+      ipcRenderer.send('save-settings', settings);
     });
 
     return () => {
       ipcRenderer.removeAllListeners();
     };
-  }, [activeTab, activeTabObect, dispatch, drives, selectedStore, tabs]);
+  }, [
+    activeTab,
+    activeTabObect,
+    dispatch,
+    drives,
+    selectedStore,
+    settings,
+    tabs,
+  ]);
 
   const addNewTab = () => {
     const newTab = {
@@ -544,6 +562,7 @@ function App() {
     window.addEventListener('load', (ev) => {
       ipcRenderer.send('get-tabs');
       ipcRenderer.send('get-favorites');
+      ipcRenderer.send('get-settings');
     });
 
     const MINUTES = appConfig.SAVE_TABS_DELAY || 5; // save tabs every 5 minutes
