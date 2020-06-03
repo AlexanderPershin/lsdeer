@@ -22,12 +22,12 @@ import GlobalStyle from './themes/globalStyle';
 import { initializeFileTypeIcons } from '@uifabric/file-type-icons';
 import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
 
+// App menu bar
 import Electronbar from 'electronbar';
-import 'electronbar/lib/electronbar.css';
-
+import template from './appMenuTemplate';
+import AppBar from './AppBar';
+// App Settings
 import Settings from './components/Settings';
-
-import deerBg from './img/deer.svg';
 
 import defaultTheme from './themes/default';
 
@@ -44,157 +44,13 @@ import appConfig from './app_config.json';
 
 const { remote, ipcRenderer } = window.require('electron');
 const electron = window.require('electron');
-const mainWindow = remote.getCurrentWindow();
+
+// Allow access in chrome console for testing
+window.remote = remote;
+window.electron = electron;
 
 initializeIcons();
 initializeFileTypeIcons();
-
-// TODO: get rid of default window frame and add actual menuTemplate
-// from index main
-// add styles using styled components using theme variables
-
-const template = [
-  {
-    label: 'File',
-    submenu: [
-      {
-        label: 'Settings',
-        accelerator: 'CmdOrCtrl+,',
-        click() {
-          ipcRenderer.send('open-settings');
-        },
-      },
-      {
-        label: 'Quit',
-        role: 'quit',
-        accelerator: 'CmdOrCtrl+Q',
-        click() {
-          console.log('exit');
-        },
-      },
-    ],
-  },
-  {
-    label: 'Edit',
-    submenu: [
-      {
-        label: 'Select All',
-        accelerator: 'CmdOrCtrl+A',
-        role: 'selectAll',
-        click(e) {
-          ipcRenderer.send('select-all');
-        },
-      },
-      {
-        label: 'Copy',
-        accelerator: 'CmdOrCtrl+C',
-        click(e) {
-          ipcRenderer.send('copy-files');
-        },
-      },
-      {
-        label: 'Paste',
-        accelerator: 'CmdOrCtrl+V',
-        click(e) {
-          ipcRenderer.send('paste-files');
-        },
-      },
-      {
-        label: 'Delete',
-        accelerator: 'delete',
-        click(e) {
-          ipcRenderer.send('delete-selected');
-        },
-      },
-      {
-        label: 'XDelete',
-        accelerator: 'shift+delete',
-        click(e) {
-          ipcRenderer.send('x-delete-selected');
-        },
-      },
-      {
-        label: 'Add to favorites',
-        accelerator: 'CmdOrCtrl+B',
-        click() {
-          console.log('Add file to favorites');
-
-          ipcRenderer.send('add-files-to-favorites');
-        },
-      },
-    ],
-  },
-  {
-    label: 'Tabs',
-    submenu: [
-      {
-        label: 'New',
-        accelerator: 'CmdOrCtrl+T',
-        click() {
-          ipcRenderer.send('new-tab');
-        },
-      },
-      {
-        label: 'Close',
-        accelerator: 'CmdOrCtrl+W',
-        click() {
-          // TODO: add ipc main event and emit it here
-          // in App component listen to response and close current tab
-          ipcRenderer.send('close-current-tab');
-        },
-      },
-      {
-        label: 'Add to favorites',
-        accelerator: 'CmdOrCtrl+G',
-        click() {
-          ipcRenderer.send('add-to-favorites');
-        },
-      },
-    ],
-  },
-  {
-    label: 'View',
-    submenu: [
-      {
-        label: 'Find',
-        accelerator: 'CmdOrCtrl+F',
-        click(e) {
-          ipcRenderer.send('find');
-        },
-      },
-      {
-        label: 'Refresh Page',
-        accelerator: 'CmdOrCtrl+R',
-        click() {
-          mainWindow.reload();
-        },
-      },
-      {
-        label: 'Open DevTools',
-        accelerator: 'CmdOrCtrl+`',
-        click(e) {
-          mainWindow.webContents.openDevTools();
-        },
-      },
-    ],
-  },
-];
-
-if (process.platform === 'darwin') {
-  const applicationName = 'Lsdeer';
-  template.unshift({
-    label: applicationName,
-    submenu: [
-      {
-        label: `About ${applicationName}`,
-      },
-      {
-        label: `Quit ${applicationName}`,
-        role: 'quit',
-      },
-    ],
-  });
-}
 
 const StyledApp = styled.div`
   background-image: url(${({ theme }) => theme.bg.appBgImage});
@@ -210,83 +66,6 @@ const StyledApp = styled.div`
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: min-content 1fr;
-`;
-
-const StyledElectronBar = styled.div`
-  .electronbar {
-    background-color: ${({ theme }) => theme.bg.appBarBg};
-    font-size: ${({ theme }) => theme.font.appBarFontSize};
-  }
-  .electronbar-favicon {
-    background-color: transparent;
-  }
-  .electronbar::before {
-    content: '';
-    -webkit-app-region: no-drag;
-    position: absolute;
-    top: 0;
-    width: 100%;
-    height: 20%;
-  }
-  .electronbar-title {
-    color: ${({ theme }) => theme.colors.appTitleColor};
-    text-align: center;
-  }
-  .electronbar-top-menu-item {
-    color: ${({ theme }) => theme.colors.appColor};
-  }
-  .electronbar-menu-item {
-    color: ${({ theme }) => theme.colors.appColor};
-  }
-  .electronbar-top-menu-item-children {
-    padding: 0;
-    background-color: ${({ theme }) => theme.bg.contextMenuBg};
-  }
-  .electronbar-top-menu-item-children,
-  .electronbar-menu-item-children {
-    box-shadow: ${({ theme }) =>
-      `${theme.shadows.menuShadowOffsetX}px ${theme.shadows.menuShadowOffsetY}px ${theme.shadows.menuShadowBlur}px ${theme.shadows.menuShadowSpread}px ${theme.shadows.menuShadowColor}`} !important;
-  }
-  .electronbar-menu-item-label {
-    padding: 0 15px;
-  }
-  .electronbar-menu-item-label-text {
-    font-size: ${({ theme }) => theme.font.appBarMenuFontSize};
-  }
-  .electronbar-menu-item-label-accelerator {
-    font-size: ${({ theme }) => theme.font.appBarMenuFontSize};
-  }
-  .electronbar-top-menu-item.open,
-  .electronbar-menu-item.open {
-    background-color: ${({ theme }) => theme.bg.appBarActiveItemBg};
-  }
-  .electronbar-top-menu-item:not(.disabled):hover,
-  .electronbar-menu-item:not(.disabled):hover {
-    background-color: ${({ theme }) => theme.bg.selectedBg};
-  }
-  .electronbar-button {
-    font-size: 0.7rem;
-  }
-  .electronbar-icon-minimize,
-  .electronbar-icon-maximize,
-  .electronbar-icon-unfullscreen,
-  .electronbar-icon-close {
-    font-size: 0.5rem;
-  }
-  .electronbar-button-minimize,
-  .electronbar-button-maximize,
-  .electronbar-button-unfullscreen,
-  .electronbar-button-close {
-    padding: 0 1.1rem;
-  }
-  .electronbar-button-minimize:hover,
-  .electronbar-button-maximize:hover,
-  .electronbar-button-unfullscreen:hover {
-    background-color: ${({ theme }) => theme.bg.activeTabBg};
-  }
-  .electronbar-button-close:hover {
-    background-color: ${({ theme }) => theme.bg.appBarXBtnHover};
-  }
 `;
 
 function App() {
@@ -598,9 +377,7 @@ function App() {
 
   return (
     <ThemeProvider theme={currentTheme || defaultTheme}>
-      <StyledElectronBar>
-        <div ref={electronbarMount} />
-      </StyledElectronBar>
+      <AppBar electronbarMount={electronbarMount} />
       <GlobalStyle />
 
       {settingsOpened ? (

@@ -20,7 +20,7 @@ const StyledFindBox = styled.form`
 `;
 
 const StyledInput = styled.input`
-  background: ${({ theme }) => theme.bg.inputBg};
+  background-color: ${({ theme }) => theme.bg.appBg};
   color: ${({ theme }) => theme.colors.appColor};
   height: 1.5rem;
   border: none;
