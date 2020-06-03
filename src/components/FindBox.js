@@ -15,7 +15,7 @@ const StyledFindBox = styled.form`
   border: 5px solid ${({ theme }) => theme.bg.appBg};
   box-shadow: ${({ theme }) =>
     `${theme.shadows.menuShadowOffsetX}px ${theme.shadows.menuShadowOffsetY}px ${theme.shadows.menuShadowBlur}px ${theme.shadows.menuShadowSpread}px ${theme.shadows.menuShadowColor}`};
-  background-color: ${({ theme }) => theme.bg.appBg};
+  background-color: ${({ theme }) => theme.bg.tabBg};
   font-size: ${({ theme }) => theme.font.appSearchFontSize};
 `;
 
@@ -40,7 +40,7 @@ const StyledSearchBtn = styled.button`
   align-items: center;
   border: none;
   outline: none;
-  margin-left: 0.3em;
+  padding-left: 0.3em;
   &:hover {
     cursor: pointer;
     color: ${({ theme }) => theme.bg.selectedBg};

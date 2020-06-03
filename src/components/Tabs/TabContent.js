@@ -6,13 +6,8 @@ import React, {
   useContext,
 } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addTab, closeTab } from '../../actions/tabsActions';
-import {
-  setSearch,
-  toggleSearch,
-  closeSearch,
-} from '../../actions/searchActions';
-import { setActiveTab } from '../../actions/activeTabActions';
+import { closeTab } from '../../actions/tabsActions';
+import { closeSearch } from '../../actions/searchActions';
 import {
   addSelectedFiles,
   clearSelectedFiles,
@@ -35,7 +30,9 @@ import addTabAndActivate from '../../helpers/addTabAndActivate';
 import FindBox from '../FindBox';
 import { addToFav } from '../../actions/favoritesActions';
 
-const { remote, ipcRenderer, shell } = window.require('electron');
+import Path from '../Path';
+
+const { ipcRenderer } = window.require('electron');
 
 const StyledTabContent = styled.div`
   z-index: ${({ active }) => (active ? 100 : 50)};
@@ -111,54 +108,6 @@ const StyledUp = styled.button`
   }
 `;
 
-const StyledTabPath = styled.div`
-  max-width: 100%;
-  flex-grow: 1;
-  flex-shrink: 1;
-  display: flex;
-  justify-content: flex-start;
-  align-items: stretch;
-  color: ${({ theme }) => theme.colors.appColor};
-  border: none;
-  padding: 0 1rem;
-  opacity: 0.6;
-  font-size: ${({ theme }) => theme.font.pathBarFontSize};
-  overflow-x: auto;
-  overflow-y: hidden;
-  &::-webkit-scrollbar {
-    height: 0.5rem;
-    background-color: ${({ theme }) => theme.bg.activeTabBg};
-  }
-  &::-webkit-scrollbar-thumb {
-    background-color: ${({ theme }) => theme.bg.tabBg};
-    border: 2px solid ${({ theme }) => theme.bg.activeTabBg};
-  }
-  &::-webkit-scrollbar-thumb:hover {
-    background-color: ${({ theme }) => theme.bg.scrollbarBg};
-  }
-`;
-
-const StyledPathItem = styled.div`
-  flex: 0 1 0%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  white-space: nowrap;
-  cursor: pointer;
-  padding: 0 0.2em;
-  background-color: transparent;
-  &:hover {
-    background-color: ${({ theme }) => theme.bg.selectedBg};
-  }
-`;
-
-const StyledPathIcon = styled(Icon)`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 0.8rem;
-`;
-
 const StyledAutoSizer = styled(AutoSizer)`
   /* margin-top: 50px; */
 `;
@@ -208,7 +157,6 @@ const TabContent = ({
   path,
 }) => {
   const contentRef = useRef(null);
-  const pathRef = useRef(null);
 
   const [loadedItems, setLoadItems] = useState(100);
 
@@ -324,11 +272,6 @@ const TabContent = ({
     }
   };
 
-  const handleScrollPath = (e) => {
-    e.stopPropagation();
-    pathRef.current.scrollLeft += e.deltaY;
-  };
-
   // Context menu handlers
   const hanldeDeselectFiles = (e) => {
     dispatch(clearSelectedFiles());
@@ -375,38 +318,6 @@ const TabContent = ({
     dispatch(clearSelectedFiles());
   }, [activeTab, dispatch]);
 
-  const handlePathOpen = (pathArr) => {
-    const newPath = pathArr.join('/');
-    console.log('handlePathOpen -> newPath', newPath);
-
-    dispatch(clearSelectedFiles());
-    ipcRenderer.send('open-directory', activeTab, '/' + newPath + '/', false);
-  };
-
-  const renderPathNav = () => {
-    const pathArr = path.split('/').filter((i) => i);
-    return pathArr.map((item, idx) => {
-      if (item) {
-        return (
-          <React.Fragment key={item}>
-            <StyledPathItem
-              onClick={() => handlePathOpen(pathArr.slice(0, idx + 1))}
-            >
-              {item}
-            </StyledPathItem>
-            {idx + 1 === pathArr.length ? null : (
-              <StyledPathIcon
-                iconName='ChevronRightMed'
-                className='ms-IconExample'
-              />
-            )}
-          </React.Fragment>
-        );
-      }
-      return null;
-    });
-  };
-
   // TODO: make file deselection on misclick
   const calculateFlatIndex = (colIndex, rowIndex, colCount) => {
     const index = rowIndex * colCount + colIndex;
@@ -448,9 +359,7 @@ const TabContent = ({
           <StyledUp onClick={handleGoUp}>
             <Icon iconName='SortUp' className='ms-IconExample' />
           </StyledUp>
-          <StyledTabPath ref={pathRef} onWheel={handleScrollPath}>
-            {path && renderPathNav()}
-          </StyledTabPath>
+          <Path path={path} />
         </StyledNav>
         <ContextMenuTrigger id={id + path}>
           <StyledFiles>

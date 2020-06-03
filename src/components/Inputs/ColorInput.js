@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { ChromePicker } from 'react-color';
+import { ChromePicker, SketchPicker } from 'react-color';
 import { isValidRgba } from 'hex-and-rgba';
 import Button from '../Button';
 
@@ -29,26 +29,12 @@ const StyledPickerContainer = styled.div`
   left: 0;
   transform: translateX(-50%);
   z-index: 300;
-  background-color: #fff;
+  background-color: ${({ theme }) => theme.bg.tabBg};
   box-shadow: ${({ theme }) => theme.shadows.menuShadow};
 `;
 
-const StyledBtn = styled.button`
-  color: inherit;
-  padding: 5px 15px;
-  border: none;
-  background-color: ${({ theme }) => theme.bg.appBarBg};
-  &:hover {
-    background-color: ${({ theme }) => theme.bg.selectedBg};
-    cursor: pointer;
-  }
-  &:focus {
-    outline: ${({ theme }) =>
-      `${theme.sizes.focusOutlineWidth} solid ${theme.bg.selectedBg}`};
-  }
-`;
-
-const StyledPicker = styled(ChromePicker)`
+const StyledPicker = styled(SketchPicker)`
+  background: ${({ theme }) => theme.bg.tabBg} !important;
   border-radius: 0 !important;
   box-shadow: none !important;
 `;
