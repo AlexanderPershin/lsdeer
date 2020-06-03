@@ -1,19 +1,11 @@
 const electron = require('electron');
 const { exec } = require('child_process');
-const path = require('path');
 const os = require('os');
 const fs = require('fs');
-const http = require('http');
-const cors = require('cors');
-const express = require('express');
-const expressApp = express();
-const router = express.Router();
 const chokidar = require('chokidar');
 const trash = require('trash');
 
 const ProgressBar = require('electron-progressbar');
-
-const imageThumbnail = require('image-thumbnail');
 
 const {
   clearArrayOfStrings,
@@ -30,8 +22,6 @@ const { app, BrowserWindow, ipcMain, dialog } = electron;
 let mainWindow;
 
 let copiedFiles = [];
-
-let watcher;
 
 let watchedArray = []; // Array of tab id's and paths that are being watched now
 
@@ -55,7 +45,6 @@ const createWindow = () => {
 
   //enable garbage collector
   mainWindow.on('closed', () => {
-    watcher.close();
     mainWindow = null;
   });
 };
@@ -325,48 +314,8 @@ ipcMain.on('pasted-file', (event, dirPath) => {
 });
 // Edit menu end===============================
 
-expressApp.use(cors());
-const expressPort = 15032;
-
-// Thumbnails for images
-router.get('/file/:fullpath', async function (req, res) {
-  // .ico images not supported by sharp, but were included
-  // they'll be sent unchanged, because of small size
-  let filePath = req.params.fullpath;
-
-  let options = { width: 150, height: 100, percentage: 5 };
-
-  try {
-    const thumbnail = await imageThumbnail(filePath, options);
-    res.send(thumbnail);
-  } catch (err) {
-    console.error(err, filePath);
-    // Send full image on error: may be performance demanding
-    res.sendFile(filePath);
-  }
-});
-
-// Background image
-router.get('/bg/:fullpath', async function (req, res) {
-  // Send fullsize image
-  let filePath = req.params.fullpath;
-  console.log('filePath', filePath);
-
-  res.sendFile(filePath);
-});
-
-expressApp.use('/', router);
-
-http
-  .createServer(expressApp)
-  .listen(expressPort, () =>
-    console.log(`Image server is up on port ${expressPort}`)
-  );
-
 // Set/add/remove watchers for open in tabs directories
 ipcMain.on('start-watching-dir', (event, dirPath, tabId) => {
-  let watcher;
-
   // Unwatch previous path of this tab
   const perviouslyThisTab = watchedArray.find((item) => item.id === tabId);
 
@@ -378,10 +327,6 @@ ipcMain.on('start-watching-dir', (event, dirPath, tabId) => {
   try {
     if (process.platform === 'win32') {
       const winDirPath = transfPathForWin(dirPath);
-
-      // watcher = fs.watch(winDirPath, (eventType, filename) => {
-      //   mainWindow.webContents.send('refresh-tab', { tabId, dirPath });
-      // });
 
       const watcher = chokidar.watch(winDirPath, {
         persistent: true,
@@ -494,6 +439,7 @@ ipcMain.on('stop-watching-all', (event) => {
   watchedArray = [];
 });
 
+// USER DATA LISTENERS
 ipcMain.on('save-tabs', (event, tabs) => {
   const tabsJson = JSON.stringify(tabs);
   fs.writeFile('tabs.json', tabsJson, 'utf8', function (err) {
@@ -583,6 +529,10 @@ ipcMain.on('open-settings', (event) => {
 ipcMain.on('reset-settings-to-default', (event) => {
   mainWindow.webContents.send('settings-dropped');
 });
+// USER DATA LISTENERS END
+
+// Image Server
+require('./imageServer');
 
 process.on('uncaughtException', function (error) {
   // console.log('Uncought Exception on the main process', error);

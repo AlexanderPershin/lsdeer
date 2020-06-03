@@ -8,12 +8,11 @@ import {
 } from '../actions/settingsActions';
 
 import { Icon } from '@fluentui/react/lib/Icon';
-import NumInp from './Inputs/NumInp';
-import Select from './Inputs/Select';
-import ColorSchemeSettings from './ColorSchemeSettings';
-import FontSettings from './FontSettings';
-import SizesSettings from './SizesSettings';
-import AppImageSettings from './AppImageSettings';
+import Button from './Button';
+import ColorSchemeSettings from './settings/ColorSchemeSettings';
+import FontSettings from './settings/FontSettings';
+import SizesSettings from './settings/SizesSettings';
+import AppImageSettings from './settings/AppImageSettings';
 
 const { ipcRenderer } = window.require('electron');
 
@@ -33,6 +32,7 @@ const StyledSettings = styled.div`
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
+  overflow-x: hidden;
   &::-webkit-scrollbar {
     width: 1rem;
     background-color: ${({ theme }) => theme.bg.activeTabBg};
@@ -95,19 +95,7 @@ const StyledControls = styled.div`
   margin-top: 2rem;
 `;
 
-const StyledBtn = styled.button`
-  color: inherit;
-  padding: 5px 15px;
-  border: none;
-  background-color: ${({ theme }) => theme.bg.appBarBg};
-  &:hover {
-    background-color: ${({ theme }) => theme.bg.selectedBg};
-    cursor: pointer;
-  }
-  &:focus {
-    outline: ${({ theme }) =>
-      `${theme.sizes.focusOutlineWidth} solid ${theme.bg.selectedBg}`};
-  }
+const StyledBtn = styled(Button)`
   & + & {
     margin-top: 5px;
   }

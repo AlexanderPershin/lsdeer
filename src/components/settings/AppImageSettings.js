@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import styled, { ThemeContext } from 'styled-components';
 import { Icon } from '@fluentui/react/lib/Icon';
-import Select from './Inputs/Select';
+import Select from '../Inputs/Select';
 
 const StyledInputsWrapper = styled.div`
   display: grid;
@@ -54,7 +54,7 @@ const StyledFileInput = styled.input`
 const StyledCurrentBg = styled.img`
   grid-column: 2 / 3;
   grid-row: 3 / 8;
-  width: auto;
+  width: 100%;
   height: 100%;
   object-fit: contain;
 `;

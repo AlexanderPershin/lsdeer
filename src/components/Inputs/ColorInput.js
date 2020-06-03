@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { SketchPicker, ChromePicker } from 'react-color';
+import { ChromePicker } from 'react-color';
 import { isValidRgba } from 'hex-and-rgba';
+import Button from '../Button';
 
 const StyledPickerWrapper = styled.div`
   position: relative;
@@ -96,8 +97,8 @@ const ColorInput = ({ value, onChange }) => {
             onChange={handleChange}
             onChangeComplete={handleComplete}
           />
-          <StyledBtn onClick={handleOk}>Ok</StyledBtn>
-          <StyledBtn onClick={handleCancel}>Cancel</StyledBtn>
+          <Button onClick={handleOk}>Ok</Button>
+          <Button onClick={handleCancel}>Cancel</Button>
         </StyledPickerContainer>
       ) : null}
     </StyledPickerWrapper>

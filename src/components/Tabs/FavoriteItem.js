@@ -63,8 +63,6 @@ const FavoriteItem = ({ id, name, path, isFile, ext, selected }) => {
   const themeContext = useContext(ThemeContext);
   const { fileIconSize } = themeContext.sizes;
 
-  const selectedStore = useSelector((state) => state.selected);
-  const favorites = useSelector((state) => state.favorites);
   const dispatch = useDispatch();
   const [isSelected, setIsSelected] = useState(false);
 

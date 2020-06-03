@@ -1,8 +1,7 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext } from 'react';
 import styled, { ThemeContext } from 'styled-components';
-import { rgbaToHex, hexToRgba } from 'hex-and-rgba';
-import ColorInput from './Inputs/ColorInput';
-import NumInp from './Inputs/NumInp';
+import ColorInput from '../Inputs/ColorInput';
+import NumInp from '../Inputs/NumInp';
 
 const StyledInputsWrapper = styled.div`
   display: grid;
@@ -24,23 +23,6 @@ const StyledSettingsGroupHeding = styled.h2`
   font-size: 2rem;
   font-weight: 100;
   padding-top: 15px;
-`;
-
-const StyledColorInp = styled.input`
-  cursor: pointer;
-  background-color: transparent;
-  border: none;
-  outline: none;
-  width: 4.5rem;
-  &::-webkit-color-swatch-wrapper {
-    padding: 0;
-  }
-  &:focus,
-  &:hover,
-  &:active {
-    outline: ${({ theme }) =>
-      `${theme.sizes.focusOutlineWidth} solid ${theme.bg.selectedBg}`};
-  }
 `;
 
 const ColorSchemeSettings = ({ handleSetProp }) => {

@@ -1,5 +1,5 @@
-import React, { useContext } from 'react';
-import styled, { ThemeContext } from 'styled-components';
+import React from 'react';
+import styled from 'styled-components';
 import { Icon } from '@fluentui/react/lib/Icon';
 import InputNumber from 'rc-input-number';
 
@@ -135,8 +135,6 @@ const StyledHandleIcon = styled(Icon)`
 `;
 
 const NumInp = ({ min, max, step, disabled, value, handleSetProp }) => {
-  const themeContext = useContext(ThemeContext);
-
   const handleChange = (newVal) => {
     handleSetProp(newVal);
   };

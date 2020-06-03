@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import styled, { ThemeContext } from 'styled-components';
-import NumInp from './Inputs/NumInp';
-import Select from './Inputs/Select';
+import NumInp from '../Inputs/NumInp';
+import Select from '../Inputs/Select';
 
 const StyledInputsWrapper = styled.div`
   display: grid;
