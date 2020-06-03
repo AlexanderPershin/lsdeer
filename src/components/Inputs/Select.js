@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Icon } from '@fluentui/react/lib/Icon';
 
 const StyledWrapper = styled.div`
-  width: 100%;
+  width: min-content;
   position: relative;
   font-family: ${({ theme }) => theme.font.appFontFamily};
 `;
@@ -23,12 +23,15 @@ const StyledSelect = styled.select`
 `;
 
 const StyledSelectValue = styled.div`
-  width: 100%;
+  width: min-content;
   display: flex;
   justify-content: space-between;
   align-items: center;
   background-color: ${({ theme }) => theme.bg.secondaryBg};
   padding: 0 5px;
+  & > span {
+    margin-right: 1rem;
+  }
   &:focus,
   &:hover,
   &:active {
@@ -115,7 +118,7 @@ const Select = ({ value, onChange, optionsArray, isNative = false }) => {
   ) : (
     <StyledWrapper className='custom-select' ref={wrapperRef}>
       <StyledSelectValue className='custom-select' onClick={handleToggleMenu}>
-        {renderCurrentLabel()}{' '}
+        <span>{renderCurrentLabel()}</span>
         <Icon
           className='custom-select'
           iconName={isOpen ? 'ChevronUp' : 'ChevronDown'}

@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import styled, { ThemeContext } from 'styled-components';
+import { Icon } from '@fluentui/react/lib/Icon';
 import Select from './Inputs/Select';
 
 const StyledInputsWrapper = styled.div`
@@ -24,29 +25,36 @@ const StyledSettingsGroupHeding = styled.h2`
   padding-top: 15px;
 `;
 
-const StyledFileInput = styled.input`
-  background-color: ${({ theme }) => theme.bg.secondaryBg};
-  border: 1px solid red;
-  &::-webkit-file-upload-button {
-    background-color: ${({ theme }) => theme.bg.accentBg};
-    border: none;
-    color: ${({ theme }) => theme.colors.appColor};
-    font-size: 1rem;
-    &:hover {
-      background-color: ${({ theme }) => theme.bg.selectedBg};
-      cursor: pointer;
-    }
-    &:focus {
-      outline: ${({ theme }) =>
-        `${theme.sizes.focusOutlineWidth} solid ${theme.bg.selectedBg}`};
-    }
+const FileInputButton = styled.label`
+  justify-self: start;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: inherit;
+  padding: 5px 15px;
+  border: none;
+  background-color: ${({ theme }) => theme.bg.appBarBg};
+  &:hover {
+    background-color: ${({ theme }) => theme.bg.selectedBg};
+    cursor: pointer;
   }
+  &:focus {
+    outline: ${({ theme }) =>
+      `${theme.sizes.focusOutlineWidth} solid ${theme.bg.selectedBg}`};
+  }
+  & > *:first-child {
+    margin-right: 1rem;
+  }
+`;
+
+const StyledFileInput = styled.input`
+  display: none;
 `;
 
 const StyledCurrentBg = styled.img`
   grid-column: 2 / 3;
   grid-row: 3 / 8;
-  width: 100%;
+  width: auto;
   height: 100%;
   object-fit: contain;
 `;
@@ -78,13 +86,17 @@ const AppImageSettings = ({ handleSetProp }) => {
         App background image
       </StyledSettingsGroupHeding>
       <span>Load app image</span>
-      <StyledFileInput
-        onChange={handleSetAppImage}
-        type='file'
-        name='app-image'
-        id='app-image'
-        placeholder='Select background'
-      />
+      <FileInputButton htmlFor='app-image'>
+        <span>Choose</span>
+        <Icon className='custom-select' iconName='PictureFill' />
+        <StyledFileInput
+          onChange={handleSetAppImage}
+          type='file'
+          name='app-image'
+          id='app-image'
+          placeholder='Select background'
+        />
+      </FileInputButton>
 
       <StyledCurrentBgLabel>Current background</StyledCurrentBgLabel>
       <StyledCurrentBg src={themeContext.bg.appBgImage} alt='' />
