@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useRef, useContext } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import HardDrive from '../HardDrive';
 import styled, { ThemeContext } from 'styled-components';
-import { hexToRgba } from 'hex-and-rgba';
 import { Icon } from '@fluentui/react/lib/Icon';
 import FavoriteItem from './FavoriteItem';
+import Heading from '../Heading';
 
-const { remote, ipcRenderer } = window.require('electron');
+const { ipcRenderer } = window.require('electron');
 
 const StyledContent = styled.div`
   background-color: ${({ theme }) => theme.bg.appBg};
@@ -36,17 +36,6 @@ const StyledContent = styled.div`
   &::-webkit-scrollbar-thumb:hover {
     background-color: ${({ theme }) => theme.bg.scrollbarBg};
   }
-`;
-
-const StyledHeading = styled.h1`
-  grid-column: 1 / -1;
-  display: flex;
-  justify-content: center;
-  align-content: center;
-  margin: 3rem 0;
-  font-size: 3rem;
-  font-weight: 100;
-  padding: 0 5px;
 `;
 
 const StyledPagination = styled.div`
@@ -91,10 +80,8 @@ const StyledClearfix = styled.div`
 
 const NewTabContent = () => {
   const activeTab = useSelector((state) => state.activeTab);
-  const tabs = useSelector((state) => state.tabs);
   const drives = useSelector((state) => state.drives);
   const favorites = useSelector((state) => state.favorites);
-  const dispatch = useDispatch();
 
   const themeContext = useContext(ThemeContext);
 
@@ -154,7 +141,7 @@ const NewTabContent = () => {
 
   return (
     <StyledContent ref={contentRef}>
-      <StyledHeading>Your Hard Drives</StyledHeading>
+      <Heading>Your Hard Drives</Heading>
 
       {drives.map((item, i) => (
         <HardDrive
@@ -165,7 +152,7 @@ const NewTabContent = () => {
           }
         />
       ))}
-      <StyledHeading>Favorites</StyledHeading>
+      <Heading>Favorites</Heading>
 
       {favorites.length > pageSize ? (
         <StyledPagination>{renderPagination()}</StyledPagination>

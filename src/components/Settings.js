@@ -1,11 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled, { ThemeContext } from 'styled-components';
-import {
-  setSettings,
-  clearSettings,
-  changeSetting,
-} from '../actions/settingsActions';
+import { changeSetting } from '../actions/settingsActions';
 
 import { Icon } from '@fluentui/react/lib/Icon';
 import Button from './Button';
@@ -13,6 +9,7 @@ import ColorSchemeSettings from './settings/ColorSchemeSettings';
 import FontSettings from './settings/FontSettings';
 import SizesSettings from './settings/SizesSettings';
 import AppImageSettings from './settings/AppImageSettings';
+import Heading from './Heading';
 
 const { ipcRenderer } = window.require('electron');
 
@@ -45,17 +42,6 @@ const StyledSettings = styled.div`
   &::-webkit-scrollbar-thumb:hover {
     background-color: ${({ theme }) => theme.bg.scrollbarBg};
   }
-`;
-
-const StyledHeading = styled.h1`
-  grid-column: 1 / -1;
-  display: flex;
-  justify-content: center;
-  align-content: center;
-  margin: 3rem 0;
-  font-size: 3rem;
-  font-weight: 100;
-  padding: 0 5px;
 `;
 
 const StyledNav = styled.div`
@@ -177,8 +163,6 @@ const StyledSettingsTab = styled.div`
 `;
 
 const Settings = ({ onClose }) => {
-  const themeContext = useContext(ThemeContext);
-  const settings = useSelector((state) => state.settings);
   const dispatch = useDispatch();
 
   const [settingsOpacity, setSettingsOpacity] = useState(1);
@@ -245,7 +229,7 @@ const Settings = ({ onClose }) => {
         </StyledCloseBtn>
       </StyledNav>
       <StyledSettings settingsOpacity={settingsOpacity}>
-        <StyledHeading>Settings</StyledHeading>
+        <Heading>Settings</Heading>
 
         <StyledSettingsTabs>
           <StyledSettingsTab
