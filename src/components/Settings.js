@@ -1,6 +1,6 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import styled, { ThemeContext } from 'styled-components';
+import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import styled from 'styled-components';
 import { changeSetting } from '../actions/settingsActions';
 
 import { Icon } from '@fluentui/react/lib/Icon';
@@ -144,7 +144,6 @@ const StyledRange = styled.input`
 
 const StyledSettingsTabs = styled.div`
   display: flex;
-  /* width: 100%; */
   justify-content: center;
   align-items: center;
 `;

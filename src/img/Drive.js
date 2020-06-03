@@ -4,6 +4,7 @@ import styled from 'styled-components';
 const StyledDrive = styled.svg`
   height: 3rem;
   width: 3rem;
+  flex: 0 0 3rem;
 `;
 
 const Drive = ({ color }) => {

@@ -1,43 +1,94 @@
-import React, { useContext } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import {
-  CircularProgressbarWithChildren,
-  buildStyles,
-} from 'react-circular-progressbar';
-import 'react-circular-progressbar/dist/styles.css';
-import styled, { ThemeContext } from 'styled-components';
+import React, { useState, useEffect } from 'react';
+import styled from 'styled-components';
 import Drive from '../img/Drive';
 
-const StyledDiskWrapper = styled.button`
-  max-width: 10rem;
-  max-height: 10rem;
-  min-width: 10rem;
-  min-height: 10rem;
+const StyledDriveWrapper = styled.button`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
   user-select: none;
   color: inherit;
-  background: transparent;
-  border-radius: 1000rem;
-  border: ${({ theme }) => theme.sizes.focusOutlineWidth} solid transparent;
-  outline: none;
-  margin-left: 5px;
+  background-color: ${({ theme }) => theme.bg.secondaryBg};
+  border: 5px solid transparent;
+  outline: ${({ theme }) => theme.sizes.focusOutlineWidth} solid transparent;
   font-family: inherit;
   &:focus {
-    border: ${({ theme }) => theme.sizes.focusOutlineWidth} solid
+    outline: ${({ theme }) => theme.sizes.focusOutlineWidth} solid
       ${({ theme }) => theme.bg.selectedBg};
+    background-color: ${({ theme }) => theme.bg.selectedBg};
   }
   &:hover {
     cursor: pointer;
   }
 `;
 
-const StyledDiskContent = styled.div`
-  font-size: 1.2rem;
-  font-family: inherit;
-  margin: 1rem;
+const StyledProgress = styled.div`
+  width: 100%;
+  height: 1.8rem;
+  background-color: ${({ theme }) => theme.bg.activeTabBg};
+  border: 3px solid ${({ theme }) => theme.bg.activeTabBg};
+  position: relative;
+  &::before {
+    position: absolute;
+    content: '${({ currentInfo }) => currentInfo}';
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: transparent;
+    color: transparent;
+  }
+  ${StyledDriveWrapper}:hover &::before {
+    color: ${({ theme }) => theme.colors.appColor};
+    text-shadow: 0 0 10px rgba(0,0,0,0.5);
+  }
+`;
+
+const StyledProgressBar = styled.div`
+  width: ${({ percentage }) => percentage};
+  height: 100%;
+  background-color: ${({ theme }) => theme.bg.accentBg};
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
+  color: transparent;
+`;
+
+const StyledDriveLetter = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 2rem;
+  height: 2rem;
+  background-color: transparent;
+`;
+
+const StyledDriveSize = styled.div`
+  font-size: 1rem;
+  align-self: flex-start;
+  justify-self: flex-end;
+`;
+
+const StyledDriveInfo = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+`;
+
+const StyledDriveStats = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.3rem;
 `;
 
 const HardDrive = ({
@@ -49,34 +100,34 @@ const HardDrive = ({
   mounted,
   handleOpenDirectory,
 }) => {
-  const themeContext = useContext(ThemeContext);
-  const percentage = parseInt(use.replace(/%/g, ''));
+  const [currInfo, setCurrInfo] = useState(true);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrInfo((prev) => !prev);
+    }, 1000);
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
 
   return (
-    <StyledDiskWrapper
+    <StyledDriveWrapper
       onDoubleClick={() => handleOpenDirectory(mounted, filesystem)}
     >
-      <CircularProgressbarWithChildren
-        ressbar
-        minValue={0}
-        maxValue={100}
-        value={percentage}
-        background
-        backgroundPadding={1}
-        styles={buildStyles({
-          backgroundColor: themeContext.bg.accentBg,
-          pathColor: themeContext.bg.elementsBg,
-          trailColor: themeContext.bg.appBg,
-          fontFamily: themeContext.font.appFontFamily,
-        })}
-      >
-        <StyledDiskContent>
-          <Drive color='#fff' />
-          <span>{filesystem.slice(0, 1)}</span>
-          <span>{percentage}%</span>
-        </StyledDiskContent>
-      </CircularProgressbarWithChildren>
-    </StyledDiskWrapper>
+      <Drive color='#fff' />
+      <StyledDriveInfo>
+        <StyledDriveStats>
+          <StyledDriveLetter>{filesystem}</StyledDriveLetter>
+          <StyledDriveSize>{size}</StyledDriveSize>
+        </StyledDriveStats>
+        <StyledProgress
+          currentInfo={currInfo ? `${avail} of ${used}` : `${use} used`}
+        >
+          <StyledProgressBar percentage={use}>{use}</StyledProgressBar>
+        </StyledProgress>
+      </StyledDriveInfo>
+    </StyledDriveWrapper>
   );
 };
 
