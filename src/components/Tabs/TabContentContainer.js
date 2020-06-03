@@ -1,9 +1,9 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { hexToRgba } from 'hex-and-rgba';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 
 import TabContent from './TabContent';
+import PlusTab from './PlusTab';
 
 const StyledConentContainer = styled.div`
   width: 100%;
@@ -11,6 +11,17 @@ const StyledConentContainer = styled.div`
   overflow: hidden;
   display: flex;
   position: relative;
+`;
+
+const StyledNoTab = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: ${({ theme }) => theme.bg.appBg};
+  position: relative;
+  overflow: hidden;
 `;
 
 const TabContentContainer = () => {
@@ -25,9 +36,13 @@ const TabContentContainer = () => {
 
   return (
     <StyledConentContainer>
-      {tabs.length > 0 && currentTabObject && currentTabObject.id
-        ? renderCurrentTab()
-        : null}
+      {tabs.length > 0 && currentTabObject && currentTabObject.id ? (
+        renderCurrentTab()
+      ) : (
+        <StyledNoTab>
+          <PlusTab />
+        </StyledNoTab>
+      )}
     </StyledConentContainer>
   );
 };

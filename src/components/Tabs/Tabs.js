@@ -95,7 +95,7 @@ const Tabs = () => {
   return (
     <TabsContainer ref={tabsRef} onWheel={handleScrollTabs}>
       {renderTabs()}
-      <PlusTab setPlusClicked={setPlusClicked} />
+      {tabs.length === 0 ? null : <PlusTab setPlusClicked={setPlusClicked} />}
     </TabsContainer>
   );
 };
