@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { ChromePicker, SketchPicker } from 'react-color';
+import { SketchPicker } from 'react-color';
 import { isValidRgba } from 'hex-and-rgba';
 import Button from '../Button';
 
@@ -35,6 +35,7 @@ const StyledPickerContainer = styled.div`
 
 const StyledPicker = styled(SketchPicker)`
   background: ${({ theme }) => theme.bg.tabBg} !important;
+  color: ${({ theme }) => theme.colors.appColor} !important;
   border-radius: 0 !important;
   box-shadow: none !important;
 `;

@@ -1,23 +1,22 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import styled, { ThemeProvider, ThemeContext } from 'styled-components';
+import styled, { ThemeProvider } from 'styled-components';
 import { nanoid } from 'nanoid';
 import {
   addTab,
   closeTab,
-  openDir,
   setTabs,
   openDirectory,
 } from './actions/tabsActions';
-import { setDrives, clearDrives } from './actions/drivesActions';
+import { setDrives } from './actions/drivesActions';
 import { setActiveTab } from './actions/activeTabActions';
 import {
   addSelectedFiles,
   clearSelectedFiles,
 } from './actions/selectFilesActions';
 import { closeSearch, toggleSearch } from './actions/searchActions';
-import { addToFav, removeFromFav } from './actions/favoritesActions';
-import { setSettings, clearSettings } from './actions/settingsActions';
+import { addToFav } from './actions/favoritesActions';
+import { setSettings } from './actions/settingsActions';
 import GlobalStyle from './themes/globalStyle';
 import { initializeFileTypeIcons } from '@uifabric/file-type-icons';
 import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
@@ -224,7 +223,7 @@ function App() {
 
     ipcRenderer.on('refresh-tab', (event, data) => {
       // Backend watcher sends this event when files changed in one of the opened directories
-      const { tabId, dirPath } = data;
+      const { tabId } = data;
       const refreshTab = tabs.find((item) => item.id === tabId);
       const refreshTabPath = refreshTab && refreshTab.path;
       if (!refreshTabPath) return;
@@ -238,6 +237,7 @@ function App() {
       data.tabs.map((item) => {
         ipcRenderer.send('start-watching-dir', item.path, item.id);
         ipcRenderer.send('open-directory', item.id, item.path);
+        return item;
       });
     });
 
@@ -369,7 +369,7 @@ function App() {
 
   useEffect(() => {
     dispatch(setSettings(defaultTheme));
-  }, []);
+  }, [dispatch]);
 
   const handleCloseTab = (id) => {
     dispatch(closeTab(id));
