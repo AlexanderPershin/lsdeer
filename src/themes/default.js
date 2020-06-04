@@ -14,7 +14,7 @@ const defaultTheme = {
     tabBg: '#707070',
     activeTabBg: '#404040',
     scrollbarBg: '#808080',
-    accentBg: '#3e98c7',
+    accentBg: 'rgba(62, 152, 199, 0.8)',
     elementsBg: '#ffffff',
     selectedBg: 'rgba(0, 51, 102, 0.7)',
     secondaryBg: '#707070',

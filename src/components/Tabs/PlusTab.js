@@ -14,20 +14,18 @@ const StyledTab = styled.div`
   background-color: ${({ theme, activeTab }) =>
     activeTab ? theme.bg.activeTabBg : theme.bg.tabBg};
   user-select: none;
-  animation: ${({ theme, pulse }) => (pulse ? 'pulse 1s infinite' : 'none')};
-  &:not(:last-child) {
-    border-right: 2px solid ${({ theme }) => theme.bg.appBg};
-  }
+  animation: ${({ theme, pulse }) =>
+    pulse ? 'pulse 1s ease-out infinite' : 'none'};
   &:hover {
     cursor: pointer;
     background-color: ${({ theme }) => theme.bg.selectedBg};
   }
   @keyframes pulse {
     0% {
-      box-shadow: 0 0 0 0px ${({ theme }) => theme.bg.selectedBg};
+      box-shadow: 0 0 0 0px ${({ theme }) => theme.bg.accentBg};
     }
     100% {
-      box-shadow: 0 0 0 100px rgba(0, 0, 0, 0);
+      box-shadow: 0 0 0 50px rgba(0, 0, 0, 0);
     }
   }
 `;
