@@ -43,6 +43,7 @@ const StyledProgress = styled.div`
     align-items: center;
     background-color: transparent;
     color: transparent;
+    transition: all 0.3s ease-in-out;
   }
   ${StyledDriveWrapper}:hover &::before {
     color: ${({ theme }) => theme.colors.appColor};
@@ -100,16 +101,40 @@ const HardDrive = ({
   mounted,
   handleOpenDirectory,
 }) => {
-  const [currInfo, setCurrInfo] = useState(true);
+  const [currInfo, setCurrInfo] = useState(1);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrInfo((prev) => !prev);
-    }, 1000);
+      setCurrInfo((prev) => {
+        switch (currInfo) {
+          case 1:
+            return 2;
+          case 2:
+            return 3;
+          case 3:
+            return 1;
+          default:
+            return 1;
+        }
+      });
+    }, 1500);
     return () => {
       clearInterval(timer);
     };
-  }, []);
+  }, [currInfo]);
+
+  const renderInfo = () => {
+    switch (currInfo) {
+      case 1:
+        return `${used.replace(/\w$/, ' $&')} used`;
+      case 2:
+        return `${use} used`;
+      case 3:
+        return `${avail.replace(/\w$/, ' $&')} available`;
+      default:
+        return `${used.replace(/\w$/, ' $&')} used`;
+    }
+  };
 
   return (
     <StyledDriveWrapper
@@ -119,11 +144,9 @@ const HardDrive = ({
       <StyledDriveInfo>
         <StyledDriveStats>
           <StyledDriveLetter>{filesystem}</StyledDriveLetter>
-          <StyledDriveSize>{size}</StyledDriveSize>
+          <StyledDriveSize>{size.replace(/\w$/, ' $&')}</StyledDriveSize>
         </StyledDriveStats>
-        <StyledProgress
-          currentInfo={currInfo ? `${avail} of ${used}` : `${use} used`}
-        >
+        <StyledProgress currentInfo={renderInfo()}>
           <StyledProgressBar percentage={use}>{use}</StyledProgressBar>
         </StyledProgress>
       </StyledDriveInfo>
