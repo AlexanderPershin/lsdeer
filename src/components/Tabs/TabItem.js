@@ -2,14 +2,13 @@ import React, { useCallback, useState, useContext, useRef } from 'react';
 import styled, { ThemeContext } from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearSelectedFiles } from '../../actions/selectFilesActions';
-import { hexToRgba } from 'hex-and-rgba';
 import imageExtensions from '../../image_ext.json';
 
 // fluentui
 import { Icon } from '@fluentui/react/lib/Icon';
 import { getFileTypeIconProps, FileIconType } from '@uifabric/file-type-icons';
 
-const { remote, ipcRenderer } = window.require('electron');
+const { ipcRenderer } = window.require('electron');
 // const mainProcess = remote.require('./index.js');
 
 const StyledItem = styled.button`

@@ -90,7 +90,7 @@ const Tabs = () => {
   useEffect(() => {
     if (plusClicked) tabsRef.current.scrollLeft = tabsRef.current.scrollWidth;
     setPlusClicked(false);
-  }, [tabs]);
+  }, [plusClicked, tabs]);
 
   return (
     <TabsContainer ref={tabsRef} onWheel={handleScrollTabs}>

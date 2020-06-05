@@ -3,16 +3,12 @@ import {
   CLOSE_ALL_TABS,
   ADD_TAB,
   CLOSE_TAB,
-  OPEN_DIR,
   OPEN_DIRECTORY,
   TEST_ACTION,
-  LOCK_TAB,
-  UNLOCK_TAB,
   SET_PROPERTY,
 } from './types';
 
-const { remote, ipcRenderer, shell } = window.require('electron');
-const mainProcess = remote.require('./index.js');
+const { ipcRenderer } = window.require('electron');
 
 export const lsDir = (path) => {
   ipcRenderer.send('ls-directory', path);
