@@ -416,9 +416,11 @@ const TabContent = ({
                 <StyledMenuItem onClick={handleOpenSelectedItem}>
                   Open
                 </StyledMenuItem>
-                <StyledMenuItem onClick={handleContextOpenInNewTab}>
-                  Open in new tab
-                </StyledMenuItem>
+                {selectedStore[0].substr(-1, 1) === '/' && (
+                  <StyledMenuItem onClick={handleContextOpenInNewTab}>
+                    Open in new tab
+                  </StyledMenuItem>
+                )}
               </React.Fragment>
             )}
             <StyledMenuItem onClick={handleContextDelete}>

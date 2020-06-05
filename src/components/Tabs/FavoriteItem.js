@@ -2,7 +2,6 @@ import React, { useContext, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Icon } from '@fluentui/react/lib/Icon';
 import { getFileTypeIconProps, FileIconType } from '@uifabric/file-type-icons';
-import { nanoid } from 'nanoid';
 import styled, { ThemeContext } from 'styled-components';
 import { hexToRgba } from 'hex-and-rgba';
 
@@ -11,9 +10,6 @@ import ContextMenu from '../ContextMenu';
 
 import openInNewTab from '../../helpers/openInNewTab';
 
-import { addTab } from '../../actions/tabsActions';
-import { setActiveTab } from '../../actions/activeTabActions';
-import { closeSearch } from '../../actions/searchActions';
 import { removeFromFav } from '../../actions/favoritesActions';
 
 const { ipcRenderer } = window.require('electron');
