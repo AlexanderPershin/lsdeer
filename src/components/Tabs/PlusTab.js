@@ -16,6 +16,7 @@ const StyledTab = styled.div`
   user-select: none;
   animation: ${({ theme, pulse }) =>
     pulse ? 'pulse 1s ease-out infinite' : 'none'};
+  transition: all 0.3s ease-in-out;
   &:hover {
     cursor: pointer;
     background-color: ${({ theme }) => theme.bg.selectedBg};

@@ -29,6 +29,7 @@ const StyledTab = styled.div`
   background-color: ${({ theme, activeTab }) =>
     activeTab ? theme.bg.activeTabBg : theme.bg.tabBg};
   position: relative;
+  transition: all 0.3s ease-in-out;
   &:not(:last-child) {
     border-right: 2px solid ${({ theme }) => theme.bg.appBg};
   }
