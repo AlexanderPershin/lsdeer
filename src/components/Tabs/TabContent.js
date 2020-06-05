@@ -164,6 +164,7 @@ const TabContent = ({
 
   const activeTab = useSelector((state) => state.activeTab);
   const tabs = useSelector((state) => state.tabs);
+  const favorites = useSelector((state) => state.favorites);
   const selectedStore = useSelector((state) => state.selected);
   const { searching, searchString } = useSelector((state) => state.search);
   const dispatch = useDispatch();

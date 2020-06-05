@@ -177,12 +177,17 @@ const Tab = ({
         <StyledMenuItem onClick={closeAll}>
           Close All <StyledTabIcon iconName='Broom' />
         </StyledMenuItem>
-        <StyledMenuItem onClick={handleAddToFav}>
-          Add To Favorites <StyledTabIcon iconName='AddFavoriteFill' />
-        </StyledMenuItem>
-        <StyledMenuItem onClick={handleRemoveFromFav}>
-          Remove From Favorites <StyledTabIcon iconName='Unfavorite' />
-        </StyledMenuItem>
+        {favorites.length > 0 && !favorites.find((item) => item.path === path) && (
+          <StyledMenuItem onClick={handleAddToFav}>
+            Add To Favorites <StyledTabIcon iconName='AddFavoriteFill' />
+          </StyledMenuItem>
+        )}
+        {favorites.length > 0 &&
+          !!favorites.find((item) => item.path === path) && (
+            <StyledMenuItem onClick={handleRemoveFromFav}>
+              Remove From Favorites <StyledTabIcon iconName='Unfavorite' />
+            </StyledMenuItem>
+          )}
         <MenuItem divider />
       </ContextMenu>
     </React.Fragment>
