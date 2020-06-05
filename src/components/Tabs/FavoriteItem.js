@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Icon } from '@fluentui/react/lib/Icon';
 import { getFileTypeIconProps, FileIconType } from '@uifabric/file-type-icons';
 import { nanoid } from 'nanoid';
@@ -8,6 +8,8 @@ import { hexToRgba } from 'hex-and-rgba';
 
 import { MenuItem, ContextMenuTrigger } from 'react-contextmenu';
 import ContextMenu from '../ContextMenu';
+
+import openInNewTab from '../../helpers/openInNewTab';
 
 import { addTab } from '../../actions/tabsActions';
 import { setActiveTab } from '../../actions/activeTabActions';
@@ -62,6 +64,7 @@ const FavoriteItem = ({ id, name, path, isFile, ext, selected }) => {
   const themeContext = useContext(ThemeContext);
   const { fileIconSize } = themeContext.sizes;
 
+  const activeTab = useSelector((state) => state.activeTab);
   const dispatch = useDispatch();
   const [isSelected, setIsSelected] = useState(false);
 
@@ -69,27 +72,11 @@ const FavoriteItem = ({ id, name, path, isFile, ext, selected }) => {
     input.length > num ? `${input.substring(0, num)}...` : input;
 
   const handleOpenDirectory = (e) => {
-    // TODO: add new tab and load path for folder
-    // open in default programm for file
+    ipcRenderer.send('open-directory', activeTab, path, isFile);
+  };
 
-    if (!isFile) {
-      const newId = nanoid();
-
-      const newTab = {
-        id: newId,
-        name: name,
-        content: [],
-        createNew: true,
-        path: '/',
-      };
-
-      dispatch(closeSearch());
-      dispatch(addTab(newTab));
-      dispatch(setActiveTab(newTab.id));
-      ipcRenderer.send('open-directory', newId, path, isFile);
-    } else {
-      ipcRenderer.send('open-directory', 'placeholderid', path, isFile);
-    }
+  const handleOpenInNewTab = () => {
+    openInNewTab(name, path, isFile, dispatch);
   };
 
   const handleRemoveFromFav = () => {
@@ -123,6 +110,10 @@ const FavoriteItem = ({ id, name, path, isFile, ext, selected }) => {
         </StyledFavorite>
       </ContextMenuTrigger>
       <ContextMenu id={id}>
+        <StyledMenuItem onClick={handleOpenDirectory}>Open</StyledMenuItem>
+        <StyledMenuItem onClick={handleOpenInNewTab}>
+          Open in new tab
+        </StyledMenuItem>
         <StyledMenuItem onClick={handleRemoveFromFav}>
           Remove from favorites
         </StyledMenuItem>

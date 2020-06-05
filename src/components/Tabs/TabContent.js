@@ -26,6 +26,8 @@ import NewTabContent from './NewTabContent';
 import TabItem from './TabItem';
 
 import addTabAndActivate from '../../helpers/addTabAndActivate';
+import openInNewTab from '../../helpers/openInNewTab';
+import getLinuxPath from '../../helpers/getLinuxPath';
 
 import FindBox from '../FindBox';
 import { addToFav } from '../../actions/favoritesActions';
@@ -292,6 +294,19 @@ const TabContent = ({
     }
   };
 
+  const handleContextOpenInNewTab = (e) => {
+    if (selectedStore.length === 1) {
+      const name = selectedStore[0];
+      const activeTabObect = tabs.filter((item) => item.id === activeTab)[0];
+      const tabPath = activeTabObect ? getLinuxPath(activeTabObect.path) : null;
+      const isFile = content.find((item) => item.name === name).isFile;
+      const pathNew = tabPath + name;
+      openInNewTab(name, pathNew, isFile, dispatch);
+    } else {
+      return;
+    }
+  };
+
   const handleContextDelete = (e) => {
     ipcRenderer.send('delete-selected');
   };
@@ -396,9 +411,16 @@ const TabContent = ({
             <StyledMenuItem onClick={hanldeDeselectFiles}>
               Deselect
             </StyledMenuItem>
-            <StyledMenuItem onClick={handleOpenSelectedItem}>
-              Open
-            </StyledMenuItem>
+            {selectedStore.length === 1 && (
+              <React.Fragment>
+                <StyledMenuItem onClick={handleOpenSelectedItem}>
+                  Open
+                </StyledMenuItem>
+                <StyledMenuItem onClick={handleContextOpenInNewTab}>
+                  Open in new tab
+                </StyledMenuItem>
+              </React.Fragment>
+            )}
             <StyledMenuItem onClick={handleContextDelete}>
               Delete <StyledCtxShortcut>delete</StyledCtxShortcut>
             </StyledMenuItem>
