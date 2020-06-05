@@ -9,6 +9,7 @@ import Heading from '../Heading';
 const { ipcRenderer } = window.require('electron');
 
 const StyledContent = styled.div`
+  padding: 0 5px;
   background-color: ${({ theme }) => theme.bg.appBg};
   overflow-y: auto;
   min-height: 100%;
@@ -66,7 +67,8 @@ const StyledPageButton = styled.button`
 
 const StyledClearfix = styled.div`
   grid-column: 1 / -1;
-  height: 100px;
+  align-self: end;
+  height: 60px;
   width: 100%;
   background-color: ${({ theme }) => theme.bg.secondaryBg};
   cursor: pointer;
@@ -103,6 +105,20 @@ const NewTabContent = () => {
     const skippedCount = num * pageSize;
     setPageNum(num);
     setFavPage([skippedCount, skippedCount + pageSize]);
+  };
+
+  const renderHardDrives = () => {
+    return drives
+      .sort((a, b) => (a.filesystem < b.filesystem ? -1 : 1))
+      .map((item, i) => (
+        <HardDrive
+          key={item.filesystem}
+          {...item}
+          handleOpenDirectory={() =>
+            handleOpenDirectory(item.mounted + '/', item.mounted + '/')
+          }
+        />
+      ));
   };
 
   const renderFavorites = () => {
@@ -143,15 +159,11 @@ const NewTabContent = () => {
     <StyledContent ref={contentRef}>
       <Heading>Your Hard Drives</Heading>
 
-      {drives.map((item, i) => (
-        <HardDrive
-          key={item.filesystem}
-          {...item}
-          handleOpenDirectory={() =>
-            handleOpenDirectory(item.mounted + '/', item.mounted + '/')
-          }
-        />
-      ))}
+      {drives.length > 0 ? (
+        renderHardDrives()
+      ) : (
+        <h2>You have not added hard drives yet...</h2>
+      )}
       <Heading>Favorites</Heading>
 
       {favorites.length > pageSize ? (

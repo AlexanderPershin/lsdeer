@@ -4,7 +4,7 @@ import Drive from '../img/Drive';
 
 const StyledDriveWrapper = styled.button`
   width: 100%;
-  height: 100%;
+  height: auto;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -45,7 +45,7 @@ const StyledProgress = styled.div`
     color: transparent;
     transition: all 0.3s ease-in-out;
   }
-  ${StyledDriveWrapper}:hover &::before {
+  ${StyledDriveWrapper}:hover &::before, ${StyledDriveWrapper}:focus &::before {
     color: ${({ theme }) => theme.colors.appColor};
     text-shadow: 0 0 10px rgba(0,0,0,0.5);
   }
@@ -71,6 +71,8 @@ const StyledDriveLetter = styled.div`
 `;
 
 const StyledDriveSize = styled.div`
+  background-color: ${({ theme }) => theme.bg.accentBg};
+  padding: 0.1rem;
   font-size: 1rem;
   align-self: flex-start;
   justify-self: flex-end;

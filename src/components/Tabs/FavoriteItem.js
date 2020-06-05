@@ -24,7 +24,6 @@ const StyledFavorite = styled.button`
   cursor: pointer;
   background-color: transparent;
   border: none;
-  padding: 5px;
   font-size: inherit;
   font-family: inherit;
   color: inherit;
@@ -124,7 +123,9 @@ const FavoriteItem = ({ id, name, path, isFile, ext, selected }) => {
         </StyledFavorite>
       </ContextMenuTrigger>
       <ContextMenu id={id}>
-        <StyledMenuItem onClick={handleRemoveFromFav}>Remove</StyledMenuItem>
+        <StyledMenuItem onClick={handleRemoveFromFav}>
+          Remove from favorites
+        </StyledMenuItem>
 
         <MenuItem divider />
       </ContextMenu>
