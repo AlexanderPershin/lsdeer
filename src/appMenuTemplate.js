@@ -124,6 +124,13 @@ const template = [
           mainWindow.webContents.openDevTools();
         },
       },
+      {
+        label: 'Toggle Interface',
+        accelerator: 'CmdOrCtrl+shift+h',
+        click(e) {
+          ipcRenderer.send('toggle-interface');
+        },
+      },
     ],
   },
 ];

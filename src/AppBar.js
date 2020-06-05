@@ -1,8 +1,10 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import 'electronbar/lib/electronbar.css';
 import styled from 'styled-components';
 
 const StyledElectronBar = styled.div`
+  display: ${({ hideInterface }) => hideInterface && 'none'};
   .electronbar {
     background-color: ${({ theme }) => theme.bg.appBarBg};
     font-size: ${({ theme }) => theme.font.appBarFontSize};
@@ -80,8 +82,10 @@ const StyledElectronBar = styled.div`
 `;
 
 const AppBar = ({ electronbarMount }) => {
+  const hideInterface = useSelector((state) => state.hideInterface);
+
   return (
-    <StyledElectronBar>
+    <StyledElectronBar hideInterface={hideInterface}>
       <div ref={electronbarMount} />
     </StyledElectronBar>
   );

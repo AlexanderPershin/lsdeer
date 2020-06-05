@@ -161,6 +161,10 @@ ipcMain.on('find', (event) => {
   mainWindow.webContents.send('find-start');
 });
 
+ipcMain.on('toggle-interface', (event) => {
+  mainWindow.webContents.send('interface-toggled');
+});
+
 ipcMain.on('remove-directories', (event, dirPath, filenamesArr) => {
   let options = {
     buttons: ['Ok', 'Cancel'],

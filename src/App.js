@@ -17,6 +17,7 @@ import {
 import { closeSearch, toggleSearch } from './actions/searchActions';
 import { addToFav } from './actions/favoritesActions';
 import { setSettings } from './actions/settingsActions';
+import { toggleInterface } from './actions/hideInterfaceActions';
 import GlobalStyle from './themes/globalStyle';
 import { initializeFileTypeIcons } from '@uifabric/file-type-icons';
 import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
@@ -65,6 +66,9 @@ const StyledApp = styled.div`
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: min-content 1fr;
+  & > * {
+    display: ${({ hideInterface }) => hideInterface && 'none'};
+  }
 `;
 
 function App() {
@@ -74,6 +78,7 @@ function App() {
   const drives = useSelector((state) => state.drives);
   const favorites = useSelector((state) => state.favorites);
   const settings = useSelector((state) => state.settings);
+  const hideInterface = useSelector((state) => state.hideInterface);
   const dispatch = useDispatch();
 
   const currentTheme = { ...defaultTheme, ...settings };
@@ -307,6 +312,10 @@ function App() {
       ipcRenderer.send('save-settings', settings);
     });
 
+    ipcRenderer.on('interface-toggled', () => {
+      dispatch(toggleInterface());
+    });
+
     return () => {
       ipcRenderer.removeAllListeners();
     };
@@ -384,7 +393,7 @@ function App() {
         <Settings onClose={() => setSetSettingsOpened(false)} />
       ) : null}
 
-      <StyledApp className='app'>
+      <StyledApp className='app' hideInterface={hideInterface}>
         <Tabs list={tabs} addNewTab={addNewTab} closeTab={handleCloseTab} />
         <TabContentContainer />
       </StyledApp>
