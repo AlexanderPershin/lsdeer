@@ -44,6 +44,7 @@ const StyledProgress = styled.div`
     background-color: transparent;
     color: transparent;
     transition: all 0.3s ease-in-out;
+    white-space: nowrap;
   }
   ${StyledDriveWrapper}:hover &::before, ${StyledDriveWrapper}:focus &::before {
     color: ${({ theme }) => theme.colors.appColor};

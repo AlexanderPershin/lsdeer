@@ -312,13 +312,7 @@ const TabContent = ({
   };
 
   const handleContextOpenInExplorer = (e) => {
-    console.log('context open in explorer');
-
-    selectedStore.map((item) => {
-      const fullpath = path + item;
-      ipcRenderer.send('open-in-expolorer', fullpath);
-      return item;
-    });
+    ipcRenderer.send('open-selected-in-explorer');
   };
 
   const handleContextAddToFav = (e) => {

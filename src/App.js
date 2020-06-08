@@ -208,6 +208,14 @@ function App() {
       );
     });
 
+    ipcRenderer.on('revealed-in-explorer', (event) => {
+      selectedStore.map((item) => {
+        const fullpath = tabPath + item;
+        ipcRenderer.send('open-in-expolorer', fullpath);
+        return item;
+      });
+    });
+
     ipcRenderer.on('new-tab-created', (event) => {
       addTabAndActivate(dispatch);
     });

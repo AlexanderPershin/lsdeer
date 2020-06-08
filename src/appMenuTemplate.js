@@ -70,6 +70,13 @@ const template = [
           ipcRenderer.send('add-files-to-favorites');
         },
       },
+      {
+        label: 'Open in Explorer',
+        accelerator: 'CmdOrCtrl+shift+e',
+        click(e) {
+          ipcRenderer.send('open-selected-in-explorer');
+        },
+      },
     ],
   },
   {

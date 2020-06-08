@@ -79,6 +79,10 @@ const FavoriteItem = ({ id, name, path, isFile, ext, selected }) => {
     dispatch(removeFromFav(id));
   };
 
+  const handleOpenInExplorer = (e) => {
+    ipcRenderer.send('open-in-expolorer', path);
+  };
+
   return (
     <React.Fragment>
       <ContextMenuTrigger id={id} holdToDisplay={-1}>
@@ -109,6 +113,9 @@ const FavoriteItem = ({ id, name, path, isFile, ext, selected }) => {
         <StyledMenuItem onClick={handleOpenDirectory}>Open</StyledMenuItem>
         <StyledMenuItem onClick={handleOpenInNewTab}>
           Open in new tab
+        </StyledMenuItem>
+        <StyledMenuItem onClick={handleOpenInExplorer}>
+          Open in Explorer
         </StyledMenuItem>
         <StyledMenuItem onClick={handleRemoveFromFav}>
           Remove from favorites

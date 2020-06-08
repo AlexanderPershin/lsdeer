@@ -91,13 +91,28 @@ ipcMain.on('open-directory', (event, tabId, newPath, isFile) => {
   });
 });
 
+ipcMain.on('open-selected-in-explorer', (event) => {
+  mainWindow.webContents.send('revealed-in-explorer');
+});
+
 ipcMain.on('open-in-expolorer', (event, fullpath) => {
   console.log('opened in explorer: fullpath', fullpath);
-  if (process.platform === 'win32') {
-    const newPath = transfPathForWin(fullpath);
-    shell.showItemInFolder(newPath);
+  if (fullpath.substr(-1) === '/') {
+    // This is folder => open it
+    if (process.platform === 'win32') {
+      const newPath = transfPathForWin(fullpath);
+      shell.openItem(newPath);
+    } else {
+      shell.openItem(fullpath);
+    }
   } else {
-    shell.showItemInFolder(fullpath);
+    // This is file => show in explorer
+    if (process.platform === 'win32') {
+      const newPath = transfPathForWin(fullpath);
+      shell.showItemInFolder(newPath);
+    } else {
+      shell.showItemInFolder(fullpath);
+    }
   }
 });
 
