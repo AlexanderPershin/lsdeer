@@ -35,6 +35,10 @@ const StyledFavorite = styled.button`
   &:focus {
     background-color: ${({ theme }) => theme.bg.selectedBg};
   }
+  -webkit-user-drag: none;
+  & > i > img {
+    -webkit-user-drag: none;
+  }
 `;
 
 const StyledName = styled.span`
@@ -109,7 +113,7 @@ const FavoriteItem = ({ id, name, path, isFile, ext, selected }) => {
           </StyledName>
         </StyledFavorite>
       </ContextMenuTrigger>
-      <ContextMenu id={id}>
+      <ContextMenu id={id} holdToDisplay={-1}>
         <StyledMenuItem onClick={handleOpenDirectory}>Open</StyledMenuItem>
         <StyledMenuItem onClick={handleOpenInNewTab}>
           Open in new tab

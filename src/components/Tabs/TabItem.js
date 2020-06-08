@@ -28,6 +28,10 @@ const StyledItem = styled.button`
   color: inherit;
   font-size: inherit;
   font-family: inherit;
+  -webkit-user-drag: none;
+  & > i > img {
+    -webkit-user-drag: none;
+  }
 `;
 
 const StyledName = styled.span`
@@ -41,6 +45,7 @@ const StyledImg = styled.img`
   width: ${({ theme, iconSize }) => (iconSize ? `${iconSize}px` : '100%')};
   height: ${({ theme, iconSize }) => (iconSize ? `${iconSize}px` : '100px')};
   object-fit: contain;
+  -webkit-user-drag: none;
 `;
 
 const truncate = (input, num) =>

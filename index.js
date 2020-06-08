@@ -206,13 +206,19 @@ ipcMain.on('remove-directories', (event, dirPath, filenamesArr) => {
 
     filenamesArr.map((item) => {
       if (process.platform === 'win32') {
-        trash(transfPathForWin(`${dirPath}${item}`)).then(
-          console.log(`${dirPath}${item} has been deleted`)
-        );
+        trash(transfPathForWin(`${dirPath}${item}`)).then((e) => {
+          console.log(`${dirPath}${item} has been deleted`);
+          mainWindow.webContents.send('edit-action-complete', {
+            dirPath,
+          });
+        });
       } else {
-        trash(`${dirPath}${item}`).then(
-          console.log(`${dirPath}${item} has been deleted`)
-        );
+        trash(`${dirPath}${item}`).then((e) => {
+          console.log(`${dirPath}${item} has been deleted`);
+          mainWindow.webContents.send('edit-action-complete', {
+            dirPath,
+          });
+        });
       }
     });
   }
@@ -333,8 +339,13 @@ ipcMain.on('pasted-file', (event, dirPath, deleteSourceFiles = false) => {
 
               if (filesWereCut || deleteSourceFiles) {
                 // Delete source file here
+
+                // TODO: deletion of cut folders doesn't work!
                 const sourceDirPath = getSourceDirFromArr(copiedFiles);
                 deleteFile(sourceDirPath + item);
+                mainWindow.webContents.send('edit-action-complete', {
+                  sourceDirPath,
+                });
               }
             });
           } else {
@@ -352,7 +363,11 @@ ipcMain.on('pasted-file', (event, dirPath, deleteSourceFiles = false) => {
                 if (filesWereCut || deleteSourceFiles) {
                   // Delete source file here
                   const sourceDirPath = getSourceDirFromArr(copiedFiles);
+
                   deleteFile(sourceDirPath + item);
+                  mainWindow.webContents.send('edit-action-complete', {
+                    sourceDirPath,
+                  });
                 }
               }
             );
@@ -417,7 +432,15 @@ ipcMain.on('start-watching-dir', (event, dirPath, tabId) => {
         })
         .on('ready', () =>
           console.log('Initial scan complete. Ready for changes')
-        );
+        )
+        .on('addDir', (path) => {
+          console.log(`Directory ${path} has been added`);
+          mainWindow.webContents.send('refresh-tab', { tabId, dirPath });
+        })
+        .on('unlinkDir', (path) => {
+          console.log(`Directory ${path} has been removed`);
+          mainWindow.webContents.send('refresh-tab', { tabId, dirPath });
+        });
 
       watchedArray.push({ id: tabId, path: dirPath, watcher });
     } else {
@@ -460,7 +483,15 @@ ipcMain.on('start-watching-dir', (event, dirPath, tabId) => {
         })
         .on('ready', () =>
           console.log('Initial scan complete. Ready for changes')
-        );
+        )
+        .on('addDir', (path) => {
+          console.log(`Directory ${path} has been added`);
+          mainWindow.webContents.send('refresh-tab', { tabId, dirPath });
+        })
+        .on('unlinkDir', (path) => {
+          console.log(`Directory ${path} has been removed`);
+          mainWindow.webContents.send('refresh-tab', { tabId, dirPath });
+        });
 
       watchedArray.push({ id: tabId, path: dirPath, watcher });
     }

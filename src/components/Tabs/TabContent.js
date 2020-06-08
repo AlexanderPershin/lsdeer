@@ -332,6 +332,18 @@ const TabContent = ({
     dispatch(addToFav(newFavs));
   };
 
+  const handleContextCopy = (e) => {
+    ipcRenderer.send('copy-files', false);
+  };
+
+  const handleContextCut = (e) => {
+    ipcRenderer.send('copy-files', true);
+  };
+
+  const handleContextPaste = (e) => {
+    ipcRenderer.send('paste-files');
+  };
+
   useEffect(() => {
     dispatch(clearSelectedFiles());
   }, [activeTab, dispatch]);
@@ -381,7 +393,7 @@ const TabContent = ({
           </StyledUp>
           <Path path={path} />
         </StyledNav>
-        <ContextMenuTrigger id={id + path}>
+        <ContextMenuTrigger id={id + path} holdToDisplay={-1}>
           <StyledFiles>
             <StyledAutoSizer>
               {({ height, width }) => (
@@ -410,6 +422,9 @@ const TabContent = ({
               Hello
             </StyledMenuItem>
             <MenuItem divider />
+            <StyledMenuItem onClick={handleContextPaste}>
+              Paste <StyledCtxShortcut>ctrl+v</StyledCtxShortcut>
+            </StyledMenuItem>
           </ContextMenu>
         ) : (
           <ContextMenu id={id + path}>
@@ -430,6 +445,12 @@ const TabContent = ({
             )}
             <StyledMenuItem onClick={handleContextOpenInExplorer}>
               Open in explorer
+            </StyledMenuItem>
+            <StyledMenuItem onClick={handleContextCopy}>
+              Copy <StyledCtxShortcut>ctrl+c</StyledCtxShortcut>
+            </StyledMenuItem>
+            <StyledMenuItem onClick={handleContextCut}>
+              Cut <StyledCtxShortcut>ctrl+x</StyledCtxShortcut>
             </StyledMenuItem>
             <StyledMenuItem onClick={handleContextDelete}>
               Delete <StyledCtxShortcut>delete</StyledCtxShortcut>

@@ -1,7 +1,7 @@
 module.exports = (pathsArray) => {
   const dirPathArr = pathsArray[0].split('/');
   let dirPath;
-  if (dirPathArr[dirPathArr.length - 1] === '/') {
+  if (dirPathArr[dirPathArr.length - 1] === '') {
     dirPathArr.splice(-2, 2);
     dirPath = dirPathArr.join('/') + '/';
   } else {
