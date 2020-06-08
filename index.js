@@ -17,7 +17,7 @@ const formDirArrayLinux = require('./helpersMain/formDirArrayLinux');
 const checkFileAndOpen = require('./helpersMain/checkFileAndOpen');
 const pasteUnderNewName = require('./helpersMain/pasteUnderNewName');
 
-const { app, BrowserWindow, ipcMain, dialog } = electron;
+const { app, BrowserWindow, ipcMain, dialog, shell } = electron;
 
 let mainWindow;
 
@@ -89,6 +89,16 @@ ipcMain.on('open-directory', (event, tabId, newPath, isFile) => {
     newPath,
     isFile,
   });
+});
+
+ipcMain.on('open-in-expolorer', (event, fullpath) => {
+  console.log('opened in explorer: fullpath', fullpath);
+  if (process.platform === 'win32') {
+    const newPath = transfPathForWin(fullpath);
+    shell.showItemInFolder(newPath);
+  } else {
+    shell.showItemInFolder(fullpath);
+  }
 });
 
 // Tabs menu ===================================

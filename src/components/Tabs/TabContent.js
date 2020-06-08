@@ -311,6 +311,16 @@ const TabContent = ({
     ipcRenderer.send('delete-selected');
   };
 
+  const handleContextOpenInExplorer = (e) => {
+    console.log('context open in explorer');
+
+    selectedStore.map((item) => {
+      const fullpath = path + item;
+      ipcRenderer.send('open-in-expolorer', fullpath);
+      return item;
+    });
+  };
+
   const handleContextAddToFav = (e) => {
     const activePath = tabs.filter((item) => item.id === activeTab)[0].path;
     const newFavs = selectedStore.map((item) => {
@@ -422,6 +432,9 @@ const TabContent = ({
                 )}
               </React.Fragment>
             )}
+            <StyledMenuItem onClick={handleContextOpenInExplorer}>
+              Open in explorer
+            </StyledMenuItem>
             <StyledMenuItem onClick={handleContextDelete}>
               Delete <StyledCtxShortcut>delete</StyledCtxShortcut>
             </StyledMenuItem>
