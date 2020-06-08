@@ -192,13 +192,7 @@ function App() {
     });
 
     ipcRenderer.on('directory-opened', (event, { tabId, newPath, isFile }) => {
-      // Component opened directory and have sent event to backend
-      // backend sent 'directory-opened' response
-      // now list newPath directory and send 'resp-dir' event
       ipcRenderer.send('ls-directory', newPath, tabId);
-      // This process blocks app process
-      // TODO: make this async or something
-      if (!isFile) ipcRenderer.send('start-watching-dir', newPath, tabId);
     });
 
     ipcRenderer.on('resp-dir', (event, data) => {
@@ -207,6 +201,7 @@ function App() {
       const newPath = data.newPath;
 
       dispatch(openDirectory(tabId, newPath, newContent));
+      ipcRenderer.send('start-watching-dir', newPath, tabId);
     });
 
     ipcRenderer.on('all-files-selected', (event, data) => {
