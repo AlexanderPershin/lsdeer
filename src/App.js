@@ -266,6 +266,10 @@ function App() {
         addedTab = tabs.find((item) => item.id === activeTab);
       }
 
+      if (favorites.find((item) => item.path === addedTab.path)) {
+        return;
+      }
+
       const favoriteTab = {
         id: nanoid() + 'tab',
         name: addedTab.name + '/',
@@ -324,6 +328,7 @@ function App() {
     activeTabObect,
     dispatch,
     drives,
+    favorites,
     selectedStore,
     settings,
     tabs,
