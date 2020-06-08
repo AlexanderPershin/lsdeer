@@ -130,6 +130,10 @@ const Tab = ({
     ipcRenderer.send('add-to-favorites', id);
   };
 
+  const handleOpenInExplorer = (e) => {
+    ipcRenderer.send('open-in-expolorer', path);
+  };
+
   const handleRemoveFromFav = () => {
     const removeId = favorites.find((item) => item.path === path).id;
     dispatch(removeFromFav(removeId));
@@ -177,7 +181,11 @@ const Tab = ({
         <StyledMenuItem onClick={closeAll}>
           Close All <StyledTabIcon iconName='Broom' />
         </StyledMenuItem>
+        <StyledMenuItem onClick={handleOpenInExplorer}>
+          Open in Explorer
+        </StyledMenuItem>
 
+        <MenuItem divider />
         <StyledMenuItem onClick={handleAddToFav}>
           Add To Favorites <StyledTabIcon iconName='AddFavoriteFill' />
         </StyledMenuItem>

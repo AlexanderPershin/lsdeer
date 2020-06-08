@@ -41,6 +41,7 @@ import addTabAndActivate from './helpers/addTabAndActivate';
 import parseDrivesData from './helpers/parseDrivesData';
 
 import appConfig from './app_config.json';
+import openInNewTab from './helpers/openInNewTab';
 
 const { remote, ipcRenderer } = window.require('electron');
 const electron = window.require('electron');
@@ -252,10 +253,10 @@ function App() {
 
     ipcRenderer.on('previous-tabs', (event, data) => {
       // Reopen each tab because content could change after last closing lsdeer
-      dispatch(setTabs(data.tabs));
+      // dispatch(setTabs(data.tabs));
       data.tabs.map((item) => {
-        ipcRenderer.send('start-watching-dir', item.path, item.id);
-        ipcRenderer.send('open-directory', item.id, item.path);
+        // ipcRenderer.send('open-directory', item.id, item.path);
+        openInNewTab(item.name, item.path, false, dispatch);
         return item;
       });
     });
@@ -357,17 +358,62 @@ function App() {
     dispatch(setActiveTab(newTab.id));
   };
 
-  // Saving/Fetching tabs from tabs.json file from the root folder
-  // TODO: Tabs are lost after page refresh fix this bug
+  useEffect(() => {
+    dispatch(setSettings(defaultTheme));
+  }, [dispatch]);
+
+  const handleCloseTab = (id) => {
+    dispatch(closeTab(id));
+  };
+
+  // Save/Load tabs
   useEffect(() => {
     window.addEventListener('beforeunload', (ev) => {
-      // Something is wrong - listeners stack like if they weren't removed
-      ipcRenderer.send('save-tabs', tabs);
-      ipcRenderer.send('save-favs', favorites);
+      const tabsToSave = tabs.map((item) => ({
+        name: item.name,
+        id: item.id,
+        path: item.path,
+      }));
+      ipcRenderer.send('save-tabs', tabsToSave);
     });
 
     window.addEventListener('load', (ev) => {
       ipcRenderer.send('get-tabs');
+    });
+
+    const MINUTES = appConfig.SAVE_TABS_DELAY || 5; // save tabs every 5 minutes
+    const intervDelay = MINUTES * 60 * 1000;
+
+    const saveInterval = setInterval(() => {
+      const tabsToSave = tabs.map((item) => ({ id: item.id, path: item.path }));
+      ipcRenderer.send('save-tabs', tabsToSave);
+    }, intervDelay);
+
+    return () => {
+      window.removeEventListener('beforeunload', (ev) => {
+        const tabsToSave = tabs.map((item) => ({
+          name: item.name,
+          id: item.id,
+          path: item.path,
+        }));
+        ipcRenderer.send('save-tabs', tabsToSave);
+      });
+
+      window.removeEventListener('load', (ev) => {
+        ipcRenderer.send('get-tabs');
+      });
+
+      clearInterval(saveInterval);
+    };
+  }, [tabs, dispatch]);
+
+  // Save/Load favorites
+  useEffect(() => {
+    window.addEventListener('beforeunload', (ev) => {
+      ipcRenderer.send('save-favs', favorites);
+    });
+
+    window.addEventListener('load', (ev) => {
       ipcRenderer.send('get-favorites');
       ipcRenderer.send('get-settings');
     });
@@ -376,32 +422,21 @@ function App() {
     const intervDelay = MINUTES * 60 * 1000;
 
     const saveInterval = setInterval(() => {
-      ipcRenderer.send('save-tabs', tabs);
       ipcRenderer.send('save-favs', favorites);
     }, intervDelay);
 
     return () => {
       window.removeEventListener('beforeunload', (ev) => {
-        ipcRenderer.send('save-tabs', tabs);
         ipcRenderer.send('save-favs', favorites);
       });
 
       window.removeEventListener('load', (ev) => {
-        ipcRenderer.send('get-tabs');
         ipcRenderer.send('get-favorites');
       });
 
       clearInterval(saveInterval);
     };
-  }, [favorites, tabs]);
-
-  useEffect(() => {
-    dispatch(setSettings(defaultTheme));
-  }, [dispatch]);
-
-  const handleCloseTab = (id) => {
-    dispatch(closeTab(id));
-  };
+  }, [favorites]);
 
   return (
     <ThemeProvider theme={currentTheme || defaultTheme}>

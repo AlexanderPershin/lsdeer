@@ -434,10 +434,12 @@ ipcMain.on('start-watching-dir', (event, dirPath, tabId) => {
           console.log('Initial scan complete. Ready for changes')
         )
         .on('addDir', (path) => {
+          if (path === '..\\..\\..') return;
           console.log(`Directory ${path} has been added`);
           mainWindow.webContents.send('refresh-tab', { tabId, dirPath });
         })
         .on('unlinkDir', (path) => {
+          if (path === '..\\..\\..') return;
           console.log(`Directory ${path} has been removed`);
           mainWindow.webContents.send('refresh-tab', { tabId, dirPath });
         });
@@ -522,7 +524,10 @@ ipcMain.on('stop-watching-all', (event) => {
 
 // USER DATA LISTENERS
 ipcMain.on('save-tabs', (event, tabs) => {
-  const tabsJson = JSON.stringify(tabs);
+  // Remove all '/' paths for new tabs to avoid bug
+  const tabsToSave = tabs.filter((item) => item.path !== '/');
+
+  const tabsJson = JSON.stringify(tabsToSave);
   fs.writeFile('tabs.json', tabsJson, 'utf8', function (err) {
     if (err) {
       console.log('Error saving tabs.json');

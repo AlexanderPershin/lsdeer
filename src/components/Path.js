@@ -67,7 +67,6 @@ const Path = ({ path }) => {
 
   const handlePathOpen = (pathArr) => {
     const newPath = pathArr.join('/');
-    console.log('handlePathOpen -> newPath', newPath);
 
     dispatch(clearSelectedFiles());
     ipcRenderer.send('open-directory', activeTab, '/' + newPath + '/', false);
