@@ -137,14 +137,20 @@ function App() {
         // ctrl+g
         // add tab to favorites
       }
+      if (e.which === 88 && e.ctrlKey) {
+        // ctrl+x = cut selected files
+        console.log('cut selected');
+        ipcRenderer.send('copy-files', true);
+      }
     });
   }, []);
 
   useEffect(() => {
     const tabPath = activeTabObect ? activeTabObect.path : null;
 
-    ipcRenderer.on('copy-to-clipboard', (event) => {
-      ipcRenderer.send('copied-file', tabPath, selectedStore);
+    ipcRenderer.on('copy-to-clipboard', (event, data) => {
+      const { isCut } = data;
+      ipcRenderer.send('copied-file', tabPath, selectedStore, isCut);
     });
 
     ipcRenderer.on('paste-from-clipboard', (event) => {

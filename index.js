@@ -16,12 +16,15 @@ const formDirArrayWin = require('./helpersMain/formDirArrayWin');
 const formDirArrayLinux = require('./helpersMain/formDirArrayLinux');
 const checkFileAndOpen = require('./helpersMain/checkFileAndOpen');
 const pasteUnderNewName = require('./helpersMain/pasteUnderNewName');
+const deleteFile = require('./helpersMain/deleteFile');
+const getSourceDirFromArr = require('./helpersMain/getSourceDirFromArr');
 
 const { app, BrowserWindow, ipcMain, dialog, shell } = electron;
 
 let mainWindow;
 
 let copiedFiles = [];
+let filesWereCut = false;
 
 let watchedArray = []; // Array of tab id's and paths that are being watched now
 
@@ -166,8 +169,8 @@ ipcMain.on('select-all', (event) => {
   mainWindow.webContents.send('all-files-selected');
 });
 
-ipcMain.on('copy-files', (event) => {
-  mainWindow.webContents.send('copy-to-clipboard');
+ipcMain.on('copy-files', (event, isCut = false) => {
+  mainWindow.webContents.send('copy-to-clipboard', { isCut });
 });
 
 ipcMain.on('paste-files', (event) => {
@@ -248,13 +251,19 @@ ipcMain.on('test', (event) => {
   mainWindow.webContents.send('test-response', { msg: 'test complete' });
 });
 
-ipcMain.on('copied-file', (event, dirPath, namesArray) => {
+ipcMain.on('copied-file', (event, dirPath, namesArray, isCut) => {
   copiedFiles = [];
+  filesWereCut = isCut;
+
   namesArray.map((name) => copiedFiles.push(dirPath + name));
-  console.log('Copied Files ', copiedFiles);
+  if (isCut) {
+    console.log('Cut Files ', copiedFiles);
+  } else {
+    console.log('Copied Files ', copiedFiles);
+  }
 });
 
-ipcMain.on('pasted-file', (event, dirPath) => {
+ipcMain.on('pasted-file', (event, dirPath, deleteSourceFiles = false) => {
   // TODO: send response to renderer with array of pasted filenames and select these files
 
   if (copiedFiles.length > 0) {
@@ -321,6 +330,12 @@ ipcMain.on('pasted-file', (event, dirPath) => {
               mainWindow.webContents.send('edit-action-complete', {
                 dirPath,
               });
+
+              if (filesWereCut || deleteSourceFiles) {
+                // Delete source file here
+                const sourceDirPath = getSourceDirFromArr(copiedFiles);
+                deleteFile(sourceDirPath + item);
+              }
             });
           } else {
             console.log(`File ${item} will be first in ${dirPath}`);
@@ -333,6 +348,12 @@ ipcMain.on('pasted-file', (event, dirPath) => {
                 mainWindow.webContents.send('edit-action-complete', {
                   dirPath,
                 });
+
+                if (filesWereCut || deleteSourceFiles) {
+                  // Delete source file here
+                  const sourceDirPath = getSourceDirFromArr(copiedFiles);
+                  deleteFile(sourceDirPath + item);
+                }
               }
             );
           }

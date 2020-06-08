@@ -364,6 +364,8 @@ const TabContent = ({
     return rowCount;
   };
 
+  // TODO: add copy/cut/paste to item context menu
+
   return createNew || path === '/' ? (
     <NewTabContent />
   ) : (

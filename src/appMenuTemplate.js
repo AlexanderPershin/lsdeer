@@ -37,7 +37,14 @@ const template = [
         label: 'Copy',
         accelerator: 'CmdOrCtrl+C',
         click(e) {
-          ipcRenderer.send('copy-files');
+          ipcRenderer.send('copy-files', false);
+        },
+      },
+      {
+        label: 'Cut',
+        accelerator: 'CmdOrCtrl+X',
+        click(e) {
+          ipcRenderer.send('copy-files', true);
         },
       },
       {
