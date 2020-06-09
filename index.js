@@ -417,6 +417,7 @@ ipcMain.on('start-watching-dir', (event, dirPath, tabId) => {
       });
 
       // Add event listeners.
+      // TODO: Bugged unlink dir - fix
       watcher
         .on('add', (path) => {
           console.log(`File ${path} has been added`);
@@ -437,12 +438,12 @@ ipcMain.on('start-watching-dir', (event, dirPath, tabId) => {
           if (path === '..\\..\\..') return;
           console.log(`Directory ${path} has been added`);
           mainWindow.webContents.send('refresh-tab', { tabId, dirPath });
-        })
-        .on('unlinkDir', (path) => {
-          if (path === '..\\..\\..') return;
-          console.log(`Directory ${path} has been removed`);
-          mainWindow.webContents.send('refresh-tab', { tabId, dirPath });
         });
+      // .on('unlinkDir', (path) => {
+      //   if (path === '..\\..\\..') return;
+      //   console.log(`Directory ${path} has been removed`);
+      //   mainWindow.webContents.send('refresh-tab', { tabId, dirPath });
+      // });
 
       watchedArray.push({ id: tabId, path: dirPath, watcher });
     } else {

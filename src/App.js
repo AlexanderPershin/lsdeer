@@ -18,6 +18,8 @@ import { closeSearch, toggleSearch } from './actions/searchActions';
 import { addToFav } from './actions/favoritesActions';
 import { setSettings } from './actions/settingsActions';
 import { toggleInterface } from './actions/hideInterfaceActions';
+import { toggleSettings } from './actions/toggleSettingsActionis';
+
 import GlobalStyle from './themes/globalStyle';
 import { initializeFileTypeIcons } from '@uifabric/file-type-icons';
 import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
@@ -40,8 +42,12 @@ import addTabAndActivate from './helpers/addTabAndActivate';
 
 import parseDrivesData from './helpers/parseDrivesData';
 
-import appConfig from './app_config.json';
 import openInNewTab from './helpers/openInNewTab';
+
+// Hooks
+import useTabs from './hooks/useTabs';
+import useFavs from './hooks/useFavs';
+import useSettings from './hooks/useSettings';
 
 const { remote, ipcRenderer } = window.require('electron');
 const electron = window.require('electron');
@@ -79,23 +85,16 @@ function App() {
   const drives = useSelector((state) => state.drives);
   const favorites = useSelector((state) => state.favorites);
   const settings = useSelector((state) => state.settings);
+  const showSettings = useSelector((state) => state.showSettings);
   const hideInterface = useSelector((state) => state.hideInterface);
   const dispatch = useDispatch();
 
   const currentTheme = { ...defaultTheme, ...settings };
 
-  const [settingsOpened, setSetSettingsOpened] = useState(false);
-
   const activeTabObect = tabs.filter((item) => item.id === activeTab)[0];
 
   const electronbarMount = useRef(null);
   let electronbar = useRef(null);
-
-  useEffect(() => {
-    if (!activeTab) {
-      tabs.length > 0 && dispatch(setActiveTab(tabs[0].id));
-    }
-  }, [activeTab, dispatch, tabs]);
 
   useEffect(() => {
     electronbar.current = new Electronbar({
@@ -194,7 +193,6 @@ function App() {
     ipcRenderer.on('directory-opened', (event, { tabId, newPath, isFile }) => {
       ipcRenderer.send('ls-directory', newPath, tabId);
     });
-
     ipcRenderer.on('resp-dir', (event, data) => {
       const newContent = data.response;
       const tabId = data.tabId;
@@ -218,24 +216,6 @@ function App() {
       });
     });
 
-    ipcRenderer.on('new-tab-created', (event) => {
-      addTabAndActivate(dispatch);
-    });
-
-    ipcRenderer.on('current-tab-closed', (event) => {
-      ipcRenderer.send('close-tab', activeTab, tabPath);
-      dispatch(closeTab(activeTab));
-      dispatch(closeSearch());
-      const remainingTabs = tabs.filter((item) => item.id !== activeTab);
-      remainingTabs.length > 0 &&
-        dispatch(setActiveTab(remainingTabs[remainingTabs.length - 1].id));
-    });
-
-    ipcRenderer.on('closed-tab', (event, data) => {
-      const { tabId, tabPath } = data;
-      ipcRenderer.send('stop-watching-dir', tabPath, tabId);
-    });
-
     ipcRenderer.on('refresh-tab', (event, data) => {
       // Backend watcher sends this event when files changed in one of the opened directories
       const { tabId } = data;
@@ -246,28 +226,12 @@ function App() {
       ipcRenderer.send('open-directory', tabId, refreshTabPath);
     });
 
-    ipcRenderer.on('previous-tabs', (event, data) => {
-      // Reopen each tab because content could change after last closing lsdeer
-      // dispatch(setTabs(data.tabs));
-      data.tabs.map((item) => {
-        // ipcRenderer.send('open-directory', item.id, item.path);
-        openInNewTab(item.name, item.path, false, dispatch);
-        return item;
-      });
+    ipcRenderer.on('interface-toggled', () => {
+      dispatch(toggleInterface());
     });
 
-    ipcRenderer.on('previous-favorites', (event, data) => {
-      // Add loaded favs to redux store again
-      dispatch(addToFav(data.favorites));
-    });
-
-    ipcRenderer.on('previous-settings', (event, data) => {
-      // Add loaded favs to redux store again
-      dispatch(setSettings(data.settings));
-    });
-
+    // Doesn't work inside useFavs hook - fix
     ipcRenderer.on('added-to-favorites', (event, data) => {
-      // TODO: save favorites to json file
       const { tabId } = data;
       let addedTab;
       if (tabId) {
@@ -287,47 +251,6 @@ function App() {
       };
 
       dispatch(addToFav(favoriteTab));
-    });
-
-    ipcRenderer.on('selected-added-to-favs', (event) => {
-      if (selectedStore.length > 0) {
-        console.log('Add selected to favorites');
-        const activePath = tabPath;
-        const newFavs = selectedStore.map((item) => {
-          const contentObj = activeTabObect.content.find(
-            (itm) => itm.name === item
-          );
-
-          return {
-            id: nanoid(),
-            name: item,
-            path: `${activePath}${item}`,
-            isFile: contentObj.isFile,
-            ext: contentObj.ext,
-          };
-        });
-
-        dispatch(addToFav(newFavs));
-      } else {
-        return;
-      }
-    });
-
-    ipcRenderer.on('settings-opened', () => {
-      setSetSettingsOpened((prev) => !prev);
-    });
-
-    ipcRenderer.on('settings-dropped', () => {
-      dispatch(setSettings(defaultTheme));
-      ipcRenderer.send('apply-settings-event');
-    });
-
-    ipcRenderer.on('apply-settings', () => {
-      ipcRenderer.send('save-settings', settings);
-    });
-
-    ipcRenderer.on('interface-toggled', () => {
-      dispatch(toggleInterface());
     });
 
     return () => {
@@ -361,85 +284,20 @@ function App() {
     dispatch(closeTab(id));
   };
 
-  // Save/Load tabs
-  useEffect(() => {
-    window.addEventListener('beforeunload', (ev) => {
-      const tabsToSave = tabs.map((item) => ({
-        name: item.name,
-        id: item.id,
-        path: item.path,
-      }));
-      ipcRenderer.send('save-tabs', tabsToSave);
-    });
-
-    window.addEventListener('load', (ev) => {
-      ipcRenderer.send('get-tabs');
-    });
-
-    const MINUTES = appConfig.SAVE_TABS_DELAY || 5; // save tabs every 5 minutes
-    const intervDelay = MINUTES * 60 * 1000;
-
-    const saveInterval = setInterval(() => {
-      const tabsToSave = tabs.map((item) => ({ id: item.id, path: item.path }));
-      ipcRenderer.send('save-tabs', tabsToSave);
-    }, intervDelay);
-
-    return () => {
-      window.removeEventListener('beforeunload', (ev) => {
-        const tabsToSave = tabs.map((item) => ({
-          name: item.name,
-          id: item.id,
-          path: item.path,
-        }));
-        ipcRenderer.send('save-tabs', tabsToSave);
-      });
-
-      window.removeEventListener('load', (ev) => {
-        ipcRenderer.send('get-tabs');
-      });
-
-      clearInterval(saveInterval);
-    };
-  }, [tabs, dispatch]);
-
-  // Save/Load favorites
-  useEffect(() => {
-    window.addEventListener('beforeunload', (ev) => {
-      ipcRenderer.send('save-favs', favorites);
-    });
-
-    window.addEventListener('load', (ev) => {
-      ipcRenderer.send('get-favorites');
-      ipcRenderer.send('get-settings');
-    });
-
-    const MINUTES = appConfig.SAVE_TABS_DELAY || 5; // save tabs every 5 minutes
-    const intervDelay = MINUTES * 60 * 1000;
-
-    const saveInterval = setInterval(() => {
-      ipcRenderer.send('save-favs', favorites);
-    }, intervDelay);
-
-    return () => {
-      window.removeEventListener('beforeunload', (ev) => {
-        ipcRenderer.send('save-favs', favorites);
-      });
-
-      window.removeEventListener('load', (ev) => {
-        ipcRenderer.send('get-favorites');
-      });
-
-      clearInterval(saveInterval);
-    };
-  }, [favorites]);
+  // Load/Save open tabs to json
+  useTabs();
+  // Load/Save favorites to json
+  useFavs();
+  // Load/Save settings to json
+  useSettings();
 
   return (
     <ThemeProvider theme={currentTheme || defaultTheme}>
       <AppBar electronbarMount={electronbarMount} />
       <GlobalStyle />
 
-      {settingsOpened ? (
-        <Settings onClose={() => setSetSettingsOpened(false)} />
+      {showSettings ? (
+        <Settings onClose={() => dispatch(toggleSettings())} />
       ) : null}
 
       <StyledApp className='app' hideInterface={hideInterface}>
