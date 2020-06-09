@@ -1,20 +1,15 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled, { ThemeProvider } from 'styled-components';
 import { nanoid } from 'nanoid';
-import {
-  addTab,
-  closeTab,
-  setTabs,
-  openDirectory,
-} from './actions/tabsActions';
+import { addTab, closeTab, openDirectory } from './actions/tabsActions';
 import { setDrives } from './actions/drivesActions';
 import { setActiveTab } from './actions/activeTabActions';
 import {
   addSelectedFiles,
   clearSelectedFiles,
 } from './actions/selectFilesActions';
-import { closeSearch, toggleSearch } from './actions/searchActions';
+import { toggleSearch } from './actions/searchActions';
 import { addToFav } from './actions/favoritesActions';
 import { setSettings } from './actions/settingsActions';
 import { toggleInterface } from './actions/hideInterfaceActions';
@@ -38,11 +33,7 @@ import TabContentContainer from './components/Tabs/TabContentContainer';
 
 import appIcon from './img/Renna.png';
 
-import addTabAndActivate from './helpers/addTabAndActivate';
-
 import parseDrivesData from './helpers/parseDrivesData';
-
-import openInNewTab from './helpers/openInNewTab';
 
 // Hooks
 import useTabs from './hooks/useTabs';
