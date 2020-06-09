@@ -37,6 +37,8 @@ const template = [
         label: 'Copy',
         accelerator: 'CmdOrCtrl+C',
         click(e) {
+          console.log('app: copy selected');
+
           ipcRenderer.send('copy-files', false);
         },
       },

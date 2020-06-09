@@ -8,7 +8,7 @@ import defaultTheme from '../themes/default';
 
 const { ipcRenderer } = window.require('electron');
 
-const useSettings = (setSetSettingsOpened) => {
+const useSettings = () => {
   const tabs = useSelector((state) => state.tabs);
   const activeTab = useSelector((state) => state.activeTab);
   const selectedStore = useSelector((state) => state.selected);
@@ -25,8 +25,16 @@ const useSettings = (setSetSettingsOpened) => {
       // Add loaded settings to redux store again
       dispatch(setSettings(data.settings));
     });
+
     ipcRenderer.on('settings-opened', () => {
       dispatch(toggleSettings());
+    });
+
+    ipcRenderer.on('settings-dropped', () => {
+      console.log("useSettings -> 'settings-dropped'", 'settings-dropped');
+
+      dispatch(setSettings(defaultTheme));
+      ipcRenderer.send('apply-settings-event');
     });
   }, [
     activeTab,
@@ -45,11 +53,6 @@ const useSettings = (setSetSettingsOpened) => {
       ipcRenderer.send('get-settings');
     });
 
-    ipcRenderer.on('settings-dropped', () => {
-      dispatch(setSettings(defaultTheme));
-      ipcRenderer.send('apply-settings-event');
-    });
-
     ipcRenderer.on('apply-settings', () => {
       ipcRenderer.send('save-settings', settings);
     });
@@ -59,7 +62,7 @@ const useSettings = (setSetSettingsOpened) => {
         ipcRenderer.send('get-settings');
       });
     };
-  }, [dispatch, setSetSettingsOpened, settings]);
+  }, [dispatch, settings]);
 };
 
 export default useSettings;

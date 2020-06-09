@@ -28,7 +28,6 @@ const useFavs = () => {
         const tabPath = activeTabObect ? activeTabObect.path : null;
 
         if (selectedStore.length > 0) {
-          console.log('Add selected to favorites');
           const activePath = tabPath;
           const newFavs = selectedStore.map((item) => {
             const contentObj = activeTabObect.content.find(

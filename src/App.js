@@ -102,6 +102,8 @@ function App() {
       if (e.which === 67 && e.ctrlKey) {
         // ctrl+c copy to clipboard
         // mainWindow.webContents.send('copy-to-clipboard');
+        console.log('app keyup listeners: copy selected');
+
         ipcRenderer.send('copy-files');
       }
       if (e.which === 86 && e.ctrlKey) {
