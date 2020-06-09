@@ -44,6 +44,8 @@ const createWindow = () => {
     process.env.ELECTRON_START_URL || `file://${__dirname}/build/index.html`;
   mainWindow.loadURL(startUrl);
 
+  requireModules();
+
   mainWindow.webContents.openDevTools();
 
   //enable garbage collector
@@ -52,39 +54,16 @@ const createWindow = () => {
   });
 };
 
+app.allowRendererProcessReuse = true;
+
 app.on('ready', createWindow);
 
-ipcMain.on('ls-directory', (event, dirPath, tabId) => {
-  const command = `ls "${dirPath}" -p -1v --hide=*.sys --hide="System Volume Information" --group-directories-first`;
-
-  try {
-    const itWasFile = checkFileAndOpen(dirPath);
-    if (itWasFile) return;
-
-    exec(command, (err, stdout, stderr) => {
-      if (err) {
-        console.error(err);
-      } else {
-        let outputArray = [];
-        const namesArray = clearArrayOfStrings(stdout.toString().split('\n'));
-
-        if (os.platform() === 'win32') {
-          outputArray = formDirArrayWin(namesArray, dirPath);
-        } else {
-          outputArray = formDirArrayLinux(namesArray, dirPath);
-        }
-
-        mainWindow.webContents.send('resp-dir', {
-          response: outputArray,
-          tabId,
-          newPath: dirPath,
-        });
-      }
-    });
-  } catch (err) {
-    console.log(err);
-  }
-});
+// TODO: Split index's code into modules and put their import into requireModules function
+// Require all modules after mainWindow created
+const requireModules = () => {
+  require('./modulesMain/lsModule')(mainWindow);
+  require('./modulesMain/testModule')(mainWindow);
+};
 
 ipcMain.on('open-directory', (event, tabId, newPath, isFile) => {
   mainWindow.webContents.send('directory-opened', {
@@ -251,10 +230,6 @@ ipcMain.on('remove-directories-permanently', (event, dirPath, filenamesArr) => {
       return item;
     });
   }
-});
-
-ipcMain.on('test', (event) => {
-  mainWindow.webContents.send('test-response', { msg: 'test complete' });
 });
 
 ipcMain.on('copied-file', (event, dirPath, namesArray, isCut) => {
