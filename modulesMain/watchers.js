@@ -124,7 +124,7 @@ module.exports = (mainWindow) => {
     // On close directory/go up/open sudirectory
     const watchedItem = watchedArray.find((item) => item.id === tabId);
     try {
-      watchedItem.watcher.close();
+      watchedItem && watchedItem.watcher.close();
       watchedArray = watchedArray.filter((item) => item.id !== tabId);
     } catch (err) {
       // error watching - no access or something
