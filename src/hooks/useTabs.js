@@ -44,11 +44,8 @@ const useTabs = () => {
     });
 
     ipcRenderer.on('closed-tab', (event, data) => {
-      console.log("useTabs -> 'closed-tab'", 'closed-tab');
-
       const { tabId, tabPath } = data;
       if (tabPath === 'new-tab-path') {
-        console.log('New tab closed');
         return;
       }
       ipcRenderer.send('stop-watching-dir', tabPath, tabId);
