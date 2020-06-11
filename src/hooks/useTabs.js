@@ -55,11 +55,10 @@ const useTabs = () => {
     ipcRenderer.on('previous-tabs', (event, data) => {
       data.tabs.map((item, idx) => {
         openInNewTab(item.name, item.path, false, dispatch);
-
-        // Hide loading screen when last tab was mapped
-        if (idx === data.tabs.length - 1) dispatch(stopLoading());
         return item;
       });
+
+      dispatch(stopLoading());
     });
   }, [
     activeTab,

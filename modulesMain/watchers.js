@@ -44,9 +44,9 @@ module.exports = (mainWindow) => {
       // TODO: Bugged unlink dir - fix
       watcher.on('raw', (event, path, details) => {
         // internal
-
-        console.log('Raw event info:', event, path, details);
         if (event === 'change') return;
+        console.log('Raw event info:', event, path, details);
+
         mainWindow.webContents.send('refresh-tab', { tabId, dirPath });
       });
 

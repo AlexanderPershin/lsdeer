@@ -33,6 +33,9 @@ app.allowRendererProcessReuse = true;
 
 app.on('ready', createWindow);
 
+// Image Server
+require('./imageServer');
+
 const requireModules = (mainWindow) => {
   require('./modulesMain/ls')(mainWindow);
   require('./modulesMain/open')(mainWindow);
@@ -49,9 +52,6 @@ const requireModules = (mainWindow) => {
   require('./modulesMain/settings')(mainWindow);
   require('./modulesMain/testModule')(mainWindow);
 };
-
-// Image Server
-require('./imageServer');
 
 process.on('uncaughtException', function (error) {
   // console.log('Uncought Exception on the main process', error);

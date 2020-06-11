@@ -2,6 +2,7 @@ import { nanoid } from 'nanoid';
 import { closeSearch } from '../actions/searchActions';
 import { addTab } from '../actions/tabsActions';
 import { setActiveTab } from '../actions/activeTabActions';
+import { startLoading, stopLoading } from '../actions/loadingActions';
 
 const { ipcRenderer } = window.require('electron');
 
@@ -17,6 +18,7 @@ export default function (name, path, isFile, dispatch) {
       path: 'new-tab-path',
     };
 
+    dispatch(startLoading());
     dispatch(closeSearch());
     dispatch(addTab(newTab));
     dispatch(setActiveTab(newTab.id));

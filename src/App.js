@@ -188,6 +188,8 @@ function App() {
         return;
       }
 
+      dispatch(startLoading());
+
       ipcRenderer.send('ls-directory', newPath, tabId);
 
       const watcherdTab = tabs.find((item) => item.id === tabId);
@@ -204,7 +206,7 @@ function App() {
       // TODO: bug here: triggers 2 times: first correct path, second path: '/' - incorrect
 
       dispatch(openDirectory(tabId, newPath, newContent));
-
+      dispatch(stopLoading());
       ipcRenderer.send('start-watching-dir', newPath, tabId);
     });
 
