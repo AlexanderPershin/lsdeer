@@ -102,7 +102,6 @@ function App() {
       if (e.which === 67 && e.ctrlKey) {
         // ctrl+c copy to clipboard
         // mainWindow.webContents.send('copy-to-clipboard');
-        console.log('app keyup listeners: copy selected');
 
         ipcRenderer.send('copy-files');
       }
@@ -132,7 +131,6 @@ function App() {
       }
       if (e.which === 88 && e.ctrlKey) {
         // ctrl+x = cut selected files
-        console.log('cut selected');
         ipcRenderer.send('copy-files', true);
       }
     });
@@ -183,15 +181,29 @@ function App() {
       }
     });
 
+    // TODO: fix bug, here get / on opening /h/ or /d/ drive, /c/ and /e/ open well
     ipcRenderer.on('directory-opened', (event, { tabId, newPath, isFile }) => {
+      if (newPath === 'new-tab-path') {
+        return;
+      }
+
       ipcRenderer.send('ls-directory', newPath, tabId);
+
+      const watcherdTab = tabs.find((item) => item.id === tabId);
+
+      if (!isFile && watcherdTab)
+        ipcRenderer.send('stop-watching-dir', watcherdTab.path, tabId);
+      // if (!isFile) ipcRenderer.send('start-watching-dir', newPath, tabId);
     });
     ipcRenderer.on('resp-dir', (event, data) => {
       const newContent = data.response;
       const tabId = data.tabId;
       const newPath = data.newPath;
 
+      // TODO: bug here: triggers 2 times: first correct path, second path: '/' - incorrect
+
       dispatch(openDirectory(tabId, newPath, newContent));
+
       ipcRenderer.send('start-watching-dir', newPath, tabId);
     });
 
@@ -214,7 +226,7 @@ function App() {
       const { tabId } = data;
       const refreshTab = tabs.find((item) => item.id === tabId);
       const refreshTabPath = refreshTab && refreshTab.path;
-      if (!refreshTabPath) return;
+      if (!refreshTabPath || refreshTabPath === 'new-tab-path') return;
 
       ipcRenderer.send('open-directory', tabId, refreshTabPath);
     });

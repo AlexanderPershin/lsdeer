@@ -14,7 +14,7 @@ export default function (name, path, isFile, dispatch) {
       name: name,
       content: [],
       createNew: true,
-      path: '/',
+      path: 'new-tab-path',
     };
 
     dispatch(closeSearch());

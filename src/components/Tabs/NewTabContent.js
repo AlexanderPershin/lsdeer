@@ -94,7 +94,7 @@ const NewTabContent = () => {
   const contentRef = useRef(null);
 
   const handleOpenDirectory = (newPath, name) => {
-    ipcRenderer.send('open-directory', activeTab, newPath);
+    ipcRenderer.send('open-directory', activeTab, newPath, false);
   };
 
   const handleScrollTop = () => {

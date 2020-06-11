@@ -10,116 +10,53 @@ let watchedArray = []; // Array of tab id's and paths that are being watched now
 module.exports = (mainWindow) => {
   // Set/add/remove watchers for open in tabs directories
   ipcMain.on('start-watching-dir', (event, dirPath, tabId) => {
-    console.log("'start-watching-dir'", 'start-watching-dir');
     // Unwatch previous path of this tab
     const perviouslyThisTab = watchedArray.find((item) => item.id === tabId);
     if (perviouslyThisTab) {
       perviouslyThisTab.watcher.close();
     }
     watchedArray = watchedArray.filter((item) => item.id !== tabId);
+
     try {
-      if (process.platform === 'win32') {
-        const winDirPath = transfPathForWin(dirPath);
-        const watcher = chokidar.watch(winDirPath, {
-          persistent: true,
-          ignored: '*.sys',
-          ignoreInitial: true,
-          followSymlinks: true,
-          cwd: '.',
-          disableGlobbing: false,
-          usePolling: false,
-          interval: 100,
-          binaryInterval: 300,
-          alwaysStat: false,
-          depth: 0,
-          awaitWriteFinish: {
-            stabilityThreshold: 2000,
-            pollInterval: 100,
-          },
-          ignorePermissionErrors: false,
-          atomic: true, // or a custom 'atomicity delay', in milliseconds (default 100)
-        });
-        // Add event listeners.
-        // TODO: Bugged unlink dir - fix
-        watcher
-          .on('add', (path) => {
-            console.log(`File ${path} has been added`);
-            mainWindow.webContents.send('refresh-tab', { tabId, dirPath });
-          })
-          .on('change', (path) => {
-            console.log(`File ${path} has been changed`);
-            mainWindow.webContents.send('refresh-tab', { tabId, dirPath });
-          })
-          .on('unlink', (path) => {
-            console.log(`File ${path} has been removed`);
-            mainWindow.webContents.send('refresh-tab', { tabId, dirPath });
-          })
-          .on('ready', () =>
-            console.log('Initial scan complete. Ready for changes')
-          )
-          .on('addDir', (path) => {
-            if (path === '..\\..\\..') return;
-            console.log(`Directory ${path} has been added`);
-            mainWindow.webContents.send('refresh-tab', { tabId, dirPath });
-          });
-        // .on('unlinkDir', (path) => {
-        //   if (path === '..\\..\\..') return;
-        //   console.log(`Directory ${path} has been removed`);
-        //   mainWindow.webContents.send('refresh-tab', { tabId, dirPath });
-        // });
-        watchedArray.push({ id: tabId, path: dirPath, watcher });
-      } else {
-        const watcher = chokidar.watch(dirPath, {
-          persistent: true,
-          ignored: '*.sys',
-          ignoreInitial: true,
-          followSymlinks: true,
-          cwd: '.',
-          disableGlobbing: false,
-          usePolling: false,
-          interval: 100,
-          binaryInterval: 300,
-          alwaysStat: false,
-          depth: 0,
-          awaitWriteFinish: {
-            stabilityThreshold: 2000,
-            pollInterval: 100,
-          },
-          ignorePermissionErrors: false,
-          atomic: true, // or a custom 'atomicity delay', in milliseconds (default 100)
-        });
-        // Add event listeners.
-        watcher
-          .on('add', (path) => {
-            console.log(`File ${path} has been added`);
-            mainWindow.webContents.send('refresh-tab', { tabId, dirPath });
-          })
-          .on('change', (path) => {
-            console.log(`File ${path} has been changed`);
-            mainWindow.webContents.send('refresh-tab', { tabId, dirPath });
-          })
-          .on('unlink', (path) => {
-            console.log(`File ${path} has been removed`);
-            mainWindow.webContents.send('refresh-tab', { tabId, dirPath });
-          })
-          .on('ready', () =>
-            console.log('Initial scan complete. Ready for changes')
-          )
-          .on('addDir', (path) => {
-            console.log(`Directory ${path} has been added`);
-            mainWindow.webContents.send('refresh-tab', { tabId, dirPath });
-          })
-          .on('unlinkDir', (path) => {
-            console.log(`Directory ${path} has been removed`);
-            mainWindow.webContents.send('refresh-tab', { tabId, dirPath });
-          });
-        watchedArray.push({ id: tabId, path: dirPath, watcher });
-      }
+      const pathToWatch =
+        process.platform === 'win32' ? transfPathForWin(dirPath) : dirPath;
+
+      const watcher = chokidar.watch(pathToWatch, {
+        persistent: true,
+        ignored: '*.sys',
+        ignoreInitial: true,
+        followSymlinks: true,
+        cwd: '.',
+        disableGlobbing: false,
+        usePolling: false,
+        interval: 100,
+        binaryInterval: 300,
+        alwaysStat: false,
+        depth: 0,
+        awaitWriteFinish: {
+          stabilityThreshold: 2000,
+          pollInterval: 100,
+        },
+        ignorePermissionErrors: false,
+        atomic: true, // or a custom 'atomicity delay', in milliseconds (default 100)
+      });
+      // Add event listeners.
+      // TODO: Bugged unlink dir - fix
+      watcher.on('raw', (event, path, details) => {
+        // internal
+
+        console.log('Raw event info:', event, path, details);
+        if (event === 'change') return;
+        mainWindow.webContents.send('refresh-tab', { tabId, dirPath });
+      });
+
+      watchedArray.push({ id: tabId, path: dirPath, watcher });
     } catch (err) {
       // error watching - no access or something
       console.log('Watch dir error', err);
     }
   });
+
   ipcMain.on('stop-watching-dir', (event, dirPath, tabId) => {
     // On close directory/go up/open sudirectory
     const watchedItem = watchedArray.find((item) => item.id === tabId);
@@ -131,6 +68,7 @@ module.exports = (mainWindow) => {
       console.log('Watch dir error', err);
     }
   });
+
   ipcMain.on('stop-watching-all', (event) => {
     // unwatch all here
     watchedArray.map((item) => item.watcher.close());
@@ -148,6 +86,5 @@ module.exports = (mainWindow) => {
         return false;
       }
     });
-    console.log('watchedArray', watchedArray);
   });
 };

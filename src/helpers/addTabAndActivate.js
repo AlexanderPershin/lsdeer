@@ -4,6 +4,7 @@ import { setActiveTab } from '../actions/activeTabActions';
 import { closeSearch } from '../actions/searchActions';
 
 // Should pass dispatch = useDispatch()
+// Watch the new tab path, cause '/' is bugged in chokidar
 
 const addTabAndActivate = (dispatch) => {
   const newTab = {
@@ -11,7 +12,7 @@ const addTabAndActivate = (dispatch) => {
     name: 'New',
     content: [],
     createNew: true,
-    path: '/',
+    path: 'new-tab-path',
   };
 
   dispatch(closeSearch());
