@@ -40,6 +40,7 @@ import parseDrivesData from './helpers/parseDrivesData';
 import useTabs from './hooks/useTabs';
 import useFavs from './hooks/useFavs';
 import useSettings from './hooks/useSettings';
+import openInNewTab from './helpers/openInNewTab';
 
 const { remote, ipcRenderer } = window.require('electron');
 const electron = window.require('electron');
@@ -188,24 +189,32 @@ function App() {
         return;
       }
 
-      dispatch(startLoading());
+      if (!isFile) dispatch(startLoading());
 
       ipcRenderer.send('ls-directory', newPath, tabId);
 
-      const watcherdTab = tabs.find((item) => item.id === tabId);
+      const watchedTab = tabs.find((item) => item.id === tabId);
 
-      if (!isFile && watcherdTab)
-        ipcRenderer.send('stop-watching-dir', watcherdTab.path, tabId);
-      // if (!isFile) ipcRenderer.send('start-watching-dir', newPath, tabId);
+      if (!isFile && watchedTab)
+        ipcRenderer.send('stop-watching-dir', watchedTab.path, tabId);
     });
     ipcRenderer.on('resp-dir', (event, data) => {
       const newContent = data.response;
       const tabId = data.tabId;
       const newPath = data.newPath;
 
-      // TODO: bug here: triggers 2 times: first correct path, second path: '/' - incorrect
+      const openedTab = tabs.find((item) => item.id === tabId);
+      if (
+        openedTab &&
+        openedTab.isLocked &&
+        openedTab.path !== 'new-tab-path' &&
+        openedTab.path !== newPath
+      ) {
+        openInNewTab('name', newPath, false, dispatch);
+      } else {
+        dispatch(openDirectory(tabId, newPath, newContent));
+      }
 
-      dispatch(openDirectory(tabId, newPath, newContent));
       dispatch(stopLoading());
       ipcRenderer.send('start-watching-dir', newPath, tabId);
     });
@@ -231,7 +240,7 @@ function App() {
       const refreshTabPath = refreshTab && refreshTab.path;
       if (!refreshTabPath || refreshTabPath === 'new-tab-path') return;
 
-      ipcRenderer.send('open-directory', tabId, refreshTabPath);
+      ipcRenderer.send('open-directory', tabId, refreshTabPath, false, true);
     });
 
     ipcRenderer.on('interface-toggled', () => {

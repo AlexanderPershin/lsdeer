@@ -5,7 +5,7 @@ import openInNewTab from '../helpers/openInNewTab';
 import { setActiveTab } from '../actions/activeTabActions';
 import { closeTab } from '../actions/tabsActions';
 import { closeSearch } from '../actions/searchActions';
-import { startLoading, stopLoading } from '../actions/loadingActions';
+import { stopLoading } from '../actions/loadingActions';
 
 import addTabAndActivate from '../helpers/addTabAndActivate';
 
@@ -24,7 +24,7 @@ const useTabs = () => {
 
   useEffect(() => {
     if (!activeTab) {
-      tabs.length > 0 && dispatch(setActiveTab(tabs[0].id));
+      tabs.length > 0 && dispatch(setActiveTab(tabs[tabs.length - 1].id));
     }
   }, [activeTab, dispatch, tabs]);
 
@@ -36,6 +36,9 @@ const useTabs = () => {
 
     ipcRenderer.on('current-tab-closed', (event) => {
       const tabPath = activeTabObect ? activeTabObect.path : null;
+
+      if (activeTabObect && activeTabObect.isLocked) return;
+
       ipcRenderer.send('close-tab', activeTab, tabPath);
       dispatch(closeTab(activeTab));
       dispatch(closeSearch());
@@ -49,12 +52,13 @@ const useTabs = () => {
       if (tabPath === 'new-tab-path') {
         return;
       }
+      tabs.length > 0 && dispatch(setActiveTab(tabs[tabs.length - 1].id));
       ipcRenderer.send('stop-watching-dir', tabPath, tabId);
     });
 
     ipcRenderer.on('previous-tabs', (event, data) => {
       data.tabs.map((item, idx) => {
-        openInNewTab(item.name, item.path, false, dispatch);
+        openInNewTab(item.name, item.path, false, dispatch, item.isLocked);
         return item;
       });
 
@@ -79,6 +83,7 @@ const useTabs = () => {
         name: item.name,
         id: item.id,
         path: item.path,
+        isLocked: item.isLocked,
       }));
       ipcRenderer.send('save-tabs', tabsToSave);
     });
@@ -101,6 +106,7 @@ const useTabs = () => {
           name: item.name,
           id: item.id,
           path: item.path,
+          isLocked: item.isLocked,
         }));
         ipcRenderer.send('save-tabs', tabsToSave);
       });

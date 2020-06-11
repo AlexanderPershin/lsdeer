@@ -12,7 +12,6 @@ const StyledLoadingWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 100;
 `;
 
 const LoadingScreen = () => {

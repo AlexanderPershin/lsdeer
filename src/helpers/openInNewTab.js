@@ -2,11 +2,11 @@ import { nanoid } from 'nanoid';
 import { closeSearch } from '../actions/searchActions';
 import { addTab } from '../actions/tabsActions';
 import { setActiveTab } from '../actions/activeTabActions';
-import { startLoading, stopLoading } from '../actions/loadingActions';
+import { startLoading } from '../actions/loadingActions';
 
 const { ipcRenderer } = window.require('electron');
 
-export default function (name, path, isFile, dispatch) {
+export default function (name, path, isFile, dispatch, isLocked = false) {
   if (!isFile) {
     const newId = nanoid();
 
@@ -16,6 +16,7 @@ export default function (name, path, isFile, dispatch) {
       content: [],
       createNew: true,
       path: 'new-tab-path',
+      isLocked,
     };
 
     dispatch(startLoading());
