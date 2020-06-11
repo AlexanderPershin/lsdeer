@@ -376,7 +376,7 @@ const TabContent = ({
     return rowCount;
   };
 
-  // TODO: add copy/cut/paste to item context menu
+  // TODO: replace initialScrollTop={500} with saved value
 
   return createNew || path === '/' ? (
     <NewTabContent />
@@ -398,6 +398,7 @@ const TabContent = ({
             <StyledAutoSizer>
               {({ height, width }) => (
                 <StyledRWGrid
+                  initialScrollTop={500}
                   className='Grid'
                   columnCount={calcColCount(width)}
                   columnWidth={colWidth}
