@@ -5,6 +5,7 @@ import openInNewTab from '../helpers/openInNewTab';
 import { setActiveTab } from '../actions/activeTabActions';
 import { closeTab } from '../actions/tabsActions';
 import { closeSearch } from '../actions/searchActions';
+import { startLoading, stopLoading } from '../actions/loadingActions';
 
 import addTabAndActivate from '../helpers/addTabAndActivate';
 
@@ -52,8 +53,11 @@ const useTabs = () => {
     });
 
     ipcRenderer.on('previous-tabs', (event, data) => {
-      data.tabs.map((item) => {
+      data.tabs.map((item, idx) => {
         openInNewTab(item.name, item.path, false, dispatch);
+
+        // Hide loading screen when last tab was mapped
+        if (idx === data.tabs.length - 1) dispatch(stopLoading());
         return item;
       });
     });

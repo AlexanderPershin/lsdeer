@@ -14,6 +14,7 @@ import { addToFav } from './actions/favoritesActions';
 import { setSettings } from './actions/settingsActions';
 import { toggleInterface } from './actions/hideInterfaceActions';
 import { toggleSettings } from './actions/toggleSettingsActionis';
+import { startLoading, stopLoading } from './actions/loadingActions';
 
 import GlobalStyle from './themes/globalStyle';
 import { initializeFileTypeIcons } from '@uifabric/file-type-icons';

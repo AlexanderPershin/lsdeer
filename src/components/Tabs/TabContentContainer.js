@@ -4,6 +4,7 @@ import styled from 'styled-components';
 
 import TabContent from './TabContent';
 import PlusTab from './PlusTab';
+import LoadingScreen from '../LoadingScreen';
 
 const StyledConentContainer = styled.div`
   width: 100%;
@@ -35,6 +36,7 @@ const StyledHint = styled.div`
 const TabContentContainer = () => {
   const tabs = useSelector((state) => state.tabs);
   const activeTab = useSelector((state) => state.activeTab);
+  const loading = useSelector((state) => state.loading);
 
   const currentTabObject = tabs.find((item) => item.id === activeTab);
 
@@ -42,18 +44,28 @@ const TabContentContainer = () => {
     return <TabContent key={currentTabObject.id} {...currentTabObject} />;
   };
 
-  return (
-    <StyledConentContainer>
-      {tabs.length > 0 && currentTabObject && currentTabObject.id ? (
-        renderCurrentTab()
-      ) : (
-        <StyledNoTab>
-          <PlusTab />
-          <StyledHint>Click button or press ctrl+t</StyledHint>
-        </StyledNoTab>
-      )}
-    </StyledConentContainer>
-  );
+  const renderContent = () => {
+    switch (loading) {
+      case true:
+        return <LoadingScreen />;
+      case false: {
+        if (tabs.length > 0 && currentTabObject && currentTabObject.id) {
+          return renderCurrentTab();
+        } else {
+          return (
+            <StyledNoTab>
+              <PlusTab />
+              <StyledHint>Click button or press ctrl+t</StyledHint>
+            </StyledNoTab>
+          );
+        }
+      }
+      default:
+        return <LoadingScreen />;
+    }
+  };
+
+  return <StyledConentContainer>{renderContent()}</StyledConentContainer>;
 };
 
 export default TabContentContainer;

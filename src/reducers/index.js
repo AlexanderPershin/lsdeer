@@ -8,6 +8,7 @@ import favReducer from './favReducer';
 import settingsReducer from './settingsReducer';
 import hideInterfaceReducer from './hideInterfaceReducer';
 import toggleSettingsReducer from './toggleSettingsReducer';
+import loadingReducer from './loadingReducer';
 
 const reducers = combineReducers({
   tabs: tabsReducer,
@@ -19,6 +20,7 @@ const reducers = combineReducers({
   settings: settingsReducer,
   hideInterface: hideInterfaceReducer,
   showSettings: toggleSettingsReducer,
+  loading: loadingReducer,
 });
 
 export default reducers;

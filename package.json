@@ -35,6 +35,7 @@
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
     "styled-components": "^5.1.0",
+    "styled-spinkit": "^1.1.0",
     "trash": "^6.1.1"
   },
   "scripts": {
