@@ -6,7 +6,7 @@ import React, {
   useContext,
 } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { closeTab } from '../../actions/tabsActions';
+import { closeTab, setScroll } from '../../actions/tabsActions';
 import { closeSearch } from '../../actions/searchActions';
 import {
   addSelectedFiles,
@@ -157,8 +157,10 @@ const TabContent = ({
   content: tContent,
   createNew = false,
   path,
+  scroll = false,
 }) => {
   const contentRef = useRef(null);
+  const gridInnerRef = useRef(null);
 
   const [loadedItems, setLoadItems] = useState(100);
 
@@ -344,6 +346,17 @@ const TabContent = ({
     ipcRenderer.send('paste-files');
   };
 
+  // Scroll remembering
+  const handleGridScroll = (e) => {
+    console.log('Grid scroll event', e);
+    if (!scroll || Math.abs(scroll - e.scrollTop) >= 200 || e.scrollTop === 0) {
+      dispatch(setScroll(id, e.scrollTop));
+    } else {
+      return;
+    }
+  };
+  // End scroll remembering
+
   useEffect(() => {
     dispatch(clearSelectedFiles());
   }, [activeTab, dispatch]);
@@ -398,7 +411,9 @@ const TabContent = ({
             <StyledAutoSizer>
               {({ height, width }) => (
                 <StyledRWGrid
-                  initialScrollTop={500}
+                  initialScrollTop={scroll ? scroll : 0}
+                  innerRef={gridInnerRef}
+                  onScroll={handleGridScroll}
                   className='Grid'
                   columnCount={calcColCount(width)}
                   columnWidth={colWidth}

@@ -55,6 +55,10 @@ export const unlockTab = (id) => {
   return setTabProperty(id, 'isLocked', false);
 };
 
+export const setScroll = (id, scroll) => {
+  return setTabProperty(id, 'scroll', scroll);
+};
+
 export const closeAllTabs = () => {
   return {
     type: CLOSE_ALL_TABS,
