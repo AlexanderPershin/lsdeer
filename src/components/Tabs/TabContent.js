@@ -348,7 +348,6 @@ const TabContent = ({
 
   // Scroll remembering
   const handleGridScroll = (e) => {
-    console.log('Grid scroll event', e);
     if (!scroll || Math.abs(scroll - e.scrollTop) >= 200 || e.scrollTop === 0) {
       dispatch(setScroll(id, e.scrollTop));
     } else {
