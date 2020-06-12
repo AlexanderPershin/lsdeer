@@ -1,35 +1,22 @@
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-  useContext,
-} from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { closeTab, setScroll } from '../../actions/tabsActions';
-import { closeSearch } from '../../actions/searchActions';
-import {
-  addSelectedFiles,
-  clearSelectedFiles,
-} from '../../actions/selectFilesActions';
+import { setScroll } from '../../actions/tabsActions';
+
 import styled, { ThemeContext } from 'styled-components';
-import { Icon } from '@fluentui/react/lib/Icon';
 
 import { FixedSizeGrid as Grid } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
 import NewTabContent from './NewTabContent';
-import TabItem from './TabItem';
 
-import addTabAndActivate from '../../helpers/addTabAndActivate';
+import Cell from './Cell';
 
 import FindBox from '../FindBox';
 
 import Path from '../Path';
+import UpBtn from '../UpBtn';
 
 import TabItemContextMenu from '../TabItemContextMenu';
-
-const { ipcRenderer } = window.require('electron');
 
 const StyledTabContent = styled.div`
   z-index: ${({ active }) => (active ? 100 : 50)};
@@ -84,27 +71,6 @@ const StyledNav = styled.div`
   overflow: hidden;
 `;
 
-const StyledUp = styled.button`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: none;
-  background-color: transparent;
-  color: ${({ theme }) => theme.colors.appColor};
-  padding: 0 5px;
-  cursor: pointer;
-  flex-grow: 0;
-  flex-shrink: 0;
-  font-size: ${({ theme }) => theme.font.pathBarFontSize};
-  &:hover {
-    background-color: ${({ theme }) => theme.bg.selectedBg};
-  }
-  &:disabled {
-    background-color: lightgray;
-    cursor: default;
-  }
-`;
-
 const StyledAutoSizer = styled(AutoSizer)`
   /* margin-top: 50px; */
 `;
@@ -124,29 +90,19 @@ const StyledRWGrid = styled(Grid)`
   }
 `;
 
-const StyledCell = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-`;
-
 const TabContent = ({
   id,
   name,
   content: tContent,
   createNew = false,
   path,
-  scroll = false,
+  scroll = 0,
 }) => {
   const contentRef = useRef(null);
   const gridInnerRef = useRef(null);
   const gridOuterRef = useRef(null);
 
-  const [loadedItems, setLoadItems] = useState(100);
-
   const activeTab = useSelector((state) => state.activeTab);
-  // const tabs = useSelector((state) => state.tabs);
-  const selectedStore = useSelector((state) => state.selected);
   const { searching, searchString } = useSelector((state) => state.search);
   const dispatch = useDispatch();
 
@@ -159,105 +115,6 @@ const TabContent = ({
   const themeContext = useContext(ThemeContext);
   const { rowHeight, colWidth } = themeContext.sizes;
 
-  const handleSelect = useCallback(
-    (e, selectedName) => {
-      if (e.ctrlKey && selectedStore.includes(selectedName)) {
-        dispatch(
-          addSelectedFiles(
-            selectedStore.filter((item) => item !== selectedName)
-          )
-        );
-
-        return;
-      } else if (e.ctrlKey && !selectedStore.includes(selectedName)) {
-        dispatch(addSelectedFiles([...selectedStore, selectedName]));
-        return;
-      } else if (e.shiftKey && selectedStore.length > 0) {
-        const elementFrom = selectedStore[selectedStore.length - 1];
-
-        const contentIdxFrom = content.findIndex(
-          (item) => item.name === elementFrom
-        );
-        const contentIdxTo = content.findIndex(
-          (item) => item.name === selectedName
-        );
-
-        const newSelectedArr = content
-          .slice(
-            Math.min(contentIdxFrom, contentIdxTo),
-            Math.max(contentIdxFrom, contentIdxTo)
-          )
-          .map((i) => i.name);
-
-        const nextSelectedStore = [
-          ...selectedStore,
-          ...newSelectedArr,
-          selectedName,
-        ];
-        const nextUniqueStore = [...new Set(nextSelectedStore)];
-        dispatch(addSelectedFiles(nextUniqueStore));
-        return;
-      } else if (!e.ctrlKey && !selectedStore.includes(selectedName)) {
-        dispatch(addSelectedFiles([selectedName]));
-        return;
-      } else if (
-        !e.ctrlKey &&
-        selectedStore.includes(selectedName) &&
-        selectedStore.length === 1
-      ) {
-        // Only this item is selected -> do nothing
-        // DON'T CHANGE THIS - VERY IMPORTANT
-        // ENABLES DOUBLE CLICK EVENT TO OPEN DIRECTORY!
-        return;
-      } else {
-        dispatch(clearSelectedFiles());
-        return;
-      }
-    },
-    [content, dispatch, selectedStore]
-  );
-
-  const handleSelectRightClick = (name) => {
-    if (selectedStore.includes(name)) return;
-    dispatch(addSelectedFiles([name]));
-  };
-
-  const handleGoUp = () => {
-    if (path.length <= 3) {
-      dispatch(closeSearch());
-      addTabAndActivate(dispatch);
-      dispatch(closeTab(id));
-      return;
-    }
-    let path_arr = path.split('/');
-
-    path_arr.splice(-2, 2);
-    const newPath = path_arr.join('/') + '/';
-    ipcRenderer.send('open-directory', id, newPath);
-    dispatch(closeSearch());
-    dispatch(clearSelectedFiles());
-  };
-
-  const handleLoadMoreOnScroll = (e) => {
-    const contentEl = contentRef.current;
-    try {
-      if (loadedItems >= content.length) {
-        return;
-      }
-    } catch (err) {
-      console.log(err);
-    }
-
-    if (
-      contentEl.scrollHeight - 150 <=
-      Math.ceil(contentEl.scrollTop + contentEl.clientHeight)
-    ) {
-      setLoadItems((prev) => prev + 50);
-    }
-  };
-
-  // Scroll remembering
-
   useEffect(() => {
     return () => {
       if (gridOuterRef && gridOuterRef.current) {
@@ -267,28 +124,6 @@ const TabContent = ({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  // End scroll remembering
-
-  // TODO: make file deselection on misclick
-  const calculateFlatIndex = (colIndex, rowIndex, colCount) => {
-    const index = rowIndex * colCount + colIndex;
-    return index;
-  };
-
-  const Cell = ({ columnIndex, rowIndex, style, data: colCount }) => {
-    const item = content[calculateFlatIndex(columnIndex, rowIndex, colCount)];
-
-    return item ? (
-      <StyledCell style={style}>
-        <TabItem
-          {...item}
-          handleSelect={handleSelect}
-          handleSelectRightClick={handleSelectRightClick}
-          selected={selectedStore.includes(item.name)}
-        />
-      </StyledCell>
-    ) : null;
-  };
 
   const calcColCount = (w) => Math.floor(w / colWidth);
   const calcRowCount = (w) => {
@@ -297,21 +132,17 @@ const TabContent = ({
     return rowCount;
   };
 
-  // TODO: replace initialScrollTop={500} with saved value
-
   return createNew || path === '/' ? (
     <NewTabContent />
   ) : (
     <StyledTabContent
       ref={contentRef}
       active={id === activeTab}
-      onScroll={handleLoadMoreOnScroll}
+      // onScroll={handleLoadMoreOnScroll}
     >
       <React.Fragment>
         <StyledNav>
-          <StyledUp onClick={handleGoUp}>
-            <Icon iconName='SortUp' className='ms-IconExample' />
-          </StyledUp>
+          <UpBtn id={id} path={path} />
           <Path path={path} />
         </StyledNav>
         <TabItemContextMenu content={content} path={path} id={id}>
@@ -329,7 +160,7 @@ const TabContent = ({
                   rowCount={calcRowCount(width) + 1}
                   rowHeight={rowHeight}
                   width={width}
-                  itemData={calcColCount(width)}
+                  itemData={{ colCount: calcColCount(width), content }}
                 >
                   {Cell}
                 </StyledRWGrid>

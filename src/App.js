@@ -2,7 +2,12 @@ import React, { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled, { ThemeProvider } from 'styled-components';
 import { nanoid } from 'nanoid';
-import { addTab, closeTab, openDirectory } from './actions/tabsActions';
+import {
+  addTab,
+  closeTab,
+  openDirectory,
+  setScroll,
+} from './actions/tabsActions';
 import { setDrives } from './actions/drivesActions';
 import { setActiveTab } from './actions/activeTabActions';
 import {
@@ -194,6 +199,11 @@ function App() {
       ipcRenderer.send('ls-directory', newPath, tabId);
 
       const watchedTab = tabs.find((item) => item.id === tabId);
+
+      // Forget scroll value for this tab
+      if (watchedTab.path !== newPath) {
+        dispatch(setScroll(tabId, 0));
+      }
 
       if (!isFile && watchedTab)
         ipcRenderer.send('stop-watching-dir', watchedTab.path, tabId);
