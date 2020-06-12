@@ -351,9 +351,10 @@ const TabContent = ({
 
   useEffect(() => {
     return () => {
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      if (gridOuterRef && gridOuterRef.current)
+      if (gridOuterRef && gridOuterRef.current) {
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         dispatch(setScroll(id, gridOuterRef.current.scrollTop));
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
