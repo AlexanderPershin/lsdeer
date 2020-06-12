@@ -5,6 +5,7 @@ import PlusTab from './PlusTab';
 import styled from 'styled-components';
 
 import { setTabs } from '../../actions/tabsActions';
+import { clearSelectedFiles } from '../../actions/selectFilesActions';
 
 const TabsContainer = styled.div`
   display: flex;
@@ -27,6 +28,7 @@ const TabsContainer = styled.div`
 
 const Tabs = () => {
   const tabs = useSelector((state) => state.tabs);
+  const activeTab = useSelector((state) => state.activeTab);
   const dispatch = useDispatch();
   const tabsRef = useRef(null);
   const [plusClicked, setPlusClicked] = useState(false);
@@ -91,6 +93,10 @@ const Tabs = () => {
     if (plusClicked) tabsRef.current.scrollLeft = tabsRef.current.scrollWidth;
     setPlusClicked(false);
   }, [plusClicked, tabs]);
+
+  useEffect(() => {
+    dispatch(clearSelectedFiles());
+  }, [activeTab, dispatch]);
 
   return (
     <TabsContainer ref={tabsRef} onWheel={handleScrollTabs}>

@@ -163,6 +163,7 @@ const TabContent = ({
   const gridInnerRef = useRef(null);
 
   const [loadedItems, setLoadItems] = useState(100);
+  const [tabScroll, setTabScroll] = useState(scroll || 0);
 
   const activeTab = useSelector((state) => state.activeTab);
   const tabs = useSelector((state) => state.tabs);
@@ -348,17 +349,15 @@ const TabContent = ({
 
   // Scroll remembering
   const handleGridScroll = (e) => {
-    if (!scroll || Math.abs(scroll - e.scrollTop) >= 200 || e.scrollTop === 0) {
-      dispatch(setScroll(id, e.scrollTop));
-    } else {
-      return;
-    }
+    setTabScroll((prev) => e.scrollTop);
   };
   // End scroll remembering
 
   useEffect(() => {
-    dispatch(clearSelectedFiles());
-  }, [activeTab, dispatch]);
+    if (Math.abs(scroll - tabScroll) > 250 || tabScroll === 0)
+      dispatch(setScroll(id, tabScroll));
+    else return;
+  }, [activeTab, dispatch, id, scroll, tabScroll]);
 
   // TODO: make file deselection on misclick
   const calculateFlatIndex = (colIndex, rowIndex, colCount) => {
