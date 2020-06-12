@@ -161,9 +161,9 @@ const TabContent = ({
 }) => {
   const contentRef = useRef(null);
   const gridInnerRef = useRef(null);
+  const gridOuterRef = useRef(null);
 
   const [loadedItems, setLoadItems] = useState(100);
-  const [tabScroll, setTabScroll] = useState(scroll || 0);
 
   const activeTab = useSelector((state) => state.activeTab);
   const tabs = useSelector((state) => state.tabs);
@@ -348,16 +348,16 @@ const TabContent = ({
   };
 
   // Scroll remembering
-  const handleGridScroll = (e) => {
-    setTabScroll((prev) => e.scrollTop);
-  };
-  // End scroll remembering
 
   useEffect(() => {
-    if (Math.abs(scroll - tabScroll) > 250 || tabScroll === 0)
-      dispatch(setScroll(id, tabScroll));
-    else return;
-  }, [activeTab, dispatch, id, scroll, tabScroll]);
+    return () => {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      if (gridOuterRef && gridOuterRef.current)
+        dispatch(setScroll(id, gridOuterRef.current.scrollTop));
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  // End scroll remembering
 
   // TODO: make file deselection on misclick
   const calculateFlatIndex = (colIndex, rowIndex, colCount) => {
@@ -411,7 +411,7 @@ const TabContent = ({
                 <StyledRWGrid
                   initialScrollTop={scroll ? scroll : 0}
                   innerRef={gridInnerRef}
-                  onScroll={handleGridScroll}
+                  outerRef={gridOuterRef}
                   className='Grid'
                   columnCount={calcColCount(width)}
                   columnWidth={colWidth}
