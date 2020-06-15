@@ -1,3 +1,4 @@
+import { batch } from 'react-redux';
 import { nanoid } from 'nanoid';
 import { closeSearch } from '../actions/searchActions';
 import { addTab } from '../actions/tabsActions';
@@ -19,10 +20,13 @@ export default function (name, path, isFile, dispatch, isLocked = false) {
       isLocked,
     };
 
-    dispatch(startLoading());
-    dispatch(closeSearch());
-    dispatch(addTab(newTab));
-    dispatch(setActiveTab(newTab.id));
+    batch(() => {
+      dispatch(startLoading());
+      dispatch(closeSearch());
+      dispatch(addTab(newTab));
+      dispatch(setActiveTab(newTab.id));
+    });
+
     ipcRenderer.send('open-directory', newId, path, isFile);
   } else {
     ipcRenderer.send('open-directory', 'placeholderid', path, isFile);

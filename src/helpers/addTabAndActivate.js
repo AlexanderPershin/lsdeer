@@ -1,3 +1,4 @@
+import { batch } from 'react-redux';
 import { nanoid } from 'nanoid';
 import { addTab } from '../actions/tabsActions';
 import { setActiveTab } from '../actions/activeTabActions';
@@ -15,9 +16,11 @@ const addTabAndActivate = (dispatch) => {
     path: 'new-tab-path',
   };
 
-  dispatch(closeSearch());
-  dispatch(addTab(newTab));
-  dispatch(setActiveTab(newTab.id));
+  batch(() => {
+    dispatch(closeSearch());
+    dispatch(addTab(newTab));
+    dispatch(setActiveTab(newTab.id));
+  });
 };
 
 export default addTabAndActivate;
