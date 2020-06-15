@@ -1,6 +1,7 @@
 const electron = require('electron');
 const fs = require('fs');
 const { ipcMain } = electron;
+const getColors = require('get-image-colors');
 
 // Allows to open path: newPath in tab with id: tabId
 module.exports = (mainWindow) => {
@@ -39,5 +40,25 @@ module.exports = (mainWindow) => {
   ipcMain.on('reset-settings-to-default', (event) => {
     console.log("'reset-settings-to-default'", 'reset-settings-to-default');
     mainWindow.webContents.send('settings-dropped');
+  });
+
+  ipcMain.on('extract-colors', (event, imagePath) => {
+    const options = {
+      count: 7,
+    };
+
+    getColors(imagePath, options)
+      .then((colors) => {
+        mainWindow.webContents.send('extracted-colors', {
+          colors,
+          error: false,
+        });
+      })
+      .catch((err) => {
+        mainWindow.webContents.send('extracted-colors', {
+          colors: null,
+          error: true,
+        });
+      });
   });
 };

@@ -2,6 +2,9 @@ import React, { useContext } from 'react';
 import styled, { ThemeContext } from 'styled-components';
 import { Icon } from '@fluentui/react/lib/Icon';
 import Select from '../Inputs/Select';
+import Button from '../Button';
+
+const { ipcRenderer } = window.require('electron');
 
 const StyledInputsWrapper = styled.div`
   display: grid;
@@ -63,6 +66,11 @@ const StyledCurrentBgLabel = styled.span`
   grid-row: 3 / 8;
 `;
 
+const StyledExtractBtn = styled(Button)`
+  grid-column: 1 / -1;
+  justify-self: center;
+`;
+
 const bgSizeOpts = [
   { label: 'Cover', value: 'cover' },
   { label: 'Contain', value: 'contain' },
@@ -78,6 +86,10 @@ const AppImageSettings = ({ handleSetProp }) => {
       imagePath
     )}`;
     handleSetProp(false, 'bg', 'appBgImage', imagPathUrl);
+  };
+
+  const handleExtractScheme = () => {
+    ipcRenderer.send('extract-colors', themeContext.bg.appBgImage);
   };
 
   return (
@@ -107,6 +119,10 @@ const AppImageSettings = ({ handleSetProp }) => {
         optionsArray={bgSizeOpts}
         onChange={(newVal) => handleSetProp(false, 'bg', 'appBgSize', newVal)}
       />
+
+      <StyledExtractBtn onClick={handleExtractScheme}>
+        Extract Color Scheme from background image
+      </StyledExtractBtn>
     </StyledInputsWrapper>
   );
 };
