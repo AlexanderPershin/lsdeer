@@ -135,11 +135,7 @@ const TabContent = ({
   return createNew || path === '/' ? (
     <NewTabContent />
   ) : (
-    <StyledTabContent
-      ref={contentRef}
-      active={id === activeTab}
-      // onScroll={handleLoadMoreOnScroll}
-    >
+    <StyledTabContent ref={contentRef} active={id === activeTab}>
       <React.Fragment>
         <StyledNav>
           <UpBtn id={id} path={path} />
