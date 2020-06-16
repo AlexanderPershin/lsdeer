@@ -12,6 +12,7 @@ const createWindow = () => {
     height: 600,
     width: 800,
     frame: false,
+    show: false,
   });
 
   const startUrl =
@@ -22,6 +23,10 @@ const createWindow = () => {
   requireModules(mainWindow);
 
   mainWindow.webContents.openDevTools();
+
+  mainWindow.on('ready-to-show', () => {
+    mainWindow.show();
+  });
 
   //enable garbage collector
   mainWindow.on('closed', () => {
