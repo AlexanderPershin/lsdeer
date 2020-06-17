@@ -95,17 +95,7 @@ function App() {
   let electronbar = useRef(null);
 
   useEffect(() => {
-    electronbar.current = new Electronbar({
-      electron: electron,
-      window: electron.remote.getCurrentWindow(),
-      menu: electron.remote.Menu.buildFromTemplate(template),
-      mountNode: electronbarMount.current,
-      title: 'lsdeer',
-      icon: appIcon,
-    });
-
-    // Rewrite built in chromium shortcuts
-    window.addEventListener('keyup', (e) => {
+    const handleKeyUp = (e) => {
       if (e.which === 67 && e.ctrlKey) {
         // ctrl+c copy to clipboard
         // mainWindow.webContents.send('copy-to-clipboard');
@@ -140,8 +130,57 @@ function App() {
         // ctrl+x = cut selected files
         ipcRenderer.send('copy-files', true);
       }
+    };
+
+    electronbar.current = new Electronbar({
+      electron: electron,
+      window: electron.remote.getCurrentWindow(),
+      menu: electron.remote.Menu.buildFromTemplate(template),
+      mountNode: electronbarMount.current,
+      title: 'lsdeer',
+      icon: appIcon,
     });
+
+    // Rewrite built in chromium shortcuts
+    window.addEventListener('keyup', handleKeyUp);
+
+    return () => {
+      window.removeEventListener('keyup', handleKeyUp);
+    };
   }, []);
+
+  useEffect(() => {
+    const handleSelectNextTab = (e) => {
+      // Next tab
+      if (e.which === 9 && e.ctrlKey && tabs && tabs.length > 0) {
+        // ctrl+tab
+        const currentTabIndex = tabs.findIndex((item) => item.id === activeTab);
+
+        if (currentTabIndex === tabs.length - 1) {
+          dispatch(setActiveTab(tabs[0].id));
+        } else {
+          dispatch(setActiveTab(tabs[currentTabIndex + 1].id));
+        }
+      }
+      // Prev tab
+      if (e.which === 9 && e.ctrlKey && e.shiftKey && tabs && tabs.length > 0) {
+        // ctrl+shift+tab
+        const currentTabIndex = tabs.findIndex((item) => item.id === activeTab);
+
+        if (currentTabIndex === 0) {
+          dispatch(setActiveTab(tabs[tabs.length - 1].id));
+        } else {
+          dispatch(setActiveTab(tabs[currentTabIndex - 1].id));
+        }
+      }
+    };
+
+    window.addEventListener('keyup', handleSelectNextTab);
+
+    return () => {
+      window.removeEventListener('keyup', handleSelectNextTab);
+    };
+  }, [activeTab, dispatch, tabs]);
 
   useEffect(() => {
     const tabPath = activeTabObect ? activeTabObect.path : null;
