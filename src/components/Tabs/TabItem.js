@@ -23,8 +23,9 @@ const StyledItem = styled.button`
   cursor: pointer;
   position: relative;
   padding: 5px;
+  outline: ${({ isCursor, theme }) =>
+    isCursor ? `1px dotted ${theme.bg.selectedBg}` : 'none'};
   border: none;
-  outline: none;
   color: inherit;
   font-size: inherit;
   font-family: inherit;
@@ -59,9 +60,12 @@ const TabItem = ({
   selected,
   handleSelect,
   handleSelectRightClick,
+  isCursor,
+  index,
 }) => {
   const activeTab = useSelector((state) => state.activeTab);
   const tabs = useSelector((state) => state.tabs);
+  const cursor = useSelector((state) => state.cursor);
   const selectedStore = useSelector((state) => state.selected);
   const dispatch = useDispatch();
 
@@ -80,10 +84,12 @@ const TabItem = ({
     ipcRenderer.send('open-directory', activeTab, newPath, isFile);
   };
 
-  const handleSelectThis = useCallback((e) => handleSelect(e, name), [
-    handleSelect,
-    name,
-  ]);
+  const handleSelectThis = useCallback(
+    (e) => {
+      handleSelect(e, name);
+    },
+    [handleSelect, name]
+  );
 
   const handleSelectContext = (e) => {
     handleSelectRightClick(name);
@@ -102,6 +108,7 @@ const TabItem = ({
       sel={selected}
       ref={thisItem}
       className='TabItem'
+      isCursor={index === cursor}
     >
       {!imageIsBroken && isFile && imageExtensions.includes(ext.substr(1)) ? (
         <StyledImg

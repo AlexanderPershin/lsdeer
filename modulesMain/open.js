@@ -10,4 +10,8 @@ module.exports = (mainWindow) => {
       isFile,
     });
   });
+
+  ipcMain.on('open-selected-item', (event) => {
+    mainWindow.webContents.send('selected-item-opened');
+  });
 };

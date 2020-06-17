@@ -26,7 +26,8 @@ const Cell = ({ columnIndex, rowIndex, style, data }) => {
     return index;
   };
 
-  const item = content[calculateFlatIndex(columnIndex, rowIndex, colCount)];
+  const flatIndex = calculateFlatIndex(columnIndex, rowIndex, colCount);
+  const item = content[flatIndex];
 
   const handleSelect = useCallback(
     (e, selectedName) => {
@@ -94,6 +95,7 @@ const Cell = ({ columnIndex, rowIndex, style, data }) => {
   return item ? (
     <StyledCell style={style}>
       <TabItem
+        index={flatIndex}
         {...item}
         handleSelect={handleSelect}
         handleSelectRightClick={handleSelectRightClick}

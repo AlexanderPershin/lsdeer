@@ -3,7 +3,6 @@ const { ipcMain } = electron;
 const chokidar = require('chokidar');
 
 const { transfPathForWin } = require('../helpersMain/helpers');
-console.log('loading watchers module');
 
 let watchedArray = []; // Array of tab id's and paths that are being watched now
 // Allows to whatch opened tabs for changes and refresh them

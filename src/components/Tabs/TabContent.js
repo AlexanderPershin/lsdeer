@@ -1,6 +1,8 @@
-import React, { useEffect, useRef, useContext } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setScroll } from '../../actions/tabsActions';
+import { addSelectedFiles } from '../../actions/selectFilesActions';
+import { setCursor } from '../../actions/cursorActions';
 
 import styled, { ThemeContext } from 'styled-components';
 
@@ -99,12 +101,17 @@ const TabContent = ({
   scroll = 0,
 }) => {
   const contentRef = useRef(null);
+  const gridRef = useRef(null);
   const gridInnerRef = useRef(null);
   const gridOuterRef = useRef(null);
 
   const activeTab = useSelector((state) => state.activeTab);
+  const cursor = useSelector((state) => state.cursor);
   const { searching, searchString } = useSelector((state) => state.search);
   const dispatch = useDispatch();
+
+  const [cursorTouched, setCursorTouched] = useState(false);
+  const [currentColCount, setCurrentColCount] = useState(1);
 
   const content = searching
     ? tContent.filter((item) =>
@@ -125,6 +132,106 @@ const TabContent = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    if (content.length > 0 && cursorTouched) {
+      dispatch(addSelectedFiles([content[cursor].name]));
+    }
+  }, [content, cursor, cursorTouched, dispatch]);
+
+  useEffect(() => {
+    dispatch(setCursor(0));
+  }, [activeTab, dispatch]);
+
+  useEffect(() => {
+    const currentRowCount = Math.ceil(content.length / currentColCount);
+    const cursorRowPos = Math.ceil(cursor / currentColCount);
+    const prevItemsCount = (cursorRowPos - 1) * currentColCount;
+    const cursorColPos =
+      prevItemsCount > 0 ? Math.floor(cursor % prevItemsCount) : cursor;
+
+    const calculateNextRow = (nextCursor, up) => {
+      return up
+        ? Math.floor(nextCursor / currentColCount)
+        : Math.ceil(nextCursor / currentColCount);
+    };
+
+    const handleCursor = (e) => {
+      setCursorTouched(true);
+
+      // Arrows pressed 37,38,39,40
+      // Left/Right
+      if (e.which === 37) {
+        let nextCursor;
+        if (cursor === 0) {
+          nextCursor = content.length - 1;
+        } else {
+          nextCursor = cursor - 1;
+        }
+        gridRef.current.scrollToItem({
+          columnIndex: cursorColPos,
+          rowIndex: calculateNextRow(nextCursor, true),
+        });
+        dispatch(setCursor(nextCursor));
+      } else if (e.which === 39) {
+        let nextCursor;
+        if (cursor === content.length - 1) {
+          nextCursor = 0;
+        } else {
+          nextCursor = cursor + 1;
+        }
+        gridRef.current.scrollToItem({
+          columnIndex: cursorColPos,
+          rowIndex: calculateNextRow(nextCursor, false),
+        });
+        dispatch(setCursor(nextCursor));
+      }
+
+      // TODO: calculate flat index and next cursor position using currentColcount and colWidth from themeContext
+      // Add ctrl pressed state and if pressed add to selected files not rewrite them
+      // Up/Down
+      if (e.which === 38) {
+        // up
+        let nextCursor;
+        if (cursor - currentColCount >= 0) {
+          nextCursor = cursor - currentColCount;
+        } else {
+          nextCursor = cursorColPos;
+        }
+        gridRef.current.scrollToItem({
+          columnIndex: cursorColPos,
+          rowIndex: calculateNextRow(nextCursor, true),
+        });
+        dispatch(setCursor(nextCursor));
+      } else if (e.which === 40) {
+        // down
+        let nextCursor;
+        if (cursor + currentColCount < content.length - 1) {
+          nextCursor = cursor + currentColCount;
+        } else if (cursorRowPos === currentRowCount) {
+          return;
+        } else {
+          nextCursor = content.length - 1;
+        }
+
+        gridRef.current.scrollToItem({
+          columnIndex: cursorColPos,
+          rowIndex: calculateNextRow(nextCursor, false),
+        });
+        dispatch(setCursor(nextCursor));
+      }
+    };
+
+    window.addEventListener('keydown', handleCursor);
+
+    return () => {
+      window.removeEventListener('keydown', handleCursor);
+    };
+  }, [cursor, content, dispatch, currentColCount, gridRef]);
+
+  const handleResize = ({ width, height }) => {
+    setCurrentColCount(Math.floor(width / colWidth));
+  };
+
   const calcColCount = (w) => Math.floor(w / colWidth);
   const calcRowCount = (w) => {
     const colCount = calcColCount(w);
@@ -143,10 +250,11 @@ const TabContent = ({
         </StyledNav>
         <TabItemContextMenu content={content} path={path} id={id}>
           <StyledFiles>
-            <StyledAutoSizer>
+            <StyledAutoSizer onResize={handleResize}>
               {({ height, width }) => (
                 <StyledRWGrid
                   initialScrollTop={scroll ? scroll : 0}
+                  ref={gridRef}
                   innerRef={gridInnerRef}
                   outerRef={gridOuterRef}
                   className='Grid'
