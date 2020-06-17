@@ -26,6 +26,13 @@ const template = [
     label: 'Edit',
     submenu: [
       {
+        label: 'Open',
+        accelerator: 'Return',
+        click(e) {
+          ipcRenderer.send('open-selected-item');
+        },
+      },
+      {
         label: 'Select All',
         accelerator: 'CmdOrCtrl+A',
         role: 'selectAll',

@@ -146,6 +146,25 @@ function App() {
   useEffect(() => {
     const tabPath = activeTabObect ? activeTabObect.path : null;
 
+    ipcRenderer.on('selected-item-opened', (event) => {
+      if (selectedStore.length === 1) {
+        const activePath = tabs.filter((item) => item.id === activeTab)[0].path;
+        const isFile = tabs
+          .find((item) => item.id === activeTab)
+          .content.find((item) => item.name === selectedStore[0]).isFile;
+        const newPath = `${activePath}${selectedStore[0]}`;
+
+        if (isFile) {
+          ipcRenderer.send('open-directory', activeTab, newPath, isFile);
+        } else {
+          dispatch(clearSelectedFiles());
+          ipcRenderer.send('open-directory', activeTab, newPath, isFile);
+        }
+      } else {
+        return;
+      }
+    });
+
     ipcRenderer.on('copy-to-clipboard', (event, data) => {
       const { isCut } = data;
       ipcRenderer.send('copied-file', tabPath, selectedStore, isCut);
