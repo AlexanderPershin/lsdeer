@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
-import { useDispatch, useSelector, batch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setScroll } from '../../actions/tabsActions';
 import { addSelectedFiles } from '../../actions/selectFilesActions';
 import { setCursor } from '../../actions/cursorActions';
@@ -110,6 +110,7 @@ const TabContent = ({
   const { searching, searchString } = useSelector((state) => state.search);
   const dispatch = useDispatch();
 
+  const [cursorTouched, setCursorTouched] = useState(false);
   const [currentColCount, setCurrentColCount] = useState(1);
 
   const content = searching
@@ -132,10 +133,10 @@ const TabContent = ({
   }, []);
 
   useEffect(() => {
-    if (content.length > 0) {
+    if (content.length > 0 && cursorTouched) {
       dispatch(addSelectedFiles([content[cursor].name]));
     }
-  }, [content, cursor, dispatch]);
+  }, [content, cursor, cursorTouched, dispatch]);
 
   useEffect(() => {
     dispatch(setCursor(0));
@@ -145,31 +146,44 @@ const TabContent = ({
     const currentRowCount = Math.ceil(content.length / currentColCount);
     const cursorRowPos = Math.ceil(cursor / currentColCount);
     const prevItemsCount = (cursorRowPos - 1) * currentColCount;
-    const cursorColPos = prevItemsCount > 0 ? cursor % prevItemsCount : cursor;
-    const lastRowColCount =
-      content.length % currentColCount === 0
-        ? currentColCount
-        : content.length % currentColCount;
+    const cursorColPos =
+      prevItemsCount > 0 ? Math.floor(cursor % prevItemsCount) : cursor;
+
+    const calculateNextRow = (nextCursor, up) => {
+      return up
+        ? Math.floor(nextCursor / currentColCount)
+        : Math.ceil(nextCursor / currentColCount);
+    };
 
     const handleCursor = (e) => {
+      setCursorTouched(true);
+
       // Arrows pressed 37,38,39,40
       // Left/Right
-      if (e.which === 37 && cursor === 0) {
-        batch(() => {
-          dispatch(setCursor(content.length - 1));
+      if (e.which === 37) {
+        let nextCursor;
+        if (cursor === 0) {
+          nextCursor = content.length - 1;
+        } else {
+          nextCursor = cursor - 1;
+        }
+        gridRef.current.scrollToItem({
+          columnIndex: cursorColPos,
+          rowIndex: calculateNextRow(nextCursor, true),
         });
-      } else if (e.which === 37 && cursor > 0) {
-        batch(() => {
-          dispatch(setCursor(cursor - 1));
+        dispatch(setCursor(nextCursor));
+      } else if (e.which === 39) {
+        let nextCursor;
+        if (cursor === content.length - 1) {
+          nextCursor = 0;
+        } else {
+          nextCursor = cursor + 1;
+        }
+        gridRef.current.scrollToItem({
+          columnIndex: cursorColPos,
+          rowIndex: calculateNextRow(nextCursor, false),
         });
-      } else if (e.which === 39 && cursor === content.length - 1) {
-        batch(() => {
-          dispatch(setCursor(0));
-        });
-      } else if (e.which === 39 && cursor < content.length - 1) {
-        batch(() => {
-          dispatch(setCursor(cursor + 1));
-        });
+        dispatch(setCursor(nextCursor));
       }
 
       // TODO: calculate flat index and next cursor position using currentColcount and colWidth from themeContext
@@ -181,39 +195,27 @@ const TabContent = ({
         if (cursor - currentColCount >= 0) {
           nextCursor = cursor - currentColCount;
         } else {
-          if (lastRowColCount === currentColCount) {
-            nextCursor = content.length - 1 + (cursor - currentColCount);
-          } else {
-            if (lastRowColCount > currentColCount + cursor - currentColCount) {
-              nextCursor =
-                currentColCount * currentRowCount + cursor - currentColCount;
-            } else {
-              nextCursor =
-                currentColCount * (currentRowCount - 1) +
-                cursor -
-                currentColCount;
-            }
-          }
+          nextCursor = cursorColPos;
         }
         gridRef.current.scrollToItem({
           columnIndex: cursorColPos,
-          rowIndex: cursorRowPos - 1,
+          rowIndex: calculateNextRow(nextCursor, true),
         });
         dispatch(setCursor(nextCursor));
       } else if (e.which === 40) {
         // down
         let nextCursor;
-        // TODO: Fix but for 1rst col cursorColPos either 0 or 8, then should be always 0!!!
-        console.log('cursorColPos', cursorColPos);
         if (cursor + currentColCount < content.length - 1) {
           nextCursor = cursor + currentColCount;
+        } else if (cursorRowPos === currentRowCount) {
+          return;
         } else {
-          nextCursor = cursorColPos;
+          nextCursor = content.length - 1;
         }
 
         gridRef.current.scrollToItem({
           columnIndex: cursorColPos,
-          rowIndex: cursorRowPos + 1,
+          rowIndex: calculateNextRow(nextCursor, false),
         });
         dispatch(setCursor(nextCursor));
       }

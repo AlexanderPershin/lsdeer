@@ -84,10 +84,12 @@ const TabItem = ({
     ipcRenderer.send('open-directory', activeTab, newPath, isFile);
   };
 
-  const handleSelectThis = useCallback((e) => handleSelect(e, name), [
-    handleSelect,
-    name,
-  ]);
+  const handleSelectThis = useCallback(
+    (e) => {
+      handleSelect(e, name);
+    },
+    [handleSelect, name]
+  );
 
   const handleSelectContext = (e) => {
     handleSelectRightClick(name);
