@@ -7,10 +7,12 @@
 <style>
 svg {
     transform: scale(0.5);
+    perspective: 800px;
 }
 .cls-1{
     fill:gray;
     transition: all 3s ease-in-out;
+    transform-origin: 50% 70%;
 }
 .cls-1:nth-child(even){
     animation: 3s linear 1.75s switch-cls-1 infinite alternate;

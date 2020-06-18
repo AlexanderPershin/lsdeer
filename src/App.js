@@ -37,7 +37,7 @@ import defaultTheme from './themes/default';
 import Tabs from './components/Tabs/Tabs';
 import TabContentContainer from './components/Tabs/TabContentContainer';
 
-import appIcon from './img/Renna.png';
+import appIcon from './img/deer-icon.png';
 
 import parseDrivesData from './helpers/parseDrivesData';
 

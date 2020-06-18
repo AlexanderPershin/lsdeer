@@ -229,7 +229,9 @@ const TabContent = ({
     if (searching && searchString.trim() !== '') {
       let itemIndex;
       const searchResults = content.filter((item, index) => {
-        const incl = item.name.includes(searchString);
+        const incl = item.name
+          .toLowerCase()
+          .includes(searchString.toLowerCase());
         if (incl) {
           if (!itemIndex) itemIndex = index;
           return true;
@@ -240,7 +242,7 @@ const TabContent = ({
         const namesArr = searchResults.map((item) => item.name);
         gridRef.current.scrollToItem({
           columnIndex: 0,
-          rowIndex: Math.ceil(itemIndex / currentColCount),
+          rowIndex: Math.round(itemIndex / currentColCount),
         });
         dispatch(addSelectedFiles(namesArr));
       }

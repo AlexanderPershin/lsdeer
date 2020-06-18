@@ -5,7 +5,7 @@ const { app, BrowserWindow } = electron;
 const createWindow = () => {
   let mainWindow = new BrowserWindow({
     title: 'lsdeer',
-    icon: __dirname + '/appAssets/Renna.png',
+    icon: __dirname + '/appAssets/deer-icon.png',
     webPreferences: {
       nodeIntegration: true,
     },
