@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector, batch } from 'react-redux';
 import styled, { ThemeProvider } from 'styled-components';
 import { nanoid } from 'nanoid';
 import {
@@ -84,6 +84,7 @@ function App() {
   const favorites = useSelector((state) => state.favorites);
   const settings = useSelector((state) => state.settings);
   const showSettings = useSelector((state) => state.showSettings);
+  const { searching, searchString } = useSelector((state) => state.search);
   const hideInterface = useSelector((state) => state.hideInterface);
   const dispatch = useDispatch();
 
@@ -186,7 +187,8 @@ function App() {
     const tabPath = activeTabObect ? activeTabObect.path : null;
 
     ipcRenderer.on('selected-item-opened', (event) => {
-      if (selectedStore.length === 1) {
+      if (selectedStore.length === 1 && !searching) {
+        console.log('App -> searching', searching);
         const activePath = tabs.filter((item) => item.id === activeTab)[0].path;
         const isFile = tabs
           .find((item) => item.id === activeTab)
@@ -231,7 +233,10 @@ function App() {
     });
 
     ipcRenderer.on('find-start', (event) => {
-      dispatch(toggleSearch());
+      batch(() => {
+        dispatch(clearSelectedFiles());
+        dispatch(toggleSearch());
+      });
     });
 
     ipcRenderer.once('drives-response', (event, data) => {

@@ -113,12 +113,6 @@ const TabItemContextMenu = ({ id, path, content, children }) => {
       </ContextMenuTrigger>
       {selectedStore.length === 0 ? (
         <ContextMenu id={id + path}>
-          <StyledMenuItem
-            data={{ foo: 'bar' }}
-            onClick={() => console.log('Hello!')}
-          >
-            Hello
-          </StyledMenuItem>
           <MenuItem divider />
           <StyledMenuItem onClick={handleContextPaste}>
             Paste <StyledCtxShortcut>ctrl+v</StyledCtxShortcut>

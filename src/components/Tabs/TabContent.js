@@ -113,11 +113,7 @@ const TabContent = ({
   const [cursorTouched, setCursorTouched] = useState(false);
   const [currentColCount, setCurrentColCount] = useState(1);
 
-  const content = searching
-    ? tContent.filter((item) =>
-        item.name.toLowerCase().includes(searchString.toLowerCase())
-      )
-    : tContent;
+  const content = tContent;
 
   const themeContext = useContext(ThemeContext);
   const { rowHeight, colWidth } = themeContext.sizes;
@@ -156,6 +152,7 @@ const TabContent = ({
     };
 
     const handleCursor = (e) => {
+      if (searching) return;
       setCursorTouched(true);
 
       // Arrows pressed 37,38,39,40
@@ -226,7 +223,19 @@ const TabContent = ({
     return () => {
       window.removeEventListener('keydown', handleCursor);
     };
-  }, [cursor, content, dispatch, currentColCount, gridRef]);
+  }, [cursor, content, dispatch, currentColCount, gridRef, searching]);
+
+  useEffect(() => {
+    if (searching && searchString.trim() !== '') {
+      const searchResults = content.filter((item) =>
+        item.name.includes(searchString)
+      );
+      if (searchResults.length > 0) {
+        const namesArr = searchResults.map((item) => item.name);
+        dispatch(addSelectedFiles(namesArr));
+      }
+    }
+  }, [searching, searchString, content, dispatch]);
 
   const handleResize = ({ width, height }) => {
     setCurrentColCount(Math.floor(width / colWidth));
