@@ -227,15 +227,25 @@ const TabContent = ({
 
   useEffect(() => {
     if (searching && searchString.trim() !== '') {
-      const searchResults = content.filter((item) =>
-        item.name.includes(searchString)
-      );
+      let itemIndex;
+      const searchResults = content.filter((item, index) => {
+        const incl = item.name.includes(searchString);
+        if (incl) {
+          if (!itemIndex) itemIndex = index;
+          return true;
+        }
+        return false;
+      });
       if (searchResults.length > 0) {
         const namesArr = searchResults.map((item) => item.name);
+        gridRef.current.scrollToItem({
+          columnIndex: 0,
+          rowIndex: Math.ceil(itemIndex / currentColCount),
+        });
         dispatch(addSelectedFiles(namesArr));
       }
     }
-  }, [searching, searchString, content, dispatch]);
+  }, [searching, searchString, content, dispatch, currentColCount]);
 
   const handleResize = ({ width, height }) => {
     setCurrentColCount(Math.floor(width / colWidth));
