@@ -12,9 +12,20 @@ const parseDrivesData = (respDrivesArr) => {
   };
 
   let parsedDrives = [];
-  const stage0Data = respDrivesArr
+  let stage0Data = respDrivesArr
     .map((item) => item.split(' ').filter((item) => item !== ''))
     .filter((item) => item.length > 0);
+
+  // check stage0data
+  stage0Data = stage0Data.map((item, index) => {
+    if(item.length > 6) {
+      if (index === 0) return item;
+      // Git location added to output, like: C:/Program Files/Git and parsed incorrectly
+      const newItem = item;
+      newItem.splice(1,1);
+      return newItem
+    } else {return item}
+  })
 
   let tableHeaders = stage0Data.shift();
 
