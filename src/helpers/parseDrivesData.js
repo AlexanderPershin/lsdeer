@@ -22,7 +22,8 @@ const parseDrivesData = (respDrivesArr) => {
       if (index === 0) return item;
       // Git location added to output, like: C:/Program Files/Git and parsed incorrectly
       const newItem = item;
-      newItem.splice(1,1);
+      const numRedundunt = item.length - 6;
+      newItem.splice(1,numRedundunt);
       return newItem
     } else {return item}
   })

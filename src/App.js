@@ -241,8 +241,6 @@ function App() {
 
     ipcRenderer.once('drives-response', (event, data) => {
       const newDrives = parseDrivesData(data.response);
-      console.log("App -> newDrives", newDrives)
-      console.log("App -> data.response", data.response)
 
       // shallow comparison
       if (JSON.stringify(drives) === JSON.stringify(newDrives)) {
