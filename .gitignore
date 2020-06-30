@@ -25,3 +25,5 @@ yarn-error.log*
 tabs.json
 favorites.json
 settings.json
+
+/dist

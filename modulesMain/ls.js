@@ -8,10 +8,19 @@ const { clearArrayOfStrings } = require('../helpersMain/helpers');
 const formDirArrayWin = require('../helpersMain/formDirArrayWin');
 const formDirArrayLinux = require('../helpersMain/formDirArrayLinux');
 const checkFileAndOpen = require('../helpersMain/checkFileAndOpen');
+const dirToLs = require('../helpersMain/dirToLs');
 
 module.exports = (mainWindow) => {
   ipcMain.on('ls-directory', (event, dirPath, tabId) => {
-    const command = `ls "${dirPath}" -p -1v --hide=*.sys --hide="System Volume Information" --group-directories-first`;
+    let command;
+    const command_unix = `ls "${dirPath}" -p -1v --hide=*.sys --hide="System Volume Information" --group-directories-first`;
+    const command_win = `dir ${dirPath} /o`;
+
+    if (process.platform === 'win32') {
+      command = command_win;
+    } else {
+      command = command_unix;
+    }
 
     try {
       const itWasFile = checkFileAndOpen(dirPath);
@@ -26,7 +35,8 @@ module.exports = (mainWindow) => {
           const namesArray = clearArrayOfStrings(stdout.toString().split('\n'));
 
           if (os.platform() === 'win32') {
-            outputArray = formDirArrayWin(namesArray, dirPath);
+            const convNamesArr = dirToLs(namesArray);
+            outputArray = formDirArrayWin(convNamesArr, dirPath);
           } else {
             outputArray = formDirArrayLinux(namesArray, dirPath);
           }

@@ -149,6 +149,8 @@ const NewTabContent = () => {
   };
 
   useEffect(() => {
+    console.log('NewTabContent - getting drives');
+    
     ipcRenderer.send('get-drives');
   }, []);
 
