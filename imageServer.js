@@ -1,6 +1,7 @@
 const express = require('express');
 const http = require('http');
 const cors = require('cors');
+const path = require('path');
 const imageThumbnail = require('image-thumbnail');
 
 const expressApp = express();
@@ -15,8 +16,11 @@ const expressPort = 15032;
 router.get('/file/:fullpath', async function (req, res) {
   // .ico images not supported by sharp, but were included
   // they'll be sent unchanged, because of small size
-  let filePath = req.params.fullpath;
-
+  let filePath =
+    process.platform === 'win32'
+      ? path.win32.normalize(req.params.fullpath)
+      : req.params.fullpath;
+  console.log('filePath', filePath);
   let options = { width: 150, height: 100, percentage: 5 };
 
   try {

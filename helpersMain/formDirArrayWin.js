@@ -2,8 +2,6 @@ const path = require('path');
 const { transfPathForWin } = require('./helpers');
 
 const formDirArrayWin = (namesArray, dirPath) => {
-  const newPath = transfPathForWin(dirPath);
-
   const outputArray = namesArray.map((name) => {
     let isFile;
 
@@ -15,9 +13,9 @@ const formDirArrayWin = (namesArray, dirPath) => {
 
     return {
       name,
-      path: path.normalize(path.join(newPath, name)),
+      path: path.normalize(path.join(dirPath, name)),
       isFile,
-      ext: path.extname(path.normalize(path.join(newPath, name))),
+      ext: path.extname(path.normalize(path.join(dirPath, name))),
     };
   });
 

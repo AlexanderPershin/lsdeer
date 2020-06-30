@@ -93,7 +93,7 @@ const NewTabContent = () => {
 
   const contentRef = useRef(null);
 
-  const handleOpenDirectory = (newPath, name) => {
+  const handleOpenDirectory = (newPath) => {
     ipcRenderer.send('open-directory', activeTab, newPath, false);
   };
 
@@ -114,9 +114,7 @@ const NewTabContent = () => {
         <HardDrive
           key={item.filesystem}
           {...item}
-          handleOpenDirectory={() =>
-            handleOpenDirectory(item.mounted + '/', item.mounted + '/')
-          }
+          handleOpenDirectory={() => handleOpenDirectory(item.mounted)}
         />
       ));
   };
@@ -150,7 +148,7 @@ const NewTabContent = () => {
 
   useEffect(() => {
     console.log('NewTabContent - getting drives');
-    
+
     ipcRenderer.send('get-drives');
   }, []);
 
@@ -183,7 +181,7 @@ const NewTabContent = () => {
       ) : null}
 
       <StyledClearfix onClick={handleScrollTop}>
-        <Icon iconName='ChevronUpMed' ariaLabel='go up' />
+        <Icon iconName="ChevronUpMed" ariaLabel="go up" />
       </StyledClearfix>
     </StyledContent>
   );

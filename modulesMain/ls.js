@@ -2,6 +2,7 @@ const electron = require('electron');
 const { ipcMain } = electron;
 const os = require('os');
 const { exec } = require('child_process');
+const path = require('path');
 
 const { clearArrayOfStrings } = require('../helpersMain/helpers');
 
@@ -13,8 +14,8 @@ const dirToLs = require('../helpersMain/dirToLs');
 module.exports = (mainWindow) => {
   ipcMain.on('ls-directory', (event, dirPath, tabId) => {
     let command;
-    const command_unix = `ls "${dirPath}" -p -1v --hide=*.sys --hide="System Volume Information" --group-directories-first`;
-    const command_win = `dir ${dirPath} /o`;
+    const command_unix = `ls "${dirPath}/" -p -1v --hide=*.sys --hide="System Volume Information" --group-directories-first`;
+    const command_win = `chcp 65001 | dir ${path.win32.normalize(dirPath)} /o`;
 
     if (process.platform === 'win32') {
       command = command_win;
