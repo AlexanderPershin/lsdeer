@@ -69,11 +69,13 @@ const Path = ({ path }) => {
     const newPath = pathArr.join('/');
 
     dispatch(clearSelectedFiles());
-    ipcRenderer.send('open-directory', activeTab, '/' + newPath + '/', false);
+    ipcRenderer.send('open-directory', activeTab, newPath + '/', false);
   };
 
   const renderPathNav = () => {
-    const pathArr = path.split('/').filter((i) => i);
+    const pathArr = path
+      .split(/(:|\/)/)
+      .filter((i) => i !== ':' && i !== '/' && i !== '');
     return pathArr.map((item, idx) => {
       if (item) {
         return (
@@ -85,8 +87,8 @@ const Path = ({ path }) => {
             </StyledPathItem>
             {idx + 1 === pathArr.length ? null : (
               <StyledPathIcon
-                iconName='ChevronRightMed'
-                className='ms-IconExample'
+                iconName="ChevronRightMed"
+                className="ms-IconExample"
               />
             )}
           </React.Fragment>

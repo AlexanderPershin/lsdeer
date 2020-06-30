@@ -1,8 +1,8 @@
 const path = require('path');
-const { transfPathForWin } = require('./helpers');
+// const { transfPathForWin } = require('./helpers');
 
 const formDirArrayWin = (namesArray, dirPath) => {
-  const outputArray = namesArray.map((name) => {
+  let outputArray = namesArray.map((name) => {
     let isFile;
 
     if (name.charAt(name.length - 1) === '/') {
@@ -11,14 +11,19 @@ const formDirArrayWin = (namesArray, dirPath) => {
       isFile = true;
     }
 
+    newPath = dirPath.replace(':', ':/');
+
     return {
       name,
-      path: path.normalize(path.join(dirPath, name)),
+      path: path.win32.normalize(path.win32.join(newPath, name)),
       isFile,
-      ext: path.extname(path.normalize(path.join(dirPath, name))),
+      ext: path.win32.extname(
+        path.win32.normalize(path.win32.join(newPath, name))
+      ),
     };
   });
-
+  outputArray = outputArray.filter((i) => i.name !== './' && i.name !== '../');
+  console.log('formDirArrayWin -> outputArray', outputArray);
   return outputArray;
 };
 
