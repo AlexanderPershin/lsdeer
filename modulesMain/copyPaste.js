@@ -1,7 +1,7 @@
 const electron = require('electron');
 const { ipcMain } = electron;
 const { exec } = require('child_process');
-const os = require('os');
+const path = require('path');
 
 const ProgressBar = require('electron-progressbar');
 
@@ -12,6 +12,7 @@ const formDirArrayLinux = require('../helpersMain/formDirArrayLinux');
 const pasteUnderNewName = require('../helpersMain/pasteUnderNewName');
 const deleteFile = require('../helpersMain/deleteFile');
 const getSourceDirFromArr = require('../helpersMain/getSourceDirFromArr');
+const dirToLs = require('../helpersMain/dirToLs');
 
 let copiedFiles = [];
 let filesWereCut = false;
@@ -77,7 +78,15 @@ module.exports = (mainWindow) => {
         });
 
       console.log(`Files ${copiedFiles} pasted to ${dirPath}`);
-      const command = `ls "${dirPath}" -p --hide=*.sys --hide="System Volume Information" --group-directories-first`;
+      let command;
+      const command_unix = `ls "${dirPath}" -p --hide=*.sys --hide="System Volume Information" --group-directories-first`;
+      const command_win = `chcp 65001 | dir "${path.win32.normalize(
+        dirPath
+      )}" /o`;
+
+      process.platform === 'win32'
+        ? (command = command_win)
+        : (command = command_unix);
 
       const copiedFilesNames = copiedFiles.map((item) => {
         const itemArr = item.split('/');
@@ -93,8 +102,11 @@ module.exports = (mainWindow) => {
           let outputArray = [];
           const namesArray = clearArrayOfStrings(stdout.toString().split('\n'));
 
-          if (os.platform() === 'win32') {
-            outputArray = formDirArrayWin(namesArray, dirPath);
+          // TODO: Copying doesn't work Err same file!
+
+          if (process.platform === 'win32') {
+            const convNamesArr = dirToLs(namesArray);
+            outputArray = formDirArrayWin(convNamesArr, dirPath);
           } else {
             outputArray = formDirArrayLinux(namesArray, dirPath);
           }

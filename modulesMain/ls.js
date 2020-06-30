@@ -37,7 +37,7 @@ module.exports = (mainWindow) => {
 
           const namesArray = clearArrayOfStrings(stdout.toString().split('\n'));
 
-          if (os.platform() === 'win32') {
+          if (process.platform === 'win32') {
             const convNamesArr = dirToLs(namesArray);
             outputArray = formDirArrayWin(convNamesArr, dirPath);
           } else {

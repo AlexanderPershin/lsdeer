@@ -2,6 +2,7 @@ const electron = require('electron');
 const { ipcMain, dialog } = electron;
 const { exec } = require('child_process');
 const trash = require('trash');
+const deleteFile = require('../helpersMain/deleteFile');
 const { transfPathForWin } = require('../helpersMain/helpers');
 
 // Allows to delete selected files/folders
@@ -52,17 +53,18 @@ module.exports = (mainWindow) => {
         // delete all
 
         filenamesArr.map((item) => {
-          const command = `rm -r "${dirPath}${item}"`;
+          // const command = `rm -r "${dirPath}${item}"`;
 
-          exec(command, (err, stdout, stderr) => {
-            if (err) {
-              console.error(err);
-            } else {
-              mainWindow.webContents.send('delete-file-resp', {
-                response: true,
-              });
-            }
-          });
+          // exec(command, (err, stdout, stderr) => {
+          //   if (err) {
+          //     console.error(err);
+          //   } else {
+          //     mainWindow.webContents.send('delete-file-resp', {
+          //       response: true,
+          //     });
+          //   }
+          // });
+          deleteFile(`${dirPath}${item}`);
 
           return item;
         });
