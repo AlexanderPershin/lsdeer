@@ -152,6 +152,7 @@ const TabContent = ({
     };
 
     const handleCursor = (e) => {
+      if (!'37 38 39 40'.includes(e.which)) return;
       if (searching) return;
       setCursorTouched(true);
 
@@ -278,7 +279,7 @@ const TabContent = ({
                   ref={gridRef}
                   innerRef={gridInnerRef}
                   outerRef={gridOuterRef}
-                  className='Grid'
+                  className="Grid"
                   columnCount={calcColCount(width)}
                   columnWidth={colWidth}
                   height={height}
