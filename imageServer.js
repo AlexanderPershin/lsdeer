@@ -20,7 +20,6 @@ router.get('/file/:fullpath', async function (req, res) {
     process.platform === 'win32'
       ? path.win32.normalize(req.params.fullpath)
       : req.params.fullpath;
-  console.log('filePath', filePath);
   let options = { width: 150, height: 100, percentage: 5 };
 
   try {
@@ -37,7 +36,6 @@ router.get('/file/:fullpath', async function (req, res) {
 router.get('/bg/:fullpath', async function (req, res) {
   // Send fullsize image
   let filePath = req.params.fullpath;
-  console.log('filePath', filePath);
 
   res.sendFile(filePath);
 });

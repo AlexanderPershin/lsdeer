@@ -129,13 +129,13 @@ const HardDrive = ({
   const renderInfo = () => {
     switch (currInfo) {
       case 1:
-        return `${used.replace(/\w$/, ' $&')} used`;
+        return `${used} used`;
       case 2:
         return `${use} used`;
       case 3:
-        return `${avail.replace(/\w$/, ' $&')} available`;
+        return `${avail} available`;
       default:
-        return `${used.replace(/\w$/, ' $&')} used`;
+        return `${used} used`;
     }
   };
 
@@ -143,11 +143,11 @@ const HardDrive = ({
     <StyledDriveWrapper
       onDoubleClick={() => handleOpenDirectory(mounted, filesystem)}
     >
-      <Drive color='#fff' />
+      <Drive color="#fff" />
       <StyledDriveInfo>
         <StyledDriveStats>
           <StyledDriveLetter>{filesystem}</StyledDriveLetter>
-          <StyledDriveSize>{size.replace(/\w$/, ' $&')}</StyledDriveSize>
+          <StyledDriveSize>{size}</StyledDriveSize>
         </StyledDriveStats>
         <StyledProgress currentInfo={renderInfo()}>
           <StyledProgressBar percentage={use}>{use}</StyledProgressBar>

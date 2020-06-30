@@ -74,7 +74,7 @@ const Path = ({ path }) => {
 
   const renderPathNav = () => {
     const pathArr = path
-      .split(/(:|\/)/)
+      .split(/\//)
       .filter((i) => i !== ':' && i !== '/' && i !== '');
     return pathArr.map((item, idx) => {
       if (item) {

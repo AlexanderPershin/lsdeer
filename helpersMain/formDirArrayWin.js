@@ -23,7 +23,6 @@ const formDirArrayWin = (namesArray, dirPath) => {
     };
   });
   outputArray = outputArray.filter((i) => i.name !== './' && i.name !== '../');
-  console.log('formDirArrayWin -> outputArray', outputArray);
   return outputArray;
 };
 

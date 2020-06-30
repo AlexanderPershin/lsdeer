@@ -15,7 +15,9 @@ module.exports = (mainWindow) => {
   ipcMain.on('ls-directory', (event, dirPath, tabId) => {
     let command;
     const command_unix = `ls "/${dirPath}/" -p -1v --hide=*.sys --hide="System Volume Information" --group-directories-first`;
-    const command_win = `chcp 65001 | dir ${path.win32.normalize(dirPath)} /o`;
+    const command_win = `chcp 65001 | dir "${path.win32.normalize(
+      dirPath
+    )}" /o`;
 
     if (process.platform === 'win32') {
       command = command_win;
