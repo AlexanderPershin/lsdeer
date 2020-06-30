@@ -26,21 +26,12 @@ module.exports = (mainWindow) => {
       // move to trash
 
       filenamesArr.map((item) => {
-        if (process.platform === 'win32') {
-          trash(transfPathForWin(`${dirPath}${item}`)).then((e) => {
-            console.log(`${dirPath}${item} has been deleted`);
-            mainWindow.webContents.send('edit-action-complete', {
-              dirPath,
-            });
+        trash(`${dirPath}${item}`).then((e) => {
+          console.log(`${dirPath}${item} has been deleted`);
+          mainWindow.webContents.send('edit-action-complete', {
+            dirPath,
           });
-        } else {
-          trash(`${dirPath}${item}`).then((e) => {
-            console.log(`${dirPath}${item} has been deleted`);
-            mainWindow.webContents.send('edit-action-complete', {
-              dirPath,
-            });
-          });
-        }
+        });
 
         return item;
       });

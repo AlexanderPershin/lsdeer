@@ -17,8 +17,10 @@ module.exports = (mainWindow) => {
     watchedArray = watchedArray.filter((item) => item.id !== tabId);
 
     try {
-      const pathToWatch =
-        process.platform === 'win32' ? transfPathForWin(dirPath) : dirPath;
+      // const pathToWatch =
+      //   process.platform === 'win32' ? transfPathForWin(dirPath) : dirPath;
+
+      const pathToWatch = dirPath;
 
       const watcher = chokidar.watch(pathToWatch, {
         persistent: true,
