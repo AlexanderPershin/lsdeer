@@ -1,7 +1,11 @@
 const electron = require('electron');
 
 const { app, BrowserWindow, dialog } = electron;
-const { default: installExtension, REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } = require('electron-devtools-installer');
+const {
+  default: installExtension,
+  REACT_DEVELOPER_TOOLS,
+  REDUX_DEVTOOLS,
+} = require('electron-devtools-installer');
 const fixPath = require('fix-path');
 
 fixPath();
@@ -29,6 +33,8 @@ const createWindow = () => {
     icon: __dirname + '/appAssets/deer-icon.png',
     webPreferences: {
       nodeIntegration: true,
+      webSecurity: true,
+      allowRunningInsecureContent: false,
     },
     height: 600,
     width: 800,
@@ -61,14 +67,12 @@ app.on('ready', createWindow);
 
 app.whenReady().then(() => {
   installExtension(REDUX_DEVTOOLS)
-      .then((name) => console.log(`Added Extension:  ${name}`))
-      .catch((err) => console.log('An error occurred: ', err));
+    .then((name) => console.log(`Added Extension:  ${name}`))
+    .catch((err) => console.log('An error occurred: ', err));
   installExtension(REACT_DEVELOPER_TOOLS)
-      .then((name) => console.log(`Added Extension:  ${name}`))
-      .catch((err) => console.log('An error occurred: ', err));
-
-})
-
+    .then((name) => console.log(`Added Extension:  ${name}`))
+    .catch((err) => console.log('An error occurred: ', err));
+});
 
 // Image Server
 require('./imageServer');

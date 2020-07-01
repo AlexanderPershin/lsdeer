@@ -2,6 +2,8 @@ const electron = require('electron');
 const { ipcMain } = electron;
 const { exec } = require('child_process');
 const path = require('path');
+const { ncp } = require('ncp');
+ncp.limit = 16;
 
 const ProgressBar = require('electron-progressbar');
 
@@ -98,7 +100,7 @@ module.exports = (mainWindow) => {
       exec(command, (err, stdout, stderr) => {
         console.log('stdout', stdout);
         if (err) {
-          console.error(err);
+          console.error('copyPaste module error: ', err);
         } else {
           let outputArray = [];
           let namesArray = clearArrayOfStrings(stdout.toString().split('\n'));
@@ -137,16 +139,33 @@ module.exports = (mainWindow) => {
               });
             } else {
               console.log(`File ${item} will be first in ${dirPath}`);
-              exec(
-                `cp -R \"${copiedFiles[idx]}\" \"${dirPath}${item}\"`,
-                (error, stdout, stderr) => {
-                  if (error) console.log(error);
-                  if (stderr) console.log(stderr);
-                  progressBar.value += 1;
-                  mainWindow.webContents.send('edit-action-complete', {
-                    dirPath,
-                  });
 
+              if (process.platform === 'win32') {
+                ncp(
+                  path.win32.normalize(copiedFiles[idx]),
+                  path.win32.normalize(`${dirPath}${item}`),
+                  function (err) {
+                    if (err) {
+                      return console.error(err);
+                    }
+                    progressBar.value += 1;
+                    if (filesWereCut || deleteSourceFiles) {
+                      // Delete source file here
+                      const sourceDirPath = getSourceDirFromArr(copiedFiles);
+
+                      deleteFile(sourceDirPath + item);
+                      mainWindow.webContents.send('edit-action-complete', {
+                        sourceDirPath,
+                      });
+                    }
+                  }
+                );
+              } else {
+                ncp(copiedFiles[idx], `${dirPath}${item}`, function (err) {
+                  if (err) {
+                    return console.error(err);
+                  }
+                  progressBar.value += 1;
                   if (filesWereCut || deleteSourceFiles) {
                     // Delete source file here
                     const sourceDirPath = getSourceDirFromArr(copiedFiles);
@@ -156,8 +175,8 @@ module.exports = (mainWindow) => {
                       sourceDirPath,
                     });
                   }
-                }
-              );
+                });
+              }
             }
           });
         }

@@ -1,5 +1,8 @@
 const path = require('path');
+const fs = require('fs');
 const { exec } = require('child_process');
+const { ncp } = require('ncp');
+ncp.limit = 16;
 
 const pasteUderNewName = (filePath, destDir, callback) => {
   // First find all copies in this folder
@@ -10,7 +13,9 @@ const pasteUderNewName = (filePath, destDir, callback) => {
 
   const find_command =
     process.platform === 'win32'
-      ? `dir /S/B "${path.win32.normalize(destDir + fileNameNoExt)}(copy-*)*"`
+      ? `chcp 65001 | dir /S/B "${path.win32.normalize(
+          destDir + fileNameNoExt
+        )}(copy-*)*"`
       : `find ${destDir} -name '${fileNameNoExt}(copy-*)*'`;
 
   if (fileExt) {
@@ -37,15 +42,8 @@ const pasteUderNewName = (filePath, destDir, callback) => {
 
         const fileNewName = `${fileNameNoExt}(copy-${copyNum})${fileExt}`;
 
-        const copy_command =
-          process.platform === 'win32'
-            ? `chcp 65001 | copy /y \"${filePath}\" \"${destDir}${fileNewName}\"`
-            : `cp -R \"${filePath}\" \"${destDir}${fileNewName}\"`;
-        console.log('pasteUderNewName -> copy_command', copy_command);
-        // Check changed filepath uses ', whilde destdir uses " - this should work!!!
-        exec(copy_command, (error, stdout, stderr) => {
-          if (error) console.log(error);
-          if (stderr) console.log(stderr);
+        fs.copyFile(filePath, `${destDir}${fileNewName}`, (err) => {
+          if (err) console.log('pasteUnderNewName: Error copying file!');
           callback();
         });
       });
@@ -77,18 +75,36 @@ const pasteUderNewName = (filePath, destDir, callback) => {
 
         // actually folder new name
         const fileNewName = `${fileNameNoExt}(copy-${copyNum})`;
-        console.log('pasteUderNewName -> fileNewName', fileNewName);
 
-        const copy_command =
-          process.platform === 'win32'
-            ? `copy /y \"${filePath}\" \"${destDir}${fileNewName}\"`
-            : `cp -R \"${filePath}\" \"${destDir}${fileNewName}\"`;
-
-        exec(copy_command, (error, stdout, stderr) => {
-          if (error) console.log(error);
-          if (stderr) console.log(stderr);
-          callback();
-        });
+        if (process.platform === 'win32') {
+          ncp(
+            path.win32.normalize(filePath),
+            path.win32.normalize(`${destDir}${fileNewName}`),
+            function (err) {
+              console.log(
+                'pasteUderNewName -> filePath, `${destDir}${fileNewName}`',
+                filePath,
+                `${destDir}${fileNewName}`
+              );
+              if (err) {
+                return console.error(err);
+              }
+              callback();
+            }
+          );
+        } else {
+          ncp(filePath, `${destDir}${fileNewName}`, function (err) {
+            console.log(
+              'pasteUderNewName -> filePath, `${destDir}${fileNewName}`',
+              filePath,
+              `${destDir}${fileNewName}`
+            );
+            if (err) {
+              return console.error(err);
+            }
+            callback();
+          });
+        }
       });
     } catch (error) {
       console.log('Error pasting folder ', error);
