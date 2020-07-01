@@ -128,8 +128,6 @@ module.exports = (mainWindow) => {
 
                 if (filesWereCut || deleteSourceFiles) {
                   // Delete source file here
-
-                  // TODO: deletion of cut folders doesn't work!
                   const sourceDirPath = getSourceDirFromArr(copiedFiles);
                   deleteFile(sourceDirPath + item);
                   mainWindow.webContents.send('edit-action-complete', {

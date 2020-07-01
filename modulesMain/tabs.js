@@ -40,11 +40,19 @@ module.exports = (mainWindow) => {
 
   ipcMain.on('get-tabs', (event) => {
     fs.readFile(tabsSavePath, (err, data) => {
-      if (err) throw err;
+      if (err) {
+        console.log(err);
+        mainWindow.webContents.send('previous-tabs', { tabs: [] });
+        return;
+      }
 
-      const tabsArray = JSON.parse(data);
-
-      mainWindow.webContents.send('previous-tabs', { tabs: tabsArray });
+      try {
+        const tabsArray = JSON.parse(data);
+        mainWindow.webContents.send('previous-tabs', { tabs: tabsArray });
+      } catch (error) {
+        console.log('error', error);
+        mainWindow.webContents.send('previous-tabs', { tabs: [] });
+      }
     });
   });
 };
