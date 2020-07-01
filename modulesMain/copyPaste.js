@@ -96,23 +96,27 @@ module.exports = (mainWindow) => {
       });
       console.log('copiedFilesNames', copiedFilesNames);
       exec(command, (err, stdout, stderr) => {
+        console.log('stdout', stdout);
         if (err) {
           console.error(err);
         } else {
           let outputArray = [];
-          const namesArray = clearArrayOfStrings(stdout.toString().split('\n'));
-
-          // TODO: Copying doesn't work Err same file!
+          let namesArray = clearArrayOfStrings(stdout.toString().split('\n'));
+          let convNamesArr;
 
           if (process.platform === 'win32') {
-            const convNamesArr = dirToLs(namesArray);
+            convNamesArr = dirToLs(namesArray);
             outputArray = formDirArrayWin(convNamesArr, dirPath);
+            console.log('outputArray', outputArray);
           } else {
             outputArray = formDirArrayLinux(namesArray, dirPath);
           }
 
           copiedFilesNames.map((item, idx) => {
-            if (namesArray.includes(item)) {
+            if (
+              (process.platform === 'win32' && convNamesArr.includes(item)) ||
+              (process.platform !== 'win32' && namesArray.includes(item))
+            ) {
               console.log(`File ${item} already exists in ${dirPath}`);
               pasteUnderNewName(copiedFiles[idx], dirPath, () => {
                 progressBar.value += 1;

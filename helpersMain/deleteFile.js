@@ -2,8 +2,8 @@ const { exec } = require('child_process');
 const path = require('path');
 
 module.exports = (fullpath) => {
-  const command_win_file = `del ${path.win32.normalize(fullpath)}`;
-  const command_win_dir = `rmdir /S/Q ${path.win32.normalize(fullpath)}`;
+  const command_win_file = `del "${path.win32.normalize(fullpath)}"`;
+  const command_win_dir = `rmdir /S/Q "${path.win32.normalize(fullpath)}"`;
   const command_unix = `rm -r "${fullpath}"`;
 
   if (process.platform === 'win32') {
@@ -27,7 +27,7 @@ module.exports = (fullpath) => {
       });
     }
   } else {
-    exec(command, (err, stdout, stderr) => {
+    exec(command_unix, (err, stdout, stderr) => {
       if (err) {
         console.error(err);
       } else {

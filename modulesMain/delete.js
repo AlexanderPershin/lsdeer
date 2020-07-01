@@ -1,9 +1,8 @@
 const electron = require('electron');
-const { ipcMain, dialog } = electron;
+const { ipcMain, dialog, shell } = electron;
+const path = require('path');
 const { exec } = require('child_process');
-const trash = require('trash');
 const deleteFile = require('../helpersMain/deleteFile');
-const { transfPathForWin } = require('../helpersMain/helpers');
 
 // Allows to delete selected files/folders
 module.exports = (mainWindow) => {
@@ -14,6 +13,8 @@ module.exports = (mainWindow) => {
   ipcMain.on('x-delete-selected', (event) => {
     mainWindow.webContents.send('selected-x-deleted');
   });
+
+  // TODO: Trash doesn't work on win32 - try using default node.js module
 
   ipcMain.on('remove-directories', (event, dirPath, filenamesArr) => {
     let options = {
@@ -27,12 +28,13 @@ module.exports = (mainWindow) => {
       // move to trash
 
       filenamesArr.map((item) => {
-        trash(`${dirPath}${item}`).then((e) => {
-          console.log(`${dirPath}${item} has been deleted`);
-          mainWindow.webContents.send('edit-action-complete', {
-            dirPath,
-          });
-        });
+        const deletingDirPath =
+          process.platform === 'win32'
+            ? path.win32.normalize(`${dirPath}${item}`)
+            : `${dirPath}${item}`;
+
+        console.log(`Deleting dir ${deletingDirPath}`);
+        shell.moveItemToTrash(`${deletingDirPath}`);
 
         return item;
       });
@@ -53,17 +55,6 @@ module.exports = (mainWindow) => {
         // delete all
 
         filenamesArr.map((item) => {
-          // const command = `rm -r "${dirPath}${item}"`;
-
-          // exec(command, (err, stdout, stderr) => {
-          //   if (err) {
-          //     console.error(err);
-          //   } else {
-          //     mainWindow.webContents.send('delete-file-resp', {
-          //       response: true,
-          //     });
-          //   }
-          // });
           deleteFile(`${dirPath}${item}`);
 
           return item;
