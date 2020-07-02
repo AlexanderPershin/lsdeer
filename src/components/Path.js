@@ -69,13 +69,11 @@ const Path = ({ path }) => {
     const newPath = pathArr.join('/');
 
     dispatch(clearSelectedFiles());
-    ipcRenderer.send('open-directory', activeTab, newPath + '/', false);
+    ipcRenderer.send('open-directory', activeTab, newPath, false);
   };
 
   const renderPathNav = () => {
-    const pathArr = path
-      .split(/\//)
-      .filter((i) => i !== ':' && i !== '/' && i !== '');
+    const pathArr = path.split(/\//).filter((i) => i);
     return pathArr.map((item, idx) => {
       if (item) {
         return (

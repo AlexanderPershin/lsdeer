@@ -21,7 +21,7 @@ const wmicToDf = (inp) => {
       const avail = bytes(free, { decimalPlaces: 0 });
       const use =
         Number(((size_init - free) / size_init) * 100).toFixed(0) + '%';
-      const mounted = letter + '/';
+      const mounted = letter;
       return `${filesystem} ${size} ${used} ${avail} ${use} ${mounted} `;
     }
   });

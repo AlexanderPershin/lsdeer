@@ -48,8 +48,8 @@ const UpBtn = ({ id, path }) => {
     }
     let path_arr = path.split('/');
 
-    path_arr.splice(-2, 2);
-    const newPath = path_arr.join('/') + '/';
+    path_arr.splice(-1, 1);
+    const newPath = path_arr.join('/');
     ipcRenderer.send('open-directory', id, newPath);
     dispatch(closeSearch());
     dispatch(clearSelectedFiles());

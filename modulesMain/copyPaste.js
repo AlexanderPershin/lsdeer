@@ -15,6 +15,7 @@ const pasteUnderNewName = require('../helpersMain/pasteUnderNewName');
 const deleteFile = require('../helpersMain/deleteFile');
 const getSourceDirFromArr = require('../helpersMain/getSourceDirFromArr');
 const dirToLs = require('../helpersMain/dirToLs');
+const listDirectory = require('../helpersMain/listDirectory');
 
 let copiedFiles = [];
 let filesWereCut = false;
@@ -92,93 +93,140 @@ module.exports = (mainWindow) => {
 
       const copiedFilesNames = copiedFiles.map((item) => {
         const itemArr = item.split('/');
-        return itemArr[itemArr.length - 1] === ''
-          ? itemArr[itemArr.length - 2] + '/'
-          : itemArr[itemArr.length - 1];
+        return itemArr[itemArr.length - 1];
       });
       console.log('copiedFilesNames', copiedFilesNames);
-      exec(command, (err, stdout, stderr) => {
-        console.log('stdout', stdout);
-        if (err) {
-          console.error('copyPaste module error: ', err);
-        } else {
-          let outputArray = [];
-          let namesArray = clearArrayOfStrings(stdout.toString().split('\n'));
-          let convNamesArr;
 
-          if (process.platform === 'win32') {
-            convNamesArr = dirToLs(namesArray);
-            outputArray = formDirArrayWin(convNamesArr, dirPath);
-            console.log('outputArray', outputArray);
-          } else {
-            outputArray = formDirArrayLinux(namesArray, dirPath);
-          }
+      listDirectory(dirPath, (dirArray) => {
+        console.log('copyPaste: dirArray', dirArray);
+        console.log('copyPaste: dirPath', dirPath);
+        const namesArray = dirArray.map((itm) => itm.name);
+        console.log('namesArray', namesArray);
 
-          copiedFilesNames.map((item, idx) => {
-            if (
-              (process.platform === 'win32' && convNamesArr.includes(item)) ||
-              (process.platform !== 'win32' && namesArray.includes(item))
-            ) {
-              console.log(`File ${item} already exists in ${dirPath}`);
-              pasteUnderNewName(copiedFiles[idx], dirPath, () => {
-                progressBar.value += 1;
+        copiedFilesNames.map((item, idx) => {
+          if (namesArray.includes(item)) {
+            console.log(`File ${item} already exists in ${dirPath}`);
+            pasteUnderNewName(copiedFiles[idx], path.normalize(dirPath), () => {
+              progressBar.value += 1;
+              mainWindow.webContents.send('edit-action-complete', {
+                dirPath,
+              });
+
+              if (filesWereCut || deleteSourceFiles) {
+                // Delete source file here
+                const sourceDirPath = getSourceDirFromArr(copiedFiles);
+                deleteFile(sourceDirPath + item);
                 mainWindow.webContents.send('edit-action-complete', {
-                  dirPath,
+                  sourceDirPath,
                 });
+              }
+            });
+          } else {
+            console.log(`File ${item} will be first in ${dirPath}`);
 
+            ncp(
+              path.normalize(copiedFiles[idx]),
+              path.normalize(`${dirPath}/${item}`),
+              function (err) {
+                if (err) {
+                  return console.error(err);
+                }
+                progressBar.value += 1;
                 if (filesWereCut || deleteSourceFiles) {
                   // Delete source file here
                   const sourceDirPath = getSourceDirFromArr(copiedFiles);
+
                   deleteFile(sourceDirPath + item);
                   mainWindow.webContents.send('edit-action-complete', {
                     sourceDirPath,
                   });
                 }
-              });
-            } else {
-              console.log(`File ${item} will be first in ${dirPath}`);
-
-              if (process.platform === 'win32') {
-                ncp(
-                  path.win32.normalize(copiedFiles[idx]),
-                  path.win32.normalize(`${dirPath}${item}`),
-                  function (err) {
-                    if (err) {
-                      return console.error(err);
-                    }
-                    progressBar.value += 1;
-                    if (filesWereCut || deleteSourceFiles) {
-                      // Delete source file here
-                      const sourceDirPath = getSourceDirFromArr(copiedFiles);
-
-                      deleteFile(sourceDirPath + item);
-                      mainWindow.webContents.send('edit-action-complete', {
-                        sourceDirPath,
-                      });
-                    }
-                  }
-                );
-              } else {
-                ncp(copiedFiles[idx], `${dirPath}${item}`, function (err) {
-                  if (err) {
-                    return console.error(err);
-                  }
-                  progressBar.value += 1;
-                  if (filesWereCut || deleteSourceFiles) {
-                    // Delete source file here
-                    const sourceDirPath = getSourceDirFromArr(copiedFiles);
-
-                    deleteFile(sourceDirPath + item);
-                    mainWindow.webContents.send('edit-action-complete', {
-                      sourceDirPath,
-                    });
-                  }
-                });
               }
-            }
-          });
-        }
+            );
+          }
+        });
       });
+
+      // exec(command, (err, stdout, stderr) => {
+      //   console.log('stdout', stdout);
+      //   if (err) {
+      //     console.error('copyPaste module error: ', err);
+      //   } else {
+      //     let namesArray = clearArrayOfStrings(stdout.toString().split('\n'));
+      //     let convNamesArr;
+
+      //     if (process.platform === 'win32') {
+      //       convNamesArr = dirToLs(namesArray);
+      //       outputArray = formDirArrayWin(convNamesArr, dirPath);
+      //     } else {
+      //       outputArray = formDirArrayLinux(namesArray, dirPath);
+      //     }
+
+      //     copiedFilesNames.map((item, idx) => {
+      //       if (
+      //         (process.platform === 'win32' && convNamesArr.includes(item)) ||
+      //         (process.platform !== 'win32' && namesArray.includes(item))
+      //       ) {
+      //         console.log(`File ${item} already exists in ${dirPath}`);
+      //         pasteUnderNewName(copiedFiles[idx], dirPath, () => {
+      //           progressBar.value += 1;
+      //           mainWindow.webContents.send('edit-action-complete', {
+      //             dirPath,
+      //           });
+
+      //           if (filesWereCut || deleteSourceFiles) {
+      //             // Delete source file here
+      //             const sourceDirPath = getSourceDirFromArr(copiedFiles);
+      //             deleteFile(sourceDirPath + item);
+      //             mainWindow.webContents.send('edit-action-complete', {
+      //               sourceDirPath,
+      //             });
+      //           }
+      //         });
+      //       } else {
+      //         console.log(`File ${item} will be first in ${dirPath}`);
+
+      //         if (process.platform === 'win32') {
+      //           ncp(
+      //             path.win32.normalize(copiedFiles[idx]),
+      //             path.win32.normalize(`${dirPath}${item}`),
+      //             function (err) {
+      //               if (err) {
+      //                 return console.error(err);
+      //               }
+      //               progressBar.value += 1;
+      //               if (filesWereCut || deleteSourceFiles) {
+      //                 // Delete source file here
+      //                 const sourceDirPath = getSourceDirFromArr(copiedFiles);
+
+      //                 deleteFile(sourceDirPath + item);
+      //                 mainWindow.webContents.send('edit-action-complete', {
+      //                   sourceDirPath,
+      //                 });
+      //               }
+      //             }
+      //           );
+      //         } else {
+      //           ncp(copiedFiles[idx], `${dirPath}${item}`, function (err) {
+      //             if (err) {
+      //               return console.error(err);
+      //             }
+      //             progressBar.value += 1;
+      //             if (filesWereCut || deleteSourceFiles) {
+      //               // Delete source file here
+      //               const sourceDirPath = getSourceDirFromArr(copiedFiles);
+
+      //               deleteFile(sourceDirPath + item);
+      //               mainWindow.webContents.send('edit-action-complete', {
+      //                 sourceDirPath,
+      //               });
+      //             }
+      //           });
+      //         }
+      //       }
+      //     });
+      //   }
+      // });
     }
   });
 };
