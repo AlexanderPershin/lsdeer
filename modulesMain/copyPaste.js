@@ -1,6 +1,5 @@
 const electron = require('electron');
 const { ipcMain } = electron;
-const { exec } = require('child_process');
 const path = require('path');
 const { ncp } = require('ncp');
 ncp.limit = 16;
@@ -36,7 +35,7 @@ module.exports = (mainWindow) => {
     copiedFiles = [];
     filesWereCut = isCut;
 
-    namesArray.map((name) => copiedFiles.push(dirPath + name));
+    namesArray.map((name) => copiedFiles.push(dirPath + '/' + name));
     if (isCut) {
       console.log('Cut Files ', copiedFiles);
     } else {

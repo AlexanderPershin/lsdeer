@@ -2,6 +2,8 @@ const { exec } = require('child_process');
 const path = require('path');
 
 module.exports = (fullpath) => {
+  console.log('fullpath', fullpath);
+
   const command_win_file = `del "${path.win32.normalize(fullpath)}"`;
   const command_win_dir = `rmdir /S/Q "${path.win32.normalize(fullpath)}"`;
   const command_unix = `rm -r "${fullpath}"`;
