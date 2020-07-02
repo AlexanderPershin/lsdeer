@@ -11,6 +11,8 @@ const formDirArrayLinux = require('../helpersMain/formDirArrayLinux');
 const checkFileAndOpen = require('../helpersMain/checkFileAndOpen');
 const dirToLs = require('../helpersMain/dirToLs');
 
+const listDirectory = require('../helpersMain/listDirectory');
+
 module.exports = (mainWindow) => {
   ipcMain.on('ls-directory', (event, dirPath, tabId) => {
     let command;
@@ -19,40 +21,52 @@ module.exports = (mainWindow) => {
       dirPath
     )}" /o`;
 
-    if (process.platform === 'win32') {
-      command = command_win;
-    } else {
-      command = command_unix;
-    }
-
-    try {
+    listDirectory(dirPath, (dirArray) => {
+      console.log('ls module: listDirectory dirArray:', dirArray);
       const itWasFile = checkFileAndOpen(dirPath);
       if (itWasFile) return;
 
-      exec(command, (err, stdout, stderr) => {
-        if (err) {
-          console.error(err);
-        } else {
-          let outputArray = [];
-
-          const namesArray = clearArrayOfStrings(stdout.toString().split('\n'));
-
-          if (process.platform === 'win32') {
-            const convNamesArr = dirToLs(namesArray);
-            outputArray = formDirArrayWin(convNamesArr, dirPath);
-          } else {
-            outputArray = formDirArrayLinux(namesArray, dirPath);
-          }
-
-          mainWindow.webContents.send('resp-dir', {
-            response: outputArray,
-            tabId,
-            newPath: dirPath,
-          });
-        }
+      mainWindow.webContents.send('resp-dir', {
+        response: dirArray,
+        tabId,
+        newPath: dirPath,
       });
-    } catch (err) {
-      console.log(err);
-    }
+    });
+
+    // if (process.platform === 'win32') {
+    //   command = command_win;
+    // } else {
+    //   command = command_unix;
+    // }
+
+    // try {
+    //   const itWasFile = checkFileAndOpen(dirPath);
+    //   if (itWasFile) return;
+
+    //   exec(command, (err, stdout, stderr) => {
+    //     if (err) {
+    //       console.error(err);
+    //     } else {
+    //       let outputArray = [];
+
+    //       const namesArray = clearArrayOfStrings(stdout.toString().split('\n'));
+
+    //       if (process.platform === 'win32') {
+    //         const convNamesArr = dirToLs(namesArray);
+    //         outputArray = formDirArrayWin(convNamesArr, dirPath);
+    //       } else {
+    //         outputArray = formDirArrayLinux(namesArray, dirPath);
+    //       }
+
+    //       mainWindow.webContents.send('resp-dir', {
+    //         response: outputArray,
+    //         tabId,
+    //         newPath: dirPath,
+    //       });
+    //     }
+    //   });
+    // } catch (err) {
+    //   console.log(err);
+    // }
   });
 };

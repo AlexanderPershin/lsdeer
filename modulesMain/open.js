@@ -4,6 +4,8 @@ const { ipcMain } = electron;
 // Allows to open path: newPath in tab with id: tabId
 module.exports = (mainWindow) => {
   ipcMain.on('open-directory', (event, tabId, newPath, isFile) => {
+    console.log('tabId, newPath, isFile', tabId, newPath, isFile);
+
     mainWindow.webContents.send('directory-opened', {
       tabId,
       newPath,

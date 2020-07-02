@@ -37,7 +37,10 @@ const UpBtn = ({ id, path }) => {
   const dispatch = useDispatch();
 
   const handleGoUp = () => {
-    if (path.length <= 3) {
+    if (
+      (process.platform === 'win32' && path.length <= 2) ||
+      path.length <= 3
+    ) {
       dispatch(closeSearch());
       addTabAndActivate(dispatch);
       dispatch(closeTab(id));
@@ -54,7 +57,7 @@ const UpBtn = ({ id, path }) => {
 
   return (
     <StyledUp onClick={handleGoUp}>
-      <Icon iconName='SortUp' className='ms-IconExample' />
+      <Icon iconName="SortUp" className="ms-IconExample" />
     </StyledUp>
   );
 };

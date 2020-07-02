@@ -78,7 +78,7 @@ const TabItem = ({
 
   const handleOpenDirectory = (e) => {
     const activePath = tabs.filter((item) => item.id === activeTab)[0].path;
-    const newPath = `${activePath}${name}`;
+    const newPath = `${activePath}\/${name}`;
 
     dispatch(clearSelectedFiles());
     ipcRenderer.send('open-directory', activeTab, newPath, isFile);
@@ -107,7 +107,7 @@ const TabItem = ({
       onDoubleClick={handleOpenDirectory}
       sel={selected}
       ref={thisItem}
-      className='TabItem'
+      className="TabItem"
       isCursor={index === cursor}
     >
       {!imageIsBroken && isFile && imageExtensions.includes(ext.substr(1)) ? (
@@ -129,15 +129,13 @@ const TabItem = ({
             size: fileIconSize,
             imageFileType: 'svg',
           })}
-          className='TabItem'
+          className="TabItem"
         />
       )}
-      <StyledName title={name} sel={selected} className='TabItem'>
+      <StyledName title={name} sel={selected} className="TabItem">
         {name && selected && selectedStore.length === 1
-          ? !isFile
-            ? name.slice(0, -1)
-            : name
-          : truncate(!isFile ? name.slice(0, -1) : name, 20)}
+          ? name
+          : truncate(name, 20)}
       </StyledName>
     </StyledItem>
   );
