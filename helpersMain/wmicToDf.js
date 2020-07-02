@@ -2,15 +2,6 @@ var bytes = require('bytes');
 
 const wmicToDf = (inp) => {
   if (!inp) return [];
-  // Input will be:
-  // DeviceID  FreeSpace     Size
-  // C:        897092284416  1000186310656
-  // D:        7696437248    59466838016
-  // E:        55250882560   104855834624
-  // F:        0             55654400
-  // G:        63737741312   395241119744
-  // H:
-  // Output should be: filesystem: "C:", size: "932G", used: "97G", avail: "836G", use: "11%", mounted: "/c", on: undefined
   const inpArr = inp.split('\n');
   let inpArrOfStrings = [];
   inpArrOfStrings = inpArr.map((item, index) => {
@@ -23,7 +14,7 @@ const wmicToDf = (inp) => {
     const size_init = parseInt(itemArr[2]);
     // Remove \r\r file ending on windows
     itemArr.splice(itemArr.length - 1, 1);
-    if (letter && free && size_init) {
+    if (letter && (free || free === 0) && size_init) {
       const filesystem = letter;
       const size = bytes(size_init, { decimalPlaces: 0 });
       const used = bytes(size_init - free, { decimalPlaces: 0 });

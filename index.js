@@ -1,5 +1,5 @@
 const electron = require('electron');
-
+const isDev = require('electron-is-dev');
 const { app, BrowserWindow, dialog } = electron;
 const {
   default: installExtension,
@@ -27,6 +27,19 @@ const requireModules = (mainWindow) => {
   require('./modulesMain/testModule')(mainWindow);
 };
 
+insChromeExtProd = () => {
+  if (isDev) {
+    return;
+  } else {
+    installExtension(REDUX_DEVTOOLS)
+      .then((name) => console.log(`Added Extension:  ${name}`))
+      .catch((err) => console.log('An error occurred: ', err));
+    installExtension(REACT_DEVELOPER_TOOLS)
+      .then((name) => console.log(`Added Extension:  ${name}`))
+      .catch((err) => console.log('An error occurred: ', err));
+  }
+};
+
 const createWindow = () => {
   let mainWindow = new BrowserWindow({
     title: 'lsdeer',
@@ -49,11 +62,15 @@ const createWindow = () => {
   // Require all modules after mainWindow was created
   requireModules(mainWindow);
 
-  mainWindow.webContents.openDevTools();
+  if (isDev) {
+    mainWindow.webContents.openDevTools();
+  }
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show();
   });
+
+  mainWindow.webContents.on('devtools-opened', insChromeExtProd);
 
   //enable garbage collector
   mainWindow.on('closed', () => {
@@ -66,12 +83,16 @@ app.allowRendererProcessReuse = true;
 app.on('ready', createWindow);
 
 app.whenReady().then(() => {
-  installExtension(REDUX_DEVTOOLS)
-    .then((name) => console.log(`Added Extension:  ${name}`))
-    .catch((err) => console.log('An error occurred: ', err));
-  installExtension(REACT_DEVELOPER_TOOLS)
-    .then((name) => console.log(`Added Extension:  ${name}`))
-    .catch((err) => console.log('An error occurred: ', err));
+  if (isDev) {
+    console.log('DEV: installing extensions');
+
+    installExtension(REDUX_DEVTOOLS)
+      .then((name) => console.log(`Added Extension:  ${name}`))
+      .catch((err) => console.log('An error occurred: ', err));
+    installExtension(REACT_DEVELOPER_TOOLS)
+      .then((name) => console.log(`Added Extension:  ${name}`))
+      .catch((err) => console.log('An error occurred: ', err));
+  }
 });
 
 // Image Server
