@@ -253,7 +253,6 @@ function App() {
 
     // TODO: fix bug, here get / on opening /h/ or /d/ drive, /c/ and /e/ open well
     ipcRenderer.on('directory-opened', (event, { tabId, newPath, isFile }) => {
-      console.log('App -> tabId, newPath, isFile', tabId, newPath, isFile);
       if (newPath === 'new-tab-path') {
         return;
       }

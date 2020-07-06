@@ -54,7 +54,7 @@ module.exports = (mainWindow) => {
         // delete all
 
         filenamesArr.map((item) => {
-          deleteFile(`${dirPath}${item}`);
+          deleteFile(path.join(dirPath, item));
 
           return item;
         });

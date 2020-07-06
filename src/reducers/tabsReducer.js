@@ -70,7 +70,6 @@ const tabsReducer = function (state = [], action) {
       return state.map((tab) => {
         if (tab.id === id) {
           const pathArr = newPath.split('/');
-          console.log('tabsReducer -> pathArr', pathArr);
           tab.name =
             pathArr.length === 2 ? newPath : pathArr[pathArr.length - 1];
           tab.path = newPath;
