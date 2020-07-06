@@ -17,6 +17,8 @@ import FindBox from '../FindBox';
 
 import Path from '../Path';
 import UpBtn from '../UpBtn';
+import CreateNewBtn from '../CreateNewBtn';
+import CreateNewModal from '../CreateNewModal';
 
 import TabItemContextMenu from '../TabItemContextMenu';
 
@@ -108,6 +110,7 @@ const TabContent = ({
   const activeTab = useSelector((state) => state.activeTab);
   const cursor = useSelector((state) => state.cursor);
   const { searching, searchString } = useSelector((state) => state.search);
+  const createNewModal = useSelector((state) => state.createNew);
   const dispatch = useDispatch();
 
   const [cursorTouched, setCursorTouched] = useState(false);
@@ -269,6 +272,7 @@ const TabContent = ({
         <StyledNav>
           <UpBtn id={id} path={path} />
           <Path path={path} />
+          <CreateNewBtn />
         </StyledNav>
         <TabItemContextMenu content={content} path={path} id={id}>
           <StyledFiles>
@@ -293,6 +297,7 @@ const TabContent = ({
               )}
             </StyledAutoSizer>
           </StyledFiles>
+          {createNewModal ? <CreateNewModal /> : null}
         </TabItemContextMenu>
 
         {searching ? <FindBox /> : null}

@@ -33,6 +33,13 @@ const template = [
         },
       },
       {
+        label: 'New',
+        accelerator: 'CmdOrCtrl+N',
+        click(e) {
+          ipcRenderer.send('create-file-or-dir');
+        },
+      },
+      {
         label: 'Select All',
         accelerator: 'CmdOrCtrl+A',
         role: 'selectAll',

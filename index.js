@@ -25,6 +25,7 @@ const requireModules = (mainWindow) => {
   require('./modulesMain/favorites')(mainWindow);
   require('./modulesMain/settings')(mainWindow);
   require('./modulesMain/testModule')(mainWindow);
+  require('./modulesMain/newDir')(mainWindow);
 };
 
 insChromeExtProd = () => {

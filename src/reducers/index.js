@@ -10,6 +10,7 @@ import hideInterfaceReducer from './hideInterfaceReducer';
 import toggleSettingsReducer from './toggleSettingsReducer';
 import loadingReducer from './loadingReducer';
 import cursorReducer from './cursorReducer';
+import newFileFolderReducer from './newFileFolderReducer';
 
 const reducers = combineReducers({
   tabs: tabsReducer,
@@ -23,6 +24,7 @@ const reducers = combineReducers({
   showSettings: toggleSettingsReducer,
   loading: loadingReducer,
   cursor: cursorReducer,
+  createNew: newFileFolderReducer,
 });
 
 export default reducers;

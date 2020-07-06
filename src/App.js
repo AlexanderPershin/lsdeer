@@ -20,6 +20,7 @@ import { setSettings } from './actions/settingsActions';
 import { toggleInterface } from './actions/hideInterfaceActions';
 import { toggleSettings } from './actions/toggleSettingsActionis';
 import { startLoading, stopLoading } from './actions/loadingActions';
+import { toggleNewFileFolder } from './actions/newFileFolderActions';
 
 import GlobalStyle from './themes/globalStyle';
 import { initializeFileTypeIcons } from '@uifabric/file-type-icons';
@@ -102,7 +103,6 @@ function App() {
       if (e.which === 67 && e.ctrlKey) {
         // ctrl+c copy to clipboard
         // mainWindow.webContents.send('copy-to-clipboard');
-
         ipcRenderer.send('copy-files');
       }
       if (e.which === 86 && e.ctrlKey) {
@@ -132,6 +132,10 @@ function App() {
       if (e.which === 88 && e.ctrlKey) {
         // ctrl+x = cut selected files
         ipcRenderer.send('copy-files', true);
+      }
+      if (e.which === 78 && e.ctrlKey) {
+        // ctrl+n = create new file/dir
+        ipcRenderer.send('create-file-or-dir');
       }
     };
 
@@ -343,6 +347,11 @@ function App() {
       };
 
       dispatch(addToFav(favoriteTab));
+    });
+
+    ipcRenderer.on('file-or-dir-created', () => {
+      // Show modal to create file/folder
+      dispatch(toggleNewFileFolder());
     });
 
     return () => {
