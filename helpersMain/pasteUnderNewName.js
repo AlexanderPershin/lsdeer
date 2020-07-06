@@ -19,10 +19,9 @@ const pasteUderNewName = (filePath, destDir, callback) => {
   isFile = stats.isFile();
   if (isFile) fileExt = path.extname(filePath);
   fileNameNoExt = path.basename(filePath, fileExt);
-  destPath =
-    process.platform === 'win32'
-      ? `${path.win32.normalize(destDir + '\\' + fileNameNoExt)}(copy-*)*`
-      : `${path.normalize(destDir + '/' + fileNameNoExt)}(copy-*)*`;
+  destPath = `${path.win32.normalize(
+    path.join(destDir, fileNameNoExt)
+  )}(copy-*)*`;
 
   const find_command =
     process.platform === 'win32'
@@ -53,10 +52,9 @@ const pasteUderNewName = (filePath, destDir, callback) => {
 
         const fileNewName = `${fileNameNoExt}(copy-${copyNum})${fileExt}`;
 
-        const destCopyPath =
-          process.platform === 'win32'
-            ? `${path.win32.normalize(destDir + '\\' + fileNewName)}`
-            : `${path.normalize(destDir + '/' + fileNewName)}`;
+        const destCopyPath = `${path.win32.normalize(
+          path.join(destDir, fileNewName)
+        )}`;
 
         fs.copyFile(filePath, `${destCopyPath}`, (err) => {
           if (err) console.log('pasteUnderNewName: Error copying file!');
@@ -90,10 +88,9 @@ const pasteUderNewName = (filePath, destDir, callback) => {
         // actually folder new name
         const fileNewName = `${fileNameNoExt}(copy-${copyNum})`;
 
-        const destCopyPath =
-          process.platform === 'win32'
-            ? `${path.win32.normalize(destDir + '\\' + fileNewName)}`
-            : `${path.normalize(destDir + '/' + fileNewName)}`;
+        const destCopyPath = `${path.normalize(
+          path.join(destDir, fileNewName)
+        )}`;
 
         ncp(
           path.normalize(filePath),
