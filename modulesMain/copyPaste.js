@@ -6,14 +6,9 @@ ncp.limit = 16;
 
 const ProgressBar = require('electron-progressbar');
 
-const { clearArrayOfStrings } = require('../helpersMain/helpers');
-
-const formDirArrayWin = require('../helpersMain/formDirArrayWin');
-const formDirArrayLinux = require('../helpersMain/formDirArrayLinux');
 const pasteUnderNewName = require('../helpersMain/pasteUnderNewName');
 const deleteFile = require('../helpersMain/deleteFile');
 const getSourceDirFromArr = require('../helpersMain/getSourceDirFromArr');
-const dirToLs = require('../helpersMain/dirToLs');
 const listDirectory = require('../helpersMain/listDirectory');
 
 let copiedFiles = [];

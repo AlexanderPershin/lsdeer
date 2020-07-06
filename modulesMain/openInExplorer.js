@@ -1,5 +1,7 @@
 const electron = require('electron');
 const { ipcMain, shell } = electron;
+const path = require('path');
+const fs = require('fs');
 
 const { transfPathForWin } = require('../helpersMain/helpers');
 
@@ -10,22 +12,11 @@ module.exports = (mainWindow) => {
   });
 
   ipcMain.on('open-in-expolorer', (event, fullpath) => {
-    if (fullpath.substr(-1) === '/') {
+    if (!fs.lstatSync(path.normalize(fullpath)).isFile()) {
       // This is folder => open it
-      if (process.platform === 'win32') {
-        const newPath = transfPathForWin(fullpath);
-        shell.openItem(newPath);
-      } else {
-        shell.openItem(fullpath);
-      }
+      shell.openItem(path.normalize(fullpath));
     } else {
-      // This is file => show in explorer
-      if (process.platform === 'win32') {
-        const newPath = transfPathForWin(fullpath);
-        shell.showItemInFolder(newPath);
-      } else {
-        shell.showItemInFolder(fullpath);
-      }
+      shell.showItemInFolder(path.normalize(fullpath));
     }
   });
 };

@@ -50,6 +50,8 @@ import openInNewTab from './helpers/openInNewTab';
 const { remote, ipcRenderer } = window.require('electron');
 const electron = window.require('electron');
 
+const nodePath = remote.require('path');
+
 // Allow access in chrome console for testing
 window.remote = remote;
 window.electron = electron;
@@ -300,7 +302,7 @@ function App() {
 
     ipcRenderer.on('revealed-in-explorer', (event) => {
       selectedStore.map((item) => {
-        const fullpath = tabPath + item;
+        const fullpath = nodePath.join(tabPath, item);
         ipcRenderer.send('open-in-expolorer', fullpath);
         return item;
       });
