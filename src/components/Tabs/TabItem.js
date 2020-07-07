@@ -124,7 +124,7 @@ const TabItem = ({
       ) : (
         <Icon
           {...getFileTypeIconProps({
-            type: isFile && ext ? '' : FileIconType.folder,
+            type: isFile ? '' : FileIconType.folder,
             extension: isFile && ext ? ext : '',
             size: fileIconSize,
             imageFileType: 'svg',

@@ -7,7 +7,6 @@ const fs = require('fs');
 module.exports = (mainWindow) => {
   ipcMain.on('create-file-or-dir', () => {
     mainWindow.webContents.send('file-or-dir-created');
-    console.log('create-file-or-dir event');
   });
 
   ipcMain.on('new-file', (event, dirPath, filename) => {

@@ -49,8 +49,8 @@ const StyledChooseBtns = styled.div`
   display: flex;
   justify-content: flex-start;
   align-items: flex-start;
-  & > *:first-child {
-    margin-right: 5px;
+  & > * + * {
+    margin-left: 5px;
   }
   & > * {
     flex: 0 1 0%;
@@ -103,6 +103,8 @@ const StyledInp = styled.input`
 const CreateNewModal = () => {
   const [createType, setCreateType] = useState('folder');
   const [name, setName] = useState('');
+  const [oneOfManyNames, setOneOfMany] = useState('');
+  const [many, setMany] = useState([]);
 
   const tabs = useSelector((state) => state.tabs);
   const activeTab = useSelector((state) => state.activeTab);
@@ -122,27 +124,48 @@ const CreateNewModal = () => {
     setCreateType('file');
   };
 
+  const handleCreateMany = () => {
+    setCreateType('many');
+  };
+
   const handleConfirm = (e) => {
     dispatch(clearSelectedFiles());
     if (!name || !activeTab) return;
 
     if (createType === 'folder') {
       ipcRenderer.send('new-folder', activeTabObject.path, name);
-    } else {
+    } else if (createType === 'file') {
       ipcRenderer.send('new-file', activeTabObject.path, name);
+    } else {
+      ipcRenderer.send('new-many', activeTabObject, many);
     }
     dispatch(toggleNewFileFolder());
+  };
+
+  const handleAddToOthers = (isFile) => {
+    if (!oneOfManyNames) return;
+    setMany([...many, { name: oneOfManyNames, isFile }]);
   };
 
   const handleCancel = () => {
     dispatch(toggleNewFileFolder());
   };
 
+  const renderMany = () => {
+    return many.map((item, i) => (
+      <li key={item.name + i}>
+        {item.isFile ? 'File ' : 'Folder '} - {item.name}
+      </li>
+    ));
+  };
+
   return (
     <StyledModal>
       <StyledModalContent>
         <StyledCloseBtn iconName="ChromeClose" onClick={handleCancel} />
-        <StyledHeading>Create new {createType}</StyledHeading>
+        <StyledHeading>
+          Create {createType === 'many' ? 'many' : 'new ' + createType}
+        </StyledHeading>
         <StyledChooseBtns>
           <StyledChooseBtn
             onClick={handleCreateFolder}
@@ -156,14 +179,34 @@ const CreateNewModal = () => {
           >
             File
           </StyledChooseBtn>
+          <StyledChooseBtn
+            onClick={handleCreateMany}
+            isSelected={createType === 'many'}
+          >
+            Many
+          </StyledChooseBtn>
         </StyledChooseBtns>
         <StyledInp disabled type="text" defaultValue={activeTabPath} />
-        <StyledInp
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder={`Enter ${createType}\'s name here`}
-        />
+        {createType === 'many' ? (
+          <div>
+            <ul>{renderMany()}</ul>
+            <StyledInp
+              type="text"
+              value={oneOfManyNames}
+              onChange={(e) => setOneOfMany(e.target.value)}
+              placeholder={`Enter item name here`}
+            />
+            <Button onClick={() => handleAddToOthers(true)}>Add File</Button>
+            <Button onClick={() => handleAddToOthers(false)}>Add Folder</Button>
+          </div>
+        ) : (
+          <StyledInp
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder={`Enter ${createType}\'s name here`}
+          />
+        )}
         <StyledMainControls>
           <Button onClick={handleConfirm}>Ok</Button>
           <Button onClick={handleCancel}>Cancel</Button>
