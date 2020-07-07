@@ -102,14 +102,10 @@ const FavoriteItem = ({ id, name, path, isFile, ext, selected }) => {
               size: fileIconSize,
               imageFileType: 'svg',
             })}
-            className='TabItem'
+            className="TabItem"
           />
-          <StyledName title={name} sel={isSelected} className='TabItem'>
-            {name && isSelected
-              ? !isFile
-                ? name.slice(0, -1)
-                : name
-              : truncate(!isFile ? name.slice(0, -1) : name, 20)}
+          <StyledName title={name} sel={isSelected} className="TabItem">
+            {name && isSelected ? name : truncate(name, 20)}
           </StyledName>
         </StyledFavorite>
       </ContextMenuTrigger>

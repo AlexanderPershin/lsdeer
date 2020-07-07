@@ -16,18 +16,15 @@ const expressPort = 15032;
 router.get('/file/:fullpath', async function (req, res) {
   // .ico images not supported by sharp, but were included
   // they'll be sent unchanged, because of small size
-  let filePath =
-    process.platform === 'win32'
-      ? path.win32.normalize(req.params.fullpath)
-      : req.params.fullpath;
+  let filePath = path.win32.normalize(req.params.fullpath);
   let options = { width: 150, height: 100, percentage: 5 };
-
   try {
     const thumbnail = await imageThumbnail(filePath, options);
     res.send(thumbnail);
   } catch (err) {
-    console.error(err, filePath);
+    // console.error(err, filePath);
     // Send full image on error: may be performance demanding
+    console.log('Failed filePath', filePath);
     res.sendFile(filePath);
   }
 });

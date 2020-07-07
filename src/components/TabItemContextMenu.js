@@ -85,7 +85,7 @@ const TabItemContextMenu = ({ id, path, content, children }) => {
       return {
         id: nanoid(),
         name: item,
-        path: `${activePath}${item}`,
+        path: `${activePath}/${item}`,
         isFile: contentObj.isFile,
         ext: contentObj.ext,
       };

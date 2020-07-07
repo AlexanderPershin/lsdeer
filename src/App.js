@@ -135,7 +135,7 @@ function App() {
       }
       if (e.which === 78 && e.ctrlKey) {
         // ctrl+n = create new file/dir
-        ipcRenderer.send('create-file-or-dir');
+        // ipcRenderer.send('create-file-or-dir');
       }
     };
 
@@ -330,6 +330,7 @@ function App() {
     ipcRenderer.on('added-to-favorites', (event, data) => {
       const { tabId } = data;
       let addedTab;
+
       if (tabId) {
         addedTab = tabs.find((item) => item.id === tabId);
       } else {
@@ -339,7 +340,7 @@ function App() {
       if (favorites.find((item) => item.path === addedTab.path)) {
         return;
       }
-
+      console.log('App -> addedTab', addedTab);
       const favoriteTab = {
         id: nanoid() + 'tab',
         name: addedTab.name + '/',
@@ -351,7 +352,10 @@ function App() {
 
     ipcRenderer.on('file-or-dir-created', () => {
       // Show modal to create file/folder
-      dispatch(toggleNewFileFolder());
+      batch(() => {
+        dispatch(clearSelectedFiles());
+        dispatch(toggleNewFileFolder());
+      });
     });
 
     return () => {

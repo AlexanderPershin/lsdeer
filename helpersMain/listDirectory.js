@@ -5,20 +5,18 @@ const naturalCompare = require('natural-compare');
 
 const listDirectory = (dirPath, callback) => {
   try {
-    const pathToRead =
-      process.platform === 'win32'
-        ? path.win32.normalize(dirPath)
-        : path.normalize(dirPath);
+    // const pathToRead = path.normalize(dirPath);
+    const pathToRead = dirPath;
 
     readdir(pathToRead, { withFileTypes: true }, (err, files) => {
-      if (!files) callback([]);
+      if (!files) {
+        callback([]);
+        return;
+      }
 
       let dirArray = files.map((item) => {
         const itemIsFile = item.isFile();
-        const itemPath =
-          process.platform === 'win32'
-            ? path.win32.join(pathToRead, item.name)
-            : path.join(pathToRead, item.name);
+        const itemPath = path.join(pathToRead, item.name);
         const itemExt = path.extname(item.name);
 
         return {
