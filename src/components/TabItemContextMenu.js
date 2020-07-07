@@ -105,6 +105,9 @@ const TabItemContextMenu = ({ id, path, content, children }) => {
   const handleContextPaste = (e) => {
     ipcRenderer.send('paste-files');
   };
+  const handleCreateNew = (e) => {
+    ipcRenderer.send('create-file-or-dir');
+  };
 
   return (
     <React.Fragment>
@@ -117,6 +120,7 @@ const TabItemContextMenu = ({ id, path, content, children }) => {
           <StyledMenuItem onClick={handleContextPaste}>
             Paste <StyledCtxShortcut>ctrl+v</StyledCtxShortcut>
           </StyledMenuItem>
+          <StyledMenuItem onClick={handleCreateNew}>New</StyledMenuItem>
         </ContextMenu>
       ) : (
         <ContextMenu id={id + path}>
@@ -138,6 +142,7 @@ const TabItemContextMenu = ({ id, path, content, children }) => {
           <StyledMenuItem onClick={handleContextOpenInExplorer}>
             Open in explorer
           </StyledMenuItem>
+          <StyledMenuItem onClick={handleCreateNew}>New</StyledMenuItem>
           <StyledMenuItem onClick={handleContextCopy}>
             Copy <StyledCtxShortcut>ctrl+c</StyledCtxShortcut>
           </StyledMenuItem>

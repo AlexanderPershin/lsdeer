@@ -156,7 +156,7 @@ const TabContent = ({
 
     const handleCursor = (e) => {
       if (!'37 38 39 40'.includes(e.which)) return;
-      if (searching) return;
+      if (searching || createNewModal) return;
       setCursorTouched(true);
 
       // Arrows pressed 37,38,39,40
@@ -227,7 +227,15 @@ const TabContent = ({
     return () => {
       window.removeEventListener('keydown', handleCursor);
     };
-  }, [cursor, content, dispatch, currentColCount, gridRef, searching]);
+  }, [
+    cursor,
+    content,
+    dispatch,
+    currentColCount,
+    gridRef,
+    searching,
+    createNewModal,
+  ]);
 
   useEffect(() => {
     if (searching && searchString.trim() !== '') {

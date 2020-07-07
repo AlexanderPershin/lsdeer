@@ -89,6 +89,7 @@ function App() {
   const showSettings = useSelector((state) => state.showSettings);
   const { searching, searchString } = useSelector((state) => state.search);
   const hideInterface = useSelector((state) => state.hideInterface);
+  const createNewModal = useSelector((state) => state.createNew);
   const dispatch = useDispatch();
 
   const currentTheme = { ...defaultTheme, ...settings };
@@ -193,7 +194,7 @@ function App() {
     const tabPath = activeTabObect ? activeTabObect.path : null;
 
     ipcRenderer.on('selected-item-opened', (event) => {
-      if (selectedStore.length === 1 && !searching) {
+      if (selectedStore.length === 1 && !searching && !createNewModal) {
         console.log('App -> searching', searching);
         const activePath = tabs.filter((item) => item.id === activeTab)[0].path;
         const isFile = tabs
@@ -340,7 +341,7 @@ function App() {
       if (favorites.find((item) => item.path === addedTab.path)) {
         return;
       }
-      console.log('App -> addedTab', addedTab);
+
       const favoriteTab = {
         id: nanoid() + 'tab',
         name: addedTab.name + '/',
