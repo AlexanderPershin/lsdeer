@@ -37,6 +37,8 @@ module.exports = (mainWindow) => {
 
         return item;
       });
+
+      mainWindow.webContents.send('refresh-current-tab');
     }
   });
 
@@ -58,6 +60,8 @@ module.exports = (mainWindow) => {
 
           return item;
         });
+
+        mainWindow.webContents.send('refresh-current-tab');
       }
     }
   );

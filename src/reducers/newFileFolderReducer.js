@@ -1,6 +1,6 @@
 import { TOGGLE_NEW_FILE_FOLDER_MODAL } from '../actions/types';
 
-const initialState = false;
+const initialState = true;
 
 const newFileFolderReducer = function (state = initialState, action) {
   switch (action.type) {

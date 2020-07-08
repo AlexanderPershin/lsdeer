@@ -97,6 +97,48 @@ const StyledInp = styled.input`
   padding: 5px;
 `;
 
+const StyledListOfMany = styled.ul`
+  list-style-type: none;
+  max-height: 40vh;
+  width: 100%;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+  align-items: center;
+  & > * + * {
+    margin-top: 5px;
+  }
+  &::-webkit-scrollbar {
+    width: 1rem;
+    background-color: ${({ theme }) => theme.bg.activeTabBg};
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: ${({ theme }) => theme.bg.tabBg};
+    border-left: 2px solid ${({ theme }) => theme.bg.activeTabBg};
+    border-right: 2px solid ${({ theme }) => theme.bg.activeTabBg};
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: ${({ theme }) => theme.bg.scrollbarBg};
+  }
+`;
+
+const StyledOneOfMany = styled.li`
+  background-color: ${({ theme }) => theme.bg.accentBg};
+  width: 100%;
+  padding: 5px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  word-break: break-word;
+  & > * + * {
+    margin-left: 5px;
+  }
+  & > span {
+    flex-grow: 1;
+  }
+`;
+
 // TODO: Add showCreateModal reducer and action
 // add selector here and emit ipcRenderer event on confirmation
 
@@ -105,6 +147,7 @@ const CreateNewModal = () => {
   const [name, setName] = useState('');
   const [oneOfManyNames, setOneOfMany] = useState('');
   const [many, setMany] = useState([]);
+  const [pattern, setPattern] = useState('');
 
   const tabs = useSelector((state) => state.tabs);
   const activeTab = useSelector((state) => state.activeTab);
@@ -128,22 +171,34 @@ const CreateNewModal = () => {
     setCreateType('many');
   };
 
+  const handleCreatePattern = () => {
+    setCreateType('pattern');
+  };
+
   const handleConfirm = (e) => {
     dispatch(clearSelectedFiles());
-    if (!name || !activeTab) return;
+    if (!activeTab) return;
 
     if (createType === 'folder') {
+      if (!name) return;
       ipcRenderer.send('new-folder', activeTabObject.path, name);
     } else if (createType === 'file') {
+      if (!name) return;
       ipcRenderer.send('new-file', activeTabObject.path, name);
-    } else {
-      ipcRenderer.send('new-many', activeTabObject, many);
+    } else if (createType === 'many') {
+      if (many.length === 0) return;
+      ipcRenderer.send('new-many', activeTabObject.path, many);
+    } else if (createType === 'pattern') {
+      if (!pattern) return;
+      ipcRenderer.send('new-pattern', activeTabObject.path, pattern);
     }
     dispatch(toggleNewFileFolder());
   };
 
   const handleAddToOthers = (isFile) => {
     if (!oneOfManyNames) return;
+    const nameExists = many.filter((item) => item.name === oneOfManyNames);
+    if (nameExists && nameExists.length > 0) return;
     setMany([...many, { name: oneOfManyNames, isFile }]);
   };
 
@@ -151,11 +206,72 @@ const CreateNewModal = () => {
     dispatch(toggleNewFileFolder());
   };
 
+  const handleDeleteFromMany = (itemName) => {
+    const newMany = many.filter((item) => item.name !== itemName);
+    setMany(newMany);
+  };
+
+  const renderCreationType = () => {
+    switch (createType) {
+      case 'folder': {
+        return (
+          <StyledInp
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder={`Enter ${createType}\'s name here`}
+          />
+        );
+      }
+      case 'file': {
+        return (
+          <StyledInp
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder={`Enter ${createType}\'s name here`}
+          />
+        );
+      }
+      case 'many': {
+        return (
+          <>
+            <StyledListOfMany>{renderMany()}</StyledListOfMany>
+            <StyledInp
+              type="text"
+              value={oneOfManyNames}
+              onChange={(e) => setOneOfMany(e.target.value)}
+              placeholder={`Enter item name here`}
+            />
+            <div>
+              <Button onClick={() => handleAddToOthers(false)}>
+                Add Folder
+              </Button>
+              <Button onClick={() => handleAddToOthers(true)}>Add File</Button>
+            </div>
+          </>
+        );
+      }
+      case 'pattern': {
+        return <div>Pattern Creation</div>;
+      }
+    }
+  };
+
   const renderMany = () => {
     return many.map((item, i) => (
-      <li key={item.name + i}>
-        {item.isFile ? 'File ' : 'Folder '} - {item.name}
-      </li>
+      <StyledOneOfMany key={item.name}>
+        {item.isFile ? (
+          <Icon iconName="FileCode" />
+        ) : (
+          <Icon iconName="FabricFolder" />
+        )}
+        <span>{item.name}</span>
+        <Icon
+          iconName="Delete"
+          onClick={() => handleDeleteFromMany(item.name)}
+        />
+      </StyledOneOfMany>
     ));
   };
 
@@ -185,28 +301,15 @@ const CreateNewModal = () => {
           >
             Many
           </StyledChooseBtn>
+          <StyledChooseBtn
+            onClick={handleCreatePattern}
+            isSelected={createType === 'pattern'}
+          >
+            Pattern
+          </StyledChooseBtn>
         </StyledChooseBtns>
         <StyledInp disabled type="text" defaultValue={activeTabPath} />
-        {createType === 'many' ? (
-          <div>
-            <ul>{renderMany()}</ul>
-            <StyledInp
-              type="text"
-              value={oneOfManyNames}
-              onChange={(e) => setOneOfMany(e.target.value)}
-              placeholder={`Enter item name here`}
-            />
-            <Button onClick={() => handleAddToOthers(true)}>Add File</Button>
-            <Button onClick={() => handleAddToOthers(false)}>Add Folder</Button>
-          </div>
-        ) : (
-          <StyledInp
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder={`Enter ${createType}\'s name here`}
-          />
-        )}
+        {renderCreationType()}
         <StyledMainControls>
           <Button onClick={handleConfirm}>Ok</Button>
           <Button onClick={handleCancel}>Cancel</Button>

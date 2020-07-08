@@ -313,6 +313,21 @@ function App() {
       });
     });
 
+    ipcRenderer.on('refresh-current-tab', (event) => {
+      // Backend watcher sends this event when files changed in one of the opened directories
+      const refreshTab = tabs.find((item) => item.id === activeTab);
+      const refreshTabPath = refreshTab && refreshTab.path;
+      if (!refreshTabPath || refreshTabPath === 'new-tab-path') return;
+
+      ipcRenderer.send(
+        'open-directory',
+        activeTab,
+        refreshTabPath,
+        false,
+        true
+      );
+    });
+
     ipcRenderer.on('refresh-tab', (event, data) => {
       // Backend watcher sends this event when files changed in one of the opened directories
       const { tabId } = data;
