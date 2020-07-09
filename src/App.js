@@ -7,6 +7,7 @@ import {
   closeTab,
   openDirectory,
   setScroll,
+  setTabProperty,
 } from './actions/tabsActions';
 import { setDrives } from './actions/drivesActions';
 import { setActiveTab } from './actions/activeTabActions';
@@ -224,6 +225,7 @@ function App() {
 
     ipcRenderer.on('selected-deleted', (event) => {
       ipcRenderer.send('remove-directories', tabPath, selectedStore);
+
       dispatch(clearSelectedFiles());
     });
 
@@ -278,6 +280,7 @@ function App() {
       if (!isFile && watchedTab)
         ipcRenderer.send('stop-watching-dir', watchedTab.path, tabId);
     });
+
     ipcRenderer.on('resp-dir', (event, data) => {
       const newContent = data.response;
       const tabId = data.tabId;

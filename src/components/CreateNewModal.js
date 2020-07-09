@@ -9,6 +9,7 @@ import { clearSelectedFiles } from '../actions/selectFilesActions';
 
 import Button from './Button';
 import Heading from './Heading';
+import NumInp from './Inputs/NumInp';
 
 const { ipcRenderer, remote } = window.require('electron');
 const nodePath = remote.require('path');
@@ -148,6 +149,8 @@ const CreateNewModal = () => {
   const [oneOfManyNames, setOneOfMany] = useState('');
   const [many, setMany] = useState([]);
   const [pattern, setPattern] = useState('');
+  const [numPattern, setNumPattern] = useState(1);
+  const [numPatternIsFile, setNumPatternIsFile] = useState(false);
 
   const tabs = useSelector((state) => state.tabs);
   const activeTab = useSelector((state) => state.activeTab);
@@ -190,7 +193,17 @@ const CreateNewModal = () => {
       ipcRenderer.send('new-many', activeTabObject.path, many);
     } else if (createType === 'pattern') {
       if (!pattern) return;
-      ipcRenderer.send('new-pattern', activeTabObject.path, pattern);
+      if (!pattern.includes('[num]')) {
+        alert('Pattern MUST include [num] fragment');
+        return;
+      }
+      ipcRenderer.send(
+        'new-pattern',
+        activeTabObject.path,
+        pattern,
+        numPattern,
+        numPatternIsFile
+      );
     }
     dispatch(toggleNewFileFolder());
   };
@@ -253,7 +266,43 @@ const CreateNewModal = () => {
         );
       }
       case 'pattern': {
-        return <div>Pattern Creation</div>;
+        return (
+          <>
+            <span>[num] - add number</span>
+            <span>[date] - add current date</span>
+            <span>Example: [num]-test-[date]</span>
+            {/* TODO: add flag file/folder to create folders/files in depend on it*/}
+            <StyledInp
+              type="text"
+              value={pattern}
+              onChange={(e) => setPattern(e.target.value)}
+              placeholder={`Enter pattern here`}
+            />
+            <StyledChooseBtns>
+              <StyledChooseBtn
+                onClick={() => setNumPatternIsFile(false)}
+                isSelected={!numPatternIsFile}
+              >
+                Folder
+              </StyledChooseBtn>
+              <StyledChooseBtn
+                onClick={() => setNumPatternIsFile(true)}
+                isSelected={numPatternIsFile}
+              >
+                File
+              </StyledChooseBtn>
+            </StyledChooseBtns>
+            <span>Number of items</span>
+            <NumInp
+              min={1}
+              max={1000}
+              step={1}
+              disabled={false}
+              value={numPattern}
+              handleSetProp={setNumPattern}
+            />
+          </>
+        );
       }
     }
   };

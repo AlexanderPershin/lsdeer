@@ -66,4 +66,48 @@ module.exports = (mainWindow) => {
       console.log('Error creating many folders/files', err);
     }
   });
+
+  ipcMain.on('new-pattern', (event, dirPath, pattern, numOfItems, areFiles) => {
+    console.log(
+      'newDir: dirPath, pattern, numOfItems',
+      dirPath,
+      pattern,
+      numOfItems
+    );
+    // Parce pattern
+    // Loop through numOfItems and create dirs
+    if (!areFiles) {
+      for (let i = 1; i <= numOfItems; i++) {
+        const itemName = pattern
+          .replace('[num]', i)
+          .replace('[date]', new Date().toLocaleDateString());
+        const creationPath = path.join(dirPath, itemName);
+
+        fs.mkdir(creationPath, { recursive: true }, (err) => {
+          if (err) {
+            console.log('newDir module: Error creating file ', creationPath);
+            return;
+          } else {
+            console.log('Folder created: ', creationPath);
+          }
+        });
+      }
+    } else {
+      for (let i = 1; i <= numOfItems; i++) {
+        const itemName = pattern
+          .replace('[num]', i)
+          .replace('[date]', new Date().toLocaleDateString());
+        const creationPath = path.join(dirPath, itemName);
+
+        fs.writeFile(creationPath, '', (err, file) => {
+          if (err) {
+            console.log('newDir module: Error creating file ', creationPath);
+            return;
+          } else {
+            console.log('File created: ', creationPath);
+          }
+        });
+      }
+    }
+  });
 };
