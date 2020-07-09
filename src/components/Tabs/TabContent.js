@@ -19,6 +19,7 @@ import Path from '../Path';
 import UpBtn from '../UpBtn';
 import CreateNewBtn from '../CreateNewBtn';
 import CreateNewModal from '../CreateNewModal';
+import RenameModal from '../RenameModal';
 
 import TabItemContextMenu from '../TabItemContextMenu';
 
@@ -111,6 +112,7 @@ const TabContent = ({
   const cursor = useSelector((state) => state.cursor);
   const { searching, searchString } = useSelector((state) => state.search);
   const createNewModal = useSelector((state) => state.createNew);
+  const renameModal = useSelector((state) => state.rename);
   const dispatch = useDispatch();
 
   const [cursorTouched, setCursorTouched] = useState(false);
@@ -155,8 +157,8 @@ const TabContent = ({
     };
 
     const handleCursor = (e) => {
-      if (!'37 38 39 40'.includes(e.which)) return;
-      if (searching || createNewModal) return;
+      if (![37, 38, 39, 40].includes(e.which)) return;
+      if (searching || createNewModal || renameModal) return;
       setCursorTouched(true);
 
       // Arrows pressed 37,38,39,40
@@ -306,6 +308,7 @@ const TabContent = ({
             </StyledAutoSizer>
           </StyledFiles>
           {createNewModal ? <CreateNewModal /> : null}
+          {renameModal ? <RenameModal /> : null}
         </TabItemContextMenu>
 
         {searching ? <FindBox /> : null}

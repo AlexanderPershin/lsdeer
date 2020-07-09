@@ -79,8 +79,8 @@ module.exports = (mainWindow) => {
     if (!areFiles) {
       for (let i = 1; i <= numOfItems; i++) {
         const itemName = pattern
-          .replace('[num]', i)
-          .replace('[date]', new Date().toLocaleDateString());
+          .replace(/\[num\]/g, i)
+          .replace(/\[date\]/g, new Date().toLocaleDateString());
         const creationPath = path.join(dirPath, itemName);
 
         fs.mkdir(creationPath, { recursive: true }, (err) => {
@@ -95,8 +95,8 @@ module.exports = (mainWindow) => {
     } else {
       for (let i = 1; i <= numOfItems; i++) {
         const itemName = pattern
-          .replace('[num]', i)
-          .replace('[date]', new Date().toLocaleDateString());
+          .replace(/\[num\]/g, i)
+          .replace(/\[date\]/g, new Date().toLocaleDateString());
         const creationPath = path.join(dirPath, itemName);
 
         fs.writeFile(creationPath, '', (err, file) => {

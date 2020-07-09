@@ -26,6 +26,7 @@ const requireModules = (mainWindow) => {
   require('./modulesMain/settings')(mainWindow);
   require('./modulesMain/testModule')(mainWindow);
   require('./modulesMain/newDir')(mainWindow);
+  require('./modulesMain/rename')(mainWindow);
 };
 
 insChromeExtProd = () => {

@@ -324,8 +324,17 @@ const CreateNewModal = () => {
     ));
   };
 
+  const handleReturn = (e) => {
+    if (e.which === 13) {
+      // Return pressed
+      handleConfirm();
+    } else {
+      return;
+    }
+  };
+
   return (
-    <StyledModal>
+    <StyledModal onKeyPress={handleReturn}>
       <StyledModalContent>
         <StyledCloseBtn iconName="ChromeClose" onClick={handleCancel} />
         <StyledHeading>

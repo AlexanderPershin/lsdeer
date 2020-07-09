@@ -62,7 +62,7 @@ const TabItemContextMenu = ({ id, path, content, children }) => {
       const activeTabObect = tabs.filter((item) => item.id === activeTab)[0];
       const tabPath = activeTabObect ? getLinuxPath(activeTabObect.path) : null;
       const isFile = content.find((item) => item.name === name).isFile;
-      const pathNew = tabPath + name;
+      const pathNew = tabPath + '/' + name;
       openInNewTab(name, pathNew, isFile, dispatch);
     } else {
       return;
@@ -105,8 +105,26 @@ const TabItemContextMenu = ({ id, path, content, children }) => {
   const handleContextPaste = (e) => {
     ipcRenderer.send('paste-files');
   };
+
   const handleCreateNew = (e) => {
     ipcRenderer.send('create-file-or-dir');
+  };
+
+  const handleRename = (e) => {
+    ipcRenderer.send('trigger-rename-selected');
+  };
+
+  const checkIfSelectedIsFile = () => {
+    try {
+      const activeTabObect = tabs.filter((item) => item.id === activeTab)[0];
+      const selectedItem = activeTabObect.content.find(
+        (item) => item.name === selectedStore[0]
+      );
+      return selectedItem.isFile;
+    } catch (err) {
+      console.log('Error getting info about file');
+      return true;
+    }
   };
 
   return (
@@ -132,7 +150,8 @@ const TabItemContextMenu = ({ id, path, content, children }) => {
               <StyledMenuItem onClick={handleOpenSelectedItem}>
                 Open
               </StyledMenuItem>
-              {selectedStore[0].substr(-1, 1) === '/' && (
+              <StyledMenuItem onClick={handleRename}>Rename</StyledMenuItem>
+              {!checkIfSelectedIsFile() && (
                 <StyledMenuItem onClick={handleContextOpenInNewTab}>
                   Open in new tab
                 </StyledMenuItem>

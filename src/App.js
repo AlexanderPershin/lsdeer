@@ -22,6 +22,7 @@ import { toggleInterface } from './actions/hideInterfaceActions';
 import { toggleSettings } from './actions/toggleSettingsActionis';
 import { startLoading, stopLoading } from './actions/loadingActions';
 import { toggleNewFileFolder } from './actions/newFileFolderActions';
+import { toggleRenameModal } from './actions/renameActions';
 
 import GlobalStyle from './themes/globalStyle';
 import { initializeFileTypeIcons } from '@uifabric/file-type-icons';
@@ -91,6 +92,7 @@ function App() {
   const { searching, searchString } = useSelector((state) => state.search);
   const hideInterface = useSelector((state) => state.hideInterface);
   const createNewModal = useSelector((state) => state.createNew);
+  const renameModal = useSelector((state) => state.rename);
   const dispatch = useDispatch();
 
   const currentTheme = { ...defaultTheme, ...settings };
@@ -195,13 +197,17 @@ function App() {
     const tabPath = activeTabObect ? activeTabObect.path : null;
 
     ipcRenderer.on('selected-item-opened', (event) => {
-      if (selectedStore.length === 1 && !searching && !createNewModal) {
-        console.log('App -> searching', searching);
+      if (
+        selectedStore.length === 1 &&
+        !searching &&
+        !createNewModal &&
+        !renameModal
+      ) {
         const activePath = tabs.filter((item) => item.id === activeTab)[0].path;
         const isFile = tabs
           .find((item) => item.id === activeTab)
           .content.find((item) => item.name === selectedStore[0]).isFile;
-        const newPath = `${activePath}${selectedStore[0]}`;
+        const newPath = `${activePath}/${selectedStore[0]}`;
 
         if (isFile) {
           ipcRenderer.send('open-directory', activeTab, newPath, isFile);
@@ -377,6 +383,12 @@ function App() {
       });
     });
 
+    ipcRenderer.on('rename-selected', () => {
+      // Show modal to rename current file/folder
+      if (selectedStore.length === 0) return;
+      dispatch(toggleRenameModal());
+    });
+
     return () => {
       ipcRenderer.removeAllListeners();
     };
@@ -389,6 +401,8 @@ function App() {
     selectedStore,
     settings,
     tabs,
+    renameModal,
+    createNewModal,
   ]);
 
   const addNewTab = () => {

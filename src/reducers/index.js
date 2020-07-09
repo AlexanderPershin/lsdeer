@@ -11,6 +11,7 @@ import toggleSettingsReducer from './toggleSettingsReducer';
 import loadingReducer from './loadingReducer';
 import cursorReducer from './cursorReducer';
 import newFileFolderReducer from './newFileFolderReducer';
+import renameReducer from './renameReducer';
 
 const reducers = combineReducers({
   tabs: tabsReducer,
@@ -25,6 +26,7 @@ const reducers = combineReducers({
   loading: loadingReducer,
   cursor: cursorReducer,
   createNew: newFileFolderReducer,
+  rename: renameReducer,
 });
 
 export default reducers;

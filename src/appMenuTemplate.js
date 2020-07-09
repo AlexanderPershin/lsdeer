@@ -85,6 +85,13 @@ const template = [
         },
       },
       {
+        label: 'Rename',
+        accelerator: 'CmdOrCtrl+E',
+        click(e) {
+          ipcRenderer.send('trigger-rename-selected');
+        },
+      },
+      {
         label: 'Add to favorites',
         accelerator: 'CmdOrCtrl+B',
         click() {
