@@ -26,10 +26,24 @@ module.exports = (mainWindow) => {
     console.log('dirPath, fileNames, pattern', dirPath, fileNames, pattern);
     for (let i = 0; i < fileNames.length; i++) {
       const oldPath = path.join(dirPath, fileNames[i]);
-      const newFileName = pattern
+      // Check if file
+      let fileName = fileNames[i];
+      let ext = '';
+      const isFile = fs.lstatSync(oldPath).isFile();
+
+      if (isFile) {
+        ext = path.extname(fileName);
+        fileName = fileName.replace(ext, '');
+      }
+
+      let newFileName = pattern
         .replace(/\[num\]/g, i + 1)
-        .replace(/\[name\]/g, fileNames[i])
+        .replace(/\[name\]/g, fileName)
         .replace(/\[date\]/g, new Date().toLocaleDateString());
+
+      if (isFile && ext) {
+        newFileName = newFileName + ext;
+      }
       const newPath = path.join(dirPath, newFileName);
 
       fs.rename(oldPath, newPath, (err) => {
