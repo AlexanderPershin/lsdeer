@@ -201,6 +201,18 @@ const RenameModal = () => {
     }
   };
 
+  const handleNameInpChange = (e) => {
+    let newVal = e.target.value;
+    newVal = newVal.replace(/(\\|\/|\:|\*|\?|\"|\<|\>|\|)/g, '');
+    setName(newVal);
+  };
+
+  const handlePatternInpChange = (e) => {
+    let newVal = e.target.value;
+    newVal = newVal.replace(/(\\|\/|\:|\*|\?|\"|\<|\>|\|)/g, '');
+    setPattern(newVal);
+  };
+
   return (
     <StyledModal onKeyPress={handleReturn}>
       <StyledModalContent>
@@ -211,7 +223,7 @@ const RenameModal = () => {
           <StyledInp
             type="text"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={handleNameInpChange}
             placeholder={`Enter new name here`}
           />
         ) : (
@@ -228,7 +240,7 @@ const RenameModal = () => {
             <StyledInp
               type="text"
               value={pattern}
-              onChange={(e) => setPattern(e.target.value)}
+              onChange={handlePatternInpChange}
               placeholder={`Enter pattern here`}
             />
             <span>Starting</span>

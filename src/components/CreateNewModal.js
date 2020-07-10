@@ -259,6 +259,24 @@ const CreateNewModal = () => {
     setMany(newMany);
   };
 
+  const handleNameChange = (e) => {
+    let newVal = e.target.value;
+    newVal = newVal.replace(/(\\|\/|\:|\*|\?|\"|\<|\>|\|)/g, '');
+    setName(newVal);
+  };
+
+  const handleNameOneOfMany = (e) => {
+    let newVal = e.target.value;
+    newVal = newVal.replace(/(\\|\/|\:|\*|\?|\"|\<|\>|\|)/g, '');
+    setOneOfMany(newVal);
+  };
+
+  const handlePatternString = (e) => {
+    let newVal = e.target.value;
+    newVal = newVal.replace(/(\\|\/|\:|\*|\?|\"|\<|\>|\|)/g, '');
+    setPattern(newVal);
+  };
+
   const renderCreationType = () => {
     switch (createType) {
       case 'folder': {
@@ -266,7 +284,7 @@ const CreateNewModal = () => {
           <StyledInp
             type="text"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={handleNameChange}
             placeholder={`Enter ${createType}\'s name here`}
           />
         );
@@ -276,7 +294,7 @@ const CreateNewModal = () => {
           <StyledInp
             type="text"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={handleNameChange}
             placeholder={`Enter ${createType}\'s name here`}
           />
         );
@@ -288,7 +306,7 @@ const CreateNewModal = () => {
             <StyledInp
               type="text"
               value={oneOfManyNames}
-              onChange={(e) => setOneOfMany(e.target.value)}
+              onChange={handleNameOneOfMany}
               placeholder={`Enter item name here`}
             />
             <StyledManyControls>
@@ -314,7 +332,7 @@ const CreateNewModal = () => {
             <StyledInp
               type="text"
               value={pattern}
-              onChange={(e) => setPattern(e.target.value)}
+              onChange={handlePatternString}
               placeholder={`Enter pattern here`}
             />
             <StyledChooseBtns>
