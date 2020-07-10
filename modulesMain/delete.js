@@ -60,9 +60,8 @@ module.exports = (mainWindow) => {
 
           return item;
         });
-
-        mainWindow.webContents.send('refresh-current-tab');
       }
+      mainWindow.webContents.send('refresh-current-tab');
     }
   );
 };

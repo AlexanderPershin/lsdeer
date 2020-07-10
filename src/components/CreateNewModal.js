@@ -228,7 +228,6 @@ const CreateNewModal = () => {
     } else if (createType === 'pattern') {
       if (!pattern) return;
       if (!pattern.includes('[num]')) {
-        alert('Pattern MUST include [num] fragment');
         return;
       }
       ipcRenderer.send(

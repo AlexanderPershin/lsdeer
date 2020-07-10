@@ -161,7 +161,6 @@ const RenameModal = () => {
       ipcRenderer.send('rename', activeTabPath, selectedStore[0], name);
     } else if (selectedStore.length > 1) {
       if (!pattern.includes('[num]') && !pattern.includes('[name]')) {
-        alert('Pattern MUST include [num] or [name] fragment');
         return;
       }
       ipcRenderer.send(
