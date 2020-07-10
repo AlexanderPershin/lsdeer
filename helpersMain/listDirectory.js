@@ -5,8 +5,13 @@ const naturalCompare = require('natural-compare');
 
 const listDirectory = (dirPath, callback) => {
   try {
-    // const pathToRead = path.normalize(dirPath);
-    const pathToRead = dirPath;
+    // const pathToRead = path.normalize(dirPath); // - result C:. for win32
+    let pathToRead = dirPath;
+
+    if (process.platform === 'win32' && dirPath.substr(-1, 1) === ':') {
+      // Normalization works properly when add / to drive letter, result is C:\\
+      pathToRead = path.win32.normalize(dirPath + '/');
+    }
 
     readdir(pathToRead, { withFileTypes: true }, (err, files) => {
       if (!files) {
