@@ -140,8 +140,41 @@ const StyledOneOfMany = styled.li`
   }
 `;
 
-// TODO: Add showCreateModal reducer and action
-// add selector here and emit ipcRenderer event on confirmation
+const StyledManyControls = styled.div`
+  & > * + * {
+    margin-left: 5px;
+  }
+`;
+
+const StyledNumInputsWrapper = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  align-items: stretch;
+  width: 100%;
+  & > * + * {
+    margin-left: 7.5px;
+  }
+`;
+
+const StyledSpoiler = styled.details`
+  width: 100%;
+`;
+
+const StyledSpoilerSummary = styled.summary`
+  cursor: pointer;
+  &:focus {
+    outline: 1px solid ${({ theme }) => theme.bg.selectedBg};
+  }
+`;
+const StyledSpoilerContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  & > * + * {
+    margin-top: 5px;
+  }
+`;
 
 const CreateNewModal = () => {
   const [createType, setCreateType] = useState('folder');
@@ -150,6 +183,7 @@ const CreateNewModal = () => {
   const [many, setMany] = useState([]);
   const [pattern, setPattern] = useState('');
   const [numPattern, setNumPattern] = useState(1);
+  const [patternStartingNum, setPatternStartingNum] = useState(1);
   const [numPatternIsFile, setNumPatternIsFile] = useState(false);
 
   const tabs = useSelector((state) => state.tabs);
@@ -202,6 +236,7 @@ const CreateNewModal = () => {
         activeTabObject.path,
         pattern,
         numPattern,
+        patternStartingNum,
         numPatternIsFile
       );
     }
@@ -256,22 +291,26 @@ const CreateNewModal = () => {
               onChange={(e) => setOneOfMany(e.target.value)}
               placeholder={`Enter item name here`}
             />
-            <div>
+            <StyledManyControls>
               <Button onClick={() => handleAddToOthers(false)}>
                 Add Folder
               </Button>
               <Button onClick={() => handleAddToOthers(true)}>Add File</Button>
-            </div>
+            </StyledManyControls>
           </>
         );
       }
       case 'pattern': {
         return (
           <>
-            <span>[num] - add number</span>
-            <span>[date] - add current date</span>
-            <span>Example: [num]-test-[date]</span>
-            {/* TODO: add flag file/folder to create folders/files in depend on it*/}
+            <StyledSpoiler>
+              <StyledSpoilerSummary>Help</StyledSpoilerSummary>
+              <StyledSpoilerContent>
+                <span>[num] - add number</span>
+                <span>[date] - add current date</span>
+                <span>Example: [num]-test-[date]</span>
+              </StyledSpoilerContent>
+            </StyledSpoiler>
             <StyledInp
               type="text"
               value={pattern}
@@ -292,15 +331,30 @@ const CreateNewModal = () => {
                 File
               </StyledChooseBtn>
             </StyledChooseBtns>
-            <span>Number of items</span>
-            <NumInp
-              min={1}
-              max={1000}
-              step={1}
-              disabled={false}
-              value={numPattern}
-              handleSetProp={setNumPattern}
-            />
+            <StyledNumInputsWrapper>
+              <div>
+                <span>Items</span>
+                <NumInp
+                  min={1}
+                  max={10000}
+                  step={1}
+                  disabled={false}
+                  value={numPattern}
+                  handleSetProp={setNumPattern}
+                />
+              </div>
+              <div>
+                <span>Starting</span>
+                <NumInp
+                  min={1}
+                  max={10000}
+                  step={1}
+                  disabled={false}
+                  value={patternStartingNum}
+                  handleSetProp={setPatternStartingNum}
+                />
+              </div>
+            </StyledNumInputsWrapper>
           </>
         );
       }

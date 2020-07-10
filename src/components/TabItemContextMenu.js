@@ -148,9 +148,8 @@ const TabItemContextMenu = ({ id, path, content, children }) => {
           {selectedStore.length === 1 && (
             <React.Fragment>
               <StyledMenuItem onClick={handleOpenSelectedItem}>
-                Open
+                Open <StyledCtxShortcut>Return</StyledCtxShortcut>
               </StyledMenuItem>
-              <StyledMenuItem onClick={handleRename}>Rename</StyledMenuItem>
               {!checkIfSelectedIsFile() && (
                 <StyledMenuItem onClick={handleContextOpenInNewTab}>
                   Open in new tab
@@ -161,7 +160,12 @@ const TabItemContextMenu = ({ id, path, content, children }) => {
           <StyledMenuItem onClick={handleContextOpenInExplorer}>
             Open in explorer
           </StyledMenuItem>
-          <StyledMenuItem onClick={handleCreateNew}>New</StyledMenuItem>
+          <StyledMenuItem onClick={handleRename}>
+            Rename <StyledCtxShortcut>ctrl+e</StyledCtxShortcut>
+          </StyledMenuItem>
+          <StyledMenuItem onClick={handleCreateNew}>
+            New <StyledCtxShortcut>ctrl+n</StyledCtxShortcut>
+          </StyledMenuItem>
           <StyledMenuItem onClick={handleContextCopy}>
             Copy <StyledCtxShortcut>ctrl+c</StyledCtxShortcut>
           </StyledMenuItem>

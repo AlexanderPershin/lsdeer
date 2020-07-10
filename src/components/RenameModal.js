@@ -117,8 +117,26 @@ const StyledItemName = styled.span`
   }
 `;
 
-// TODO: Add showCreateModal reducer and action
-// add selector here and emit ipcRenderer event on confirmation
+const StyledSpoiler = styled.details`
+  width: 100%;
+`;
+
+const StyledSpoilerSummary = styled.summary`
+  cursor: pointer;
+  &:focus {
+    outline: 1px solid ${({ theme }) => theme.bg.selectedBg};
+  }
+`;
+
+const StyledSpoilerContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  & > * + * {
+    margin-top: 5px;
+  }
+`;
 
 const RenameModal = () => {
   const tabs = useSelector((state) => state.tabs);
@@ -127,6 +145,7 @@ const RenameModal = () => {
   const dispatch = useDispatch();
 
   const [name, setName] = useState(selectedStore[0] || '');
+  const [starting, setStarting] = useState(1);
   const [pattern, setPattern] = useState('');
 
   const activeTabObject = tabs.find((item) => item.id === activeTab);
@@ -141,11 +160,17 @@ const RenameModal = () => {
     if (selectedStore.length === 1) {
       ipcRenderer.send('rename', activeTabPath, selectedStore[0], name);
     } else if (selectedStore.length > 1) {
-      if (!pattern.includes('[num]' || '[name]')) {
+      if (!pattern.includes('[num]') && !pattern.includes('[name]')) {
         alert('Pattern MUST include [num] or [name] fragment');
         return;
       }
-      ipcRenderer.send('rename-many', activeTabPath, selectedStore, pattern);
+      ipcRenderer.send(
+        'rename-many',
+        activeTabPath,
+        selectedStore,
+        pattern,
+        starting
+      );
     }
     dispatch(clearSelectedFiles());
     dispatch(toggleRenameModal());
@@ -191,16 +216,29 @@ const RenameModal = () => {
           />
         ) : (
           <>
-            <span>Enter pattern</span>
-            <span>[num] - add number</span>
-            <span>[date] - add current date</span>
-            <span>[name] - current name of file</span>
-            <span>Example: [num]-[name]-hello-[date]</span>
+            <StyledSpoiler>
+              <StyledSpoilerSummary>Help</StyledSpoilerSummary>
+              <StyledSpoilerContent>
+                <span>[num] - add number</span>
+                <span>[date] - add current date</span>
+                <span>[name] - current name of file</span>
+                <span>Example: [num]-[name]-hello-[date]</span>
+              </StyledSpoilerContent>
+            </StyledSpoiler>
             <StyledInp
               type="text"
               value={pattern}
               onChange={(e) => setPattern(e.target.value)}
               placeholder={`Enter pattern here`}
+            />
+            <span>Starting</span>
+            <NumInp
+              min={1}
+              max={10000}
+              step={1}
+              disabled={false}
+              value={starting}
+              handleSetProp={setStarting}
             />
           </>
         )}
