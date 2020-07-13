@@ -230,12 +230,16 @@ function App() {
     });
 
     ipcRenderer.on('selected-deleted', (event) => {
+      if (createNewModal || renameModal) return;
+
       ipcRenderer.send('remove-directories', tabPath, selectedStore);
 
       dispatch(clearSelectedFiles());
     });
 
     ipcRenderer.on('selected-x-deleted', (event) => {
+      if (createNewModal || renameModal) return;
+
       ipcRenderer.send(
         'remove-directories-permanently',
         tabPath,
