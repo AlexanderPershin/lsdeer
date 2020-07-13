@@ -1,4 +1,9 @@
 # Lsdeer file manager
-![alt text](app_preview.png "lsdeer preveiw")
+
+![preview photo](preview.png 'lsdeer preveiw')
 lsdeer is customisable file manager built with electron and react
-### Clone repo and execute `npm run dev` from the terminal to start app in development mode
+
+### Scripts
+
+- `npm run dev` - run app in development mode
+- `npm run electron-pack` - build an app for current platform
