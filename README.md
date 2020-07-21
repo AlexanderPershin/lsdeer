@@ -1,5 +1,7 @@
 # Lsdeer file manager
 
+Website [https://lsdeer.vercel.app/](https://lsdeer.vercel.app/)
+
 ![preview photo](preview.png 'lsdeer preveiw')
 lsdeer is customisable file manager built with electron and react
 
