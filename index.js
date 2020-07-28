@@ -45,7 +45,7 @@ insChromeExtProd = () => {
 const createWindow = () => {
   let mainWindow = new BrowserWindow({
     title: 'lsdeer',
-    icon: __dirname + '/appAssets/deer-icon.png',
+    icon: __dirname + '/assets/icon.png',
     webPreferences: {
       nodeIntegration: true,
       webSecurity: true,

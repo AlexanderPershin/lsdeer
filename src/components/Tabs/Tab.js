@@ -30,12 +30,14 @@ const StyledTab = styled.div`
     activeTab ? theme.bg.activeTabBg : theme.bg.tabBg};
   position: relative;
   transition: all 0.3s ease-in-out;
-  &:not(:last-child) {
-    border-right: 2px solid ${({ theme }) => theme.bg.appBg};
-  }
+  margin-right: 1px;
+
   &:hover {
     cursor: pointer;
     background-color: ${({ theme }) => theme.bg.selectedBg};
+  }
+  & > i:hover {
+    color: ${({ theme }) => theme.bg.appBarXBtnHover};
   }
 `;
 
@@ -156,16 +158,16 @@ const Tab = ({
         >
           <span>{name === '/' ? 'New' : name}</span>
           {isLocked ? (
-            <StyledTabIcon iconName='LockSolid' />
+            <StyledTabIcon iconName="LockSolid" />
           ) : (
-            <StyledTabIcon iconName='ChromeClose' onClick={closeThisTab} />
+            <StyledTabIcon iconName="ChromeClose" onClick={closeThisTab} />
           )}
         </StyledTab>
       </ContextMenuTrigger>{' '}
       <ContextMenu id={id}>
         {!isLocked && (
           <StyledMenuItem onClick={closeThisTab}>
-            Close <StyledTabIcon iconName='Clear' />
+            Close <StyledTabIcon iconName="Clear" />
           </StyledMenuItem>
         )}
         <StyledMenuItem onClick={toggleLock}>
@@ -173,13 +175,13 @@ const Tab = ({
           <StyledTabIcon iconName={isLocked ? 'UnlockSolid' : 'LockSolid'} />
         </StyledMenuItem>
         <StyledMenuItem onClick={closeRight}>
-          Close to the Right <StyledTabIcon iconName='Broom' />
+          Close to the Right <StyledTabIcon iconName="Broom" />
         </StyledMenuItem>
         <StyledMenuItem onClick={closeOthers}>
-          Close Others <StyledTabIcon iconName='Broom' />
+          Close Others <StyledTabIcon iconName="Broom" />
         </StyledMenuItem>
         <StyledMenuItem onClick={closeAll}>
-          Close All <StyledTabIcon iconName='Broom' />
+          Close All <StyledTabIcon iconName="Broom" />
         </StyledMenuItem>
         <StyledMenuItem onClick={handleOpenInExplorer}>
           Open in Explorer
@@ -187,12 +189,12 @@ const Tab = ({
 
         <MenuItem divider />
         <StyledMenuItem onClick={handleAddToFav}>
-          Add To Favorites <StyledTabIcon iconName='AddFavoriteFill' />
+          Add To Favorites <StyledTabIcon iconName="AddFavoriteFill" />
         </StyledMenuItem>
         {favorites.length > 0 &&
           !!favorites.find((item) => item.path === path) && (
             <StyledMenuItem onClick={handleRemoveFromFav}>
-              Remove From Favorites <StyledTabIcon iconName='Unfavorite' />
+              Remove From Favorites <StyledTabIcon iconName="Unfavorite" />
             </StyledMenuItem>
           )}
         <MenuItem divider />
