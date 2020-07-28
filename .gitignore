@@ -27,3 +27,4 @@ favorites.json
 settings.json
 
 /dist
+electron-builder.yml

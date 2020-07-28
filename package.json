@@ -89,7 +89,7 @@
     "postinstall": "electron-builder install-app-deps",
     "preelectron-pack": "npm run build",
     "electron-pack": "electron-builder -w ",
-    "release": "build"
+    "release": "electron-builder --win --publish=always"
   },
   "eslintConfig": {
     "extends": "react-app"
