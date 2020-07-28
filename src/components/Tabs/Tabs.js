@@ -31,7 +31,6 @@ const Tabs = () => {
   const activeTab = useSelector((state) => state.activeTab);
   const dispatch = useDispatch();
   const tabsRef = useRef(null);
-  const [plusClicked, setPlusClicked] = useState(false);
   const [draggedItem, setDraggedItem] = useState(null);
   const [dragOverItem, setDragOverItem] = useState(null);
 
@@ -90,9 +89,12 @@ const Tabs = () => {
   };
 
   useEffect(() => {
-    if (plusClicked) tabsRef.current.scrollLeft = tabsRef.current.scrollWidth;
-    setPlusClicked(false);
-  }, [plusClicked, tabs]);
+    const currentTabIdx = tabs.findIndex((i) => i.id === activeTab);
+
+    if (currentTabIdx === tabs.length - 1) {
+      tabsRef.current.scrollLeft = tabsRef.current.scrollWidth;
+    }
+  }, [tabs, activeTab]);
 
   useEffect(() => {
     dispatch(clearSelectedFiles());
@@ -101,7 +103,7 @@ const Tabs = () => {
   return (
     <TabsContainer ref={tabsRef} onWheel={handleScrollTabs}>
       {renderTabs()}
-      {tabs.length === 0 ? null : <PlusTab setPlusClicked={setPlusClicked} />}
+      {tabs.length === 0 ? null : <PlusTab />}
     </TabsContainer>
   );
 };

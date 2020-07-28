@@ -34,7 +34,7 @@ const StyledTabIcon = styled(Icon)`
   font-size: 70%;
 `;
 
-const PlusTab = ({ setPlusClicked }) => {
+const PlusTab = () => {
   const tabs = useSelector((state) => state.tabs);
   const dispatch = useDispatch();
 
