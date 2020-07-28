@@ -35,10 +35,11 @@ const defaultTheme = {
   sizes: {
     navHeight: '35px',
     focusOutlineWidth: '2px',
-    rowHeight: 150,
+    rowHeight: 200,
     colWidth: 150,
     fileIconSize: 96,
     favPageSize: 50,
+    itemNameTrunc: 30,
   },
   shadows: {
     menuShadowColor: 'rgba(0,0,0,0.5)',

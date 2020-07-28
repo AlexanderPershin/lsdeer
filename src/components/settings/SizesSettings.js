@@ -88,7 +88,7 @@ const SizesSettings = ({ handleSetProp }) => {
         }
       />
 
-      <span title='Performance warning!'>Favorites page size</span>
+      <span title="Performance warning!">Favorites page size</span>
       <NumInp
         min={1}
         max={300}
@@ -97,6 +97,18 @@ const SizesSettings = ({ handleSetProp }) => {
         value={themeContext.sizes.favPageSize}
         handleSetProp={(newVal) =>
           handleSetProp(false, 'sizes', 'favPageSize', newVal)
+        }
+      />
+
+      <span title="Performance warning!">Filename truncate width</span>
+      <NumInp
+        min={1}
+        max={300}
+        step={1}
+        disabled={false}
+        value={themeContext.sizes.itemNameTrunc}
+        handleSetProp={(newVal) =>
+          handleSetProp(false, 'sizes', 'itemNameTrunc', newVal)
         }
       />
     </StyledInputsWrapper>

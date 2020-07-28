@@ -134,7 +134,7 @@ const TabItem = ({
       <StyledName title={name} sel={selected} className="TabItem">
         {name && selected && selectedStore.length === 1
           ? name
-          : truncate(name, 20)}
+          : truncate(name, themeContext.sizes.itemNameTrunc)}
       </StyledName>
     </StyledItem>
   );
