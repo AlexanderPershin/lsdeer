@@ -393,6 +393,10 @@ function App() {
       dispatch(toggleRenameModal());
     });
 
+    ipcRenderer.on('message', (event, data) => {
+      console.log('App -> data', data);
+    });
+
     return () => {
       ipcRenderer.removeAllListeners();
     };

@@ -49,6 +49,7 @@
     "electron-react-devtools": "^0.5.3",
     "electron-redux-devtools": "^0.3.4",
     "electron-store": "^5.1.1",
+    "electron-updater": "^4.3.4",
     "electronbar": "^1.3.4",
     "express": "^4.17.1",
     "fix-path": "^3.0.0",
@@ -71,8 +72,7 @@
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
     "styled-components": "^5.1.0",
-    "styled-spinkit": "^1.1.0",
-    "update-electron-app": "^1.5.0"
+    "styled-spinkit": "^1.1.0"
   },
   "scripts": {
     "start": "react-scripts start",

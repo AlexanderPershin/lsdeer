@@ -1,14 +1,13 @@
 const electron = require('electron');
 const isDev = require('electron-is-dev');
 const { app, BrowserWindow, dialog } = electron;
+const { autoUpdater } = require('electron-updater');
 const {
   default: installExtension,
   REACT_DEVELOPER_TOOLS,
   REDUX_DEVTOOLS,
 } = require('electron-devtools-installer');
 const fixPath = require('fix-path');
-
-require('update-electron-app')();
 
 fixPath();
 
@@ -29,6 +28,7 @@ const requireModules = (mainWindow) => {
   require('./modulesMain/testModule')(mainWindow);
   require('./modulesMain/newDir')(mainWindow);
   require('./modulesMain/rename')(mainWindow);
+  require('./modulesMain/update')(mainWindow);
 };
 
 insChromeExtProd = () => {
