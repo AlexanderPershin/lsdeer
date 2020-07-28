@@ -52,12 +52,13 @@ const tabsReducer = function (state = [], action) {
       const { id, newPath, newContent, name } = action.payload;
       return state.map((tab) => {
         if (tab.id === id) {
-          const pathArr = newPath.split('/');
-          tab.name = name
-            ? name
-            : pathArr.length === 2
-            ? newPath
-            : pathArr[pathArr.length - 2];
+          const newName =
+            name ||
+            newPath
+              .split('/')
+              .filter((i) => i)
+              .pop();
+          tab.name = newName;
           tab.path = newPath;
           tab.content = newContent;
           delete tab.createNew;
@@ -69,9 +70,11 @@ const tabsReducer = function (state = [], action) {
       const { id, newPath, newContent } = action.payload;
       return state.map((tab) => {
         if (tab.id === id) {
-          const pathArr = newPath.split('/');
-          tab.name =
-            pathArr.length === 2 ? newPath : pathArr[pathArr.length - 1];
+          const newName = newPath
+            .split('/')
+            .filter((i) => i)
+            .pop();
+          tab.name = newName;
           tab.path = newPath;
           tab.content = newContent;
           delete tab.createNew;
