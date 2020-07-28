@@ -8,6 +8,8 @@ const {
 } = require('electron-devtools-installer');
 const fixPath = require('fix-path');
 
+require('update-electron-app')();
+
 fixPath();
 
 const requireModules = (mainWindow) => {

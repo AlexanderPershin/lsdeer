@@ -8,6 +8,7 @@
     "name": "Alexander Pershin"
   },
   "description": "lsdeer - file manager",
+  "repository": "https://github.com/AlexanderPershin/lsdeer",
   "build": {
     "extends": null,
     "appId": "com.electron.lsdeer",
@@ -70,7 +71,8 @@
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
     "styled-components": "^5.1.0",
-    "styled-spinkit": "^1.1.0"
+    "styled-spinkit": "^1.1.0",
+    "update-electron-app": "^1.5.0"
   },
   "scripts": {
     "start": "react-scripts start",
