@@ -18,7 +18,6 @@ const StyledTab = styled.div`
     pulse ? 'pulse 1s ease-out infinite' : 'none'};
   transition: all 0.3s ease-in-out;
   &:hover {
-    cursor: pointer;
     background-color: ${({ theme }) => theme.bg.selectedBg};
   }
   @keyframes pulse {
@@ -44,7 +43,7 @@ const PlusTab = ({ setPlusClicked }) => {
       onClick={() => addTabAndActivate(dispatch)}
       pulse={tabs.length === 0}
     >
-      <StyledTabIcon iconName='Add' />
+      <StyledTabIcon iconName="Add" />
     </StyledTab>
   );
 };

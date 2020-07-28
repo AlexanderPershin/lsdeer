@@ -33,7 +33,6 @@ const StyledTab = styled.div`
   margin-right: 1px;
 
   &:hover {
-    cursor: pointer;
     background-color: ${({ theme }) => theme.bg.selectedBg};
   }
   & > i:hover {

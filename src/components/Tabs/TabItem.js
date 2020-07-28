@@ -20,7 +20,6 @@ const StyledItem = styled.button`
     sel ? theme.bg.selectedBg : 'transparent'};
   z-index: ${({ sel }) => (sel ? 10 : 5)};
   user-select: none;
-  cursor: pointer;
   position: relative;
   padding: 5px;
   outline: ${({ isCursor, theme }) =>

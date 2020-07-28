@@ -20,9 +20,6 @@ const StyledDriveWrapper = styled.button`
       ${({ theme }) => theme.bg.selectedBg};
     background-color: ${({ theme }) => theme.bg.selectedBg};
   }
-  &:hover {
-    cursor: pointer;
-  }
 `;
 
 const StyledProgress = styled.div`

@@ -19,7 +19,6 @@ const StyledFavorite = styled.button`
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  cursor: pointer;
   background-color: transparent;
   border: none;
   font-size: inherit;
