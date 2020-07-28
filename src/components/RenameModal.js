@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 
@@ -148,6 +148,9 @@ const RenameModal = () => {
   const [starting, setStarting] = useState(1);
   const [pattern, setPattern] = useState('');
 
+  const nameInpRef = useRef(null);
+  const patternInpRef = useRef(null);
+
   const activeTabObject = tabs.find((item) => item.id === activeTab);
   const activeTabPath =
     activeTabObject.path.length <= 2
@@ -212,6 +215,16 @@ const RenameModal = () => {
     setPattern(newVal);
   };
 
+  useEffect(() => {
+    try {
+      if (selectedStore.length === 1) {
+        nameInpRef.current.focus();
+      } else if (selectedStore.length > 1) {
+        patternInpRef.current.focus();
+      }
+    } catch (error) {}
+  }, [selectedStore, selectedStore.length]);
+
   return (
     <StyledModal onKeyPress={handleReturn}>
       <StyledModalContent>
@@ -221,6 +234,8 @@ const RenameModal = () => {
         {selectedStore.length === 1 ? (
           <StyledInp
             type="text"
+            ref={nameInpRef}
+            autoFocus
             value={name}
             onChange={handleNameInpChange}
             placeholder={`Enter new name here`}
@@ -238,6 +253,8 @@ const RenameModal = () => {
             </StyledSpoiler>
             <StyledInp
               type="text"
+              ref={patternInpRef}
+              autoFocus
               value={pattern}
               onChange={handlePatternInpChange}
               placeholder={`Enter pattern here`}

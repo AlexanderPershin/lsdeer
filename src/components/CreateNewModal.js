@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 
@@ -186,6 +186,11 @@ const CreateNewModal = () => {
   const [patternStartingNum, setPatternStartingNum] = useState(1);
   const [numPatternIsFile, setNumPatternIsFile] = useState(false);
 
+  const folderInpRef = useRef(null);
+  const fileInpRef = useRef(null);
+  const manyInpRef = useRef(null);
+  const patternInpRef = useRef(null);
+
   const tabs = useSelector((state) => state.tabs);
   const activeTab = useSelector((state) => state.activeTab);
   const dispatch = useDispatch();
@@ -281,6 +286,8 @@ const CreateNewModal = () => {
       case 'folder': {
         return (
           <StyledInp
+            ref={folderInpRef}
+            autoFocus
             type="text"
             value={name}
             onChange={handleNameChange}
@@ -291,6 +298,8 @@ const CreateNewModal = () => {
       case 'file': {
         return (
           <StyledInp
+            ref={fileInpRef}
+            autoFocus
             type="text"
             value={name}
             onChange={handleNameChange}
@@ -303,6 +312,8 @@ const CreateNewModal = () => {
           <>
             <StyledListOfMany>{renderMany()}</StyledListOfMany>
             <StyledInp
+              ref={manyInpRef}
+              autoFocus
               type="text"
               value={oneOfManyNames}
               onChange={handleNameOneOfMany}
@@ -329,6 +340,7 @@ const CreateNewModal = () => {
               </StyledSpoilerContent>
             </StyledSpoiler>
             <StyledInp
+              ref={patternInpRef}
               type="text"
               value={pattern}
               onChange={handlePatternString}
@@ -403,6 +415,22 @@ const CreateNewModal = () => {
       return;
     }
   };
+
+  useEffect(() => {
+    try {
+      if (createType === 'folder') {
+        folderInpRef.current.focus();
+      } else if (createType === 'file') {
+        fileInpRef.current.focus();
+      } else if (createType === 'many') {
+        manyInpRef.current.focus();
+      } else if (createType === 'pattern') {
+        patternInpRef.current.focus();
+      }
+    } catch (err) {
+      console.log('Cannot focus createNew modal input');
+    }
+  }, [createType]);
 
   return (
     <StyledModal onKeyPress={handleReturn}>
