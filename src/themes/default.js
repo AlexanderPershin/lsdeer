@@ -40,6 +40,7 @@ const defaultTheme = {
     fileIconSize: 96,
     favPageSize: 50,
     itemNameTrunc: 30,
+    tabNameTrunc: 15,
   },
   shadows: {
     menuShadowColor: 'rgba(0,0,0,0.5)',

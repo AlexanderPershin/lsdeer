@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   closeTab,
@@ -12,7 +12,7 @@ import { setTabs } from '../../actions/tabsActions';
 import { MenuItem, ContextMenuTrigger } from 'react-contextmenu';
 import ContextMenu from '../ContextMenu';
 import { Icon } from '@fluentui/react/lib/Icon';
-import styled from 'styled-components';
+import styled, { ThemeContext } from 'styled-components';
 
 const { ipcRenderer } = window.require('electron');
 
@@ -56,6 +56,9 @@ const StyledTabIcon = styled(Icon)`
   margin-left: 10px;
 `;
 
+const truncate = (input, num) =>
+  input.length > num ? `${input.substring(0, num)}...` : input;
+
 const Tab = ({
   id,
   name,
@@ -69,6 +72,8 @@ const Tab = ({
   const tabs = useSelector((state) => state.tabs);
   const favorites = useSelector((state) => state.favorites);
   const dispatch = useDispatch();
+
+  const themeContext = useContext(ThemeContext);
 
   const currentTab = tabs.find((item) => item.id === id);
   const { isLocked } = currentTab;
@@ -155,7 +160,11 @@ const Tab = ({
           onClick={setActive}
           overThis={tabs.findIndex((item) => item.id === id) === dragOverIndex}
         >
-          <span>{name === '/' ? 'New' : name}</span>
+          <span>
+            {name === '/'
+              ? 'New'
+              : truncate(name, themeContext.sizes.tabNameTrunc)}
+          </span>
           {isLocked ? (
             <StyledTabIcon iconName="LockSolid" />
           ) : (
